@@ -1,0 +1,7 @@
+/*
+  X-Frame-Options: SAMEORIGIN
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: camera=(), microphone=(), geolocation=()
+  # Note: no Cross-Origin-Opener-Policy header — COOP: same-origin would break
+  # PayPal/Ziina popup checkout, so we deliberately omit it.

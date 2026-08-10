@@ -1,5 +1,5 @@
 /* =========================================================================
-   DN STORE — TRACKING LAYER (tracking.js)
+   BIN SALEH STORE — TRACKING LAYER (tracking.js)
    ---------------------------------------------------------------------
    Frontend-only tracking utilities for Meta Pixel (Facebook/Instagram)
    and TikTok Pixel.

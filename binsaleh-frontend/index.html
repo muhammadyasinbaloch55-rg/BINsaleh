@@ -2,7 +2,20 @@
 <html lang="en" data-lang="en">
 <head>
   <meta charset="UTF-8" />
+  <script>
+  (function(){try{var p=JSON.parse(localStorage.getItem('dn_pixel_settings')||'null');if(p){window.__META_PIXEL_ID=(p.fb&&p.fb.enabled&&p.fb.pixelId)?p.fb.pixelId:'';window.__TIKTOK_PIXEL_ID=(p.tiktok&&p.tiktok.enabled&&p.tiktok.pixelId)?p.tiktok.pixelId:'';}}catch(e){window.__META_PIXEL_ID='';window.__TIKTOK_PIXEL_ID='';}})();
+  </script>
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="description" content="BIN SALEH Store — UAE premium fashion destination. Shop tops, bottoms, tracksuits, footwear, fragrances & accessories with nationwide delivery and COD available."/>
+  <link rel="canonical" href="https://www.binsaleh.com/index.html"/>
+  <meta property="og:type" content="website"/>
+  <meta property="og:site_name" content="BIN SALEH Store"/>
+  <meta property="og:title" content="BIN SALEH Store – Your Style, Your Statement"/>
+  <meta property="og:description" content="BIN SALEH Store — UAE premium fashion destination. Shop tops, bottoms, tracksuits, footwear, fragrances & accessories with nationwide delivery and COD available."/>
+  <meta property="og:url" content="https://www.binsaleh.com/index.html"/>
+  <link rel="icon" type="image/svg+xml" href="./favicon.svg"/>
+
   <title>BIN SALEH Store – Your Style, Your Statement</title>
 
   <!-- ===== Meta (Facebook & Instagram) Pixel Code ===== -->
@@ -11,7 +24,7 @@
   <script>
   // 🔵 META (FACEBOOK) PIXEL
   // Set your real pixel ID below and remove the comment to activate
-  var META_PIXEL_ID = ''; // ← Put your Meta pixel ID here, e.g. '1234567890'
+  var META_PIXEL_ID = window.__META_PIXEL_ID || ''; // ← Put your Meta pixel ID here, e.g. '1234567890'
   if (META_PIXEL_ID) {
     !function(f,b,e,v,n,t,s)
     {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
@@ -33,7 +46,7 @@
   <!-- ===== TikTok Pixel Code ===== -->
   <!-- Set your real pixel ID below and remove the comment to activate -->
   <script>
-  var TIKTOK_PIXEL_ID = ''; // ← Put your TikTok pixel ID here, e.g. 'ABCDEF123'
+  var TIKTOK_PIXEL_ID = window.__TIKTOK_PIXEL_ID || ''; // ← Put your TikTok pixel ID here, e.g. 'ABCDEF123'
   if (TIKTOK_PIXEL_ID) {
     !function (w, d, t) {
       w.TiktokAnalyticsObject=t;var ttq=w[t]=w[t]||[];ttq.methods=["page","track","identify","instances","debug","on","off","once","ready","alias","group","enableCookie","disableCookie","holdConsent","revokeConsent","grantConsent"],ttq.setAndDefer=function(t,e){t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}};for(var i=0;i<ttq.methods.length;i++)ttq.setAndDefer(ttq,ttq.methods[i]);ttq.instance=function(t){for(var e=ttq._i[t]||[],n=0;n<e.methods.length;n++)ttq.setAndDefer(e,e.methods[n]);return e},ttq.load=function(e,n){var i="https://analytics.tiktok.com/i18n/pixel/events.js",o=n&&n.partner;ttq._i=ttq._i||{},ttq._i[e]=[],ttq._i[e]._u=i,ttq._t=ttq._t||{},ttq._t[e]=+new Date,ttq._o=ttq._o||{},ttq._o[e]=n||{};n=document.createElement("script");n.type="text/javascript",n.async=!0,n.src=i+"?sdkid="+e+"&lib="+t;e=document.getElementsByTagName("script")[0];e.parentNode.insertBefore(n,e)};
@@ -62,21 +75,10 @@
 <!-- ===== ANNOUNCEMENT BAR ===== -->
 <div class="announce">
   <span class="announce-scroll" id="announce-text">
-    🚚 &nbsp; Free Shipping on Orders Above Rs. 10,000 &nbsp;&nbsp;|&nbsp;&nbsp; 💰 &nbsp; COD Available Nationwide &nbsp;&nbsp;|&nbsp;&nbsp; 🔄 &nbsp; Easy Exchange Policy &nbsp;&nbsp;|&nbsp;&nbsp; ✅ &nbsp; Rs. 250 Advance Required to Confirm Order &nbsp;&nbsp;|&nbsp;&nbsp; ⭐ &nbsp; Summer Élite '26 Collection is Live!
+    🚚 &nbsp; Free Shipping on Orders Above AED 10,000 &nbsp;&nbsp;|&nbsp;&nbsp; 💰 &nbsp; COD Available Nationwide &nbsp;&nbsp;|&nbsp;&nbsp; 🔄 &nbsp; Easy Exchange Policy &nbsp;&nbsp;|&nbsp;&nbsp; ✅ &nbsp; AED 250 Advance Required to Confirm Order &nbsp;&nbsp;|&nbsp;&nbsp; ⭐ &nbsp; Summer Élite '26 Collection is Live!
   </span>
 </div>
-<script>
-// Load dynamic announcement text from localStorage (set in Admin Panel → CMS)
-// Also fetch from database via store.js functions
-fetchAnnouncementFromAPI().then(function() {
-  try {
-    const saved = localStorage.getItem('bs_announcement_text');
-    if (saved && saved.trim()) {
-      document.getElementById('announce-text').textContent = saved;
-    }
-  } catch(e) {}
-});
-</script>
+
 
 <!-- ===== NAVBAR ===== -->
 <nav>
@@ -91,11 +93,11 @@ fetchAnnouncementFromAPI().then(function() {
       <li><a href="./Footwear.html">Footwear</a></li>
       <li><a href="./fragrances.html">Fragrances</a></li>
       <li><a href="./accessories.html">Accessories</a></li>
+      <li><a href="./home-kitchen.html">Home & Kitchen</a></li>
       <li class="nav-more">
         <a href="#">More <i class="fas fa-chevron-down" style="font-size:0.65rem"></i></a>
         <div class="more-dropdown">
           <a href="profile.html"><i class="fas fa-user"></i> My Profile</a>
-          <!-- <a href="my-orders.html"><i class="fas fa-box"></i> My Orders</a> -->
           <a href="contact.html"><i class="fas fa-headset"></i> Contact Us</a>
           <a href="faqs.html" ><i class="fas fa-circle-question"></i> FAQs</a>
           <a href="policies.html" ><i class="fas fa-shield-halved"></i> Policies</a>
@@ -120,20 +122,20 @@ fetchAnnouncementFromAPI().then(function() {
     </div>
   </div>
   <div class="mobile-menu" id="mobile-menu">
-    <a href="#">🏠 Home</a>
-    <a href="./viewall.html">🛍️ View All</a>
-    <a href="./tops.html">👕 Tops</a>
-    <a href="./Bottoms.html">👖 Bottoms</a>
-    <a href="./TrackSuits.html">🧥 Tracksuits / Co-Ord Sets</a>
-    <a href="./Footwear.html">👟 Footwear</a>
-    <a href="./fragrances.html">🌸 Fragrances</a>
-    <a href="./accessories.html">⌚ Accessories</a>
-    <a href="profile.html">👤 My Profile</a>
-    <!-- <a href="my-orders.html">📦 My Orders</a> -->
-    <a href="contact.html">📞 Contact Us</a>
-     <a href="policies.html">🛡️ Policies</a>
-    <a href="faqs.html">❓ FAQs</a>
-    <a href="admainpenal.html">🔧 Admin Panel</a>
+    <a href="#"><i class="fas fa-house"></i> Home</a>
+    <a href="./viewall.html"><i class="fas fa-store"></i> View All</a>
+    <a href="./tops.html"><i class="fas fa-shirt"></i> Tops</a>
+    <a href="./Bottoms.html"><i class="fas fa-vest"></i> Bottoms</a>
+    <a href="./TrackSuits.html"><i class="fas fa-person-running"></i> Tracksuits / Co-Ord Sets</a>
+    <a href="./Footwear.html"><i class="fas fa-shoe-prints"></i> Footwear</a>
+    <a href="./fragrances.html"><i class="fas fa-spray-can"></i> Fragrances</a>
+    <a href="./accessories.html"><i class="fas fa-gem"></i> Accessories</a>
+    <a href="./home-kitchen.html"><i class="fas fa-kitchen-set"></i> Home & Kitchen</a>
+    <a href="profile.html"><i class="fas fa-user"></i> My Profile</a>
+    <a href="contact.html"><i class="fas fa-headset"></i> Contact Us</a>
+     <a href="policies.html"><i class="fas fa-shield-halved"></i> Policies</a>
+    <a href="faqs.html"><i class="fas fa-circle-question"></i> FAQs</a>
+    <a href="admainpenal.html"><i class="fas fa-gauge-high"></i> Admin Panel</a>
   </div>
 </nav>
 
@@ -144,62 +146,17 @@ fetchAnnouncementFromAPI().then(function() {
   <button class="search-close" onclick="toggleSearch()"><i class="fas fa-times"></i></button>
 </div>
 
-<!-- ===== HERO SLIDER ===== -->
+<!-- ===== HERO SLIDER (built dynamically by JS) ===== -->
 <section class="hero" style="padding:0">
   <div class="hero-slides" id="hero-slides">
-    <!-- Slide 1 -->
     <div class="hero-slide active">
-      <img src="https://dnstore.pk/cdn/shop/files/IMG_7830.jpg?v=1774721492&width=1920" alt="DN Store Hero"/>
+      <img src="" alt="Loading..." style="background:#f5f5f5"/>
       <div class="hero-overlay"></div>
       <div class="hero-content">
-        <span class="hero-tag">New Arrival</span>
-        <h1 class="hero-title">Summer<br/><span>Élite</span><br/>'26</h1>
-        <p class="hero-sub">Elevate your style with our latest premium collection. Crafted for those who dare to stand out.</p>
-        <a href="view-all.html" class="hero-cta">Shop Now <i class="fas fa-arrow-right"></i></a>
-      </div>
-    </div>
-    <!-- Slide 2 -->
-    <div class="hero-slide">
-      <img src="https://dnstore.pk/cdn/shop/collections/A6F9D276-DD01-4A48-A90F-4C075B4DE837.jpg?v=1777718686&width=1920" alt="Tops Collection"/>
-      <div class="hero-overlay"></div>
-      <div class="hero-content">
-        <span class="hero-tag">Premium Tops</span>
-        <h1 class="hero-title">Fresh<br/><span>Tops</span><br/>Collection</h1>
-        <p class="hero-sub">From box-fit to oversized, our tops redefine casual streetwear with premium fabric.</p>
-        <a href="tops.html" class="hero-cta">Explore Tops <i class="fas fa-arrow-right"></i></a>
-      </div>
-    </div>
-    <!-- Slide 3 -->
-    <div class="hero-slide">
-      <img src="https://dnstore.pk/cdn/shop/collections/26993920-13C0-4CA5-92E5-94F20642AFBD.jpg?v=1777718722&width=1920" alt="Tracksuits"/>
-      <div class="hero-overlay"></div>
-      <div class="hero-content">
-        <span class="hero-tag">Co-Ord Sets</span>
-        <h1 class="hero-title">Match the<br/><span>Vibe</span></h1>
-        <p class="hero-sub">Complete co-ord sets and tracksuits for that perfectly curated street-ready look.</p>
-        <a href="tracksuits.html" class="hero-cta">Shop Sets <i class="fas fa-arrow-right"></i></a>
-      </div>
-    </div>
-    <!-- Slide 4 -->
-    <div class="hero-slide">
-      <img src="https://dnstore.pk/cdn/shop/files/FE0E7953-EE9B-4D22-90AE-692071EBA76A.png?v=1772557488&width=1920" alt="Fragrances"/>
-      <div class="hero-overlay"></div>
-      <div class="hero-content">
-        <span class="hero-tag">Fragrances</span>
-        <h1 class="hero-title">Scent That<br/><span>Speaks</span></h1>
-        <p class="hero-sub">Exclusive fragrances that leave a lasting impression. Your signature scent awaits.</p>
-        <a href="fragrances.html" class="hero-cta">Discover Now <i class="fas fa-arrow-right"></i></a>
-      </div>
-    </div>
-    <!-- Slide 5 -->
-    <div class="hero-slide">
-      <img src="https://dnstore.pk/cdn/shop/collections/FullSizeRender.jpg?v=1777735717&width=1920" alt="Shoes"/>
-      <div class="hero-overlay"></div>
-      <div class="hero-content">
-        <span class="hero-tag">Footwear</span>
-        <h1 class="hero-title">Step In<br/><span>Style</span></h1>
-        <p class="hero-sub">Premium footwear collection — from Adidas Samba to exclusive sneakers.</p>
-        <a href="footwear.html" class="hero-cta">View Shoes <i class="fas fa-arrow-right"></i></a>
+        <span class="hero-tag">Loading...</span>
+        <h1 class="hero-title">Welcome to<br/><span>BIN SALEH</span></h1>
+        <p class="hero-sub">Loading latest collections...</p>
+        <a href="viewall.html" class="hero-cta">Shop Now <i class="fas fa-arrow-right"></i></a>
       </div>
     </div>
   </div>
@@ -242,61 +199,8 @@ fetchAnnouncementFromAPI().then(function() {
       <h2 class="section-title">Our Collections</h2>
       <p class="section-sub">Click on any collection to explore the full range</p>
     </div>
-    <div class="collections-grid">
-      <div class="coll-card" onclick="location.href='tops.html'">
-        <img src="https://dnstore.pk/cdn/shop/collections/A6F9D276-DD01-4A48-A90F-4C075B4DE837.jpg?v=1777718686&width=1200" alt="Tops"/>
-        <div class="coll-overlay"></div>
-        <div class="coll-info">
-          <div class="coll-name">Tops</div>
-          <div class="coll-count">Box-fit, Oversized & More</div>
-          <a href="tops.html" class="coll-btn">Explore <i class="fas fa-arrow-right"></i></a>
-        </div>
-      </div>
-      <div class="coll-card" onclick="location.href='bottoms.html'">
-        <img src="https://dnstore.pk/cdn/shop/collections/DE08A2DA-3732-4893-B320-98C24C91F24F.jpg?v=1777718865&width=800" alt="Bottoms"/>
-        <div class="coll-overlay"></div>
-        <div class="coll-info">
-          <div class="coll-name">Bottoms</div>
-          <div class="coll-count">Korean Pants, Cargos & More</div>
-          <a href="bottoms.html" class="coll-btn">Explore <i class="fas fa-arrow-right"></i></a>
-        </div>
-      </div>
-      <div class="coll-card" onclick="location.href='tracksuits.html'">
-        <img src="https://dnstore.pk/cdn/shop/collections/26993920-13C0-4CA5-92E5-94F20642AFBD.jpg?v=1777718722&width=800" alt="Tracksuits"/>
-        <div class="coll-overlay"></div>
-        <div class="coll-info">
-          <div class="coll-name">Tracksuits</div>
-          <div class="coll-count">Co-Ord Sets & Matching Suits</div>
-          <a href="tracksuits.html" class="coll-btn">Explore <i class="fas fa-arrow-right"></i></a>
-        </div>
-      </div>
-      <div class="coll-card" onclick="location.href='footwear.html'">
-        <img src="https://dnstore.pk/cdn/shop/collections/FullSizeRender.jpg?v=1777735717&width=1200" alt="Footwear"/>
-        <div class="coll-overlay"></div>
-        <div class="coll-info">
-          <div class="coll-name">Footwear</div>
-          <div class="coll-count">Sneakers, Trainers & More</div>
-          <a href="footwear.html" class="coll-btn">Explore <i class="fas fa-arrow-right"></i></a>
-        </div>
-      </div>
-      <div class="coll-card" onclick="location.href='fragrances.html'">
-        <img src="https://dnstore.pk/cdn/shop/files/FE0E7953-EE9B-4D22-90AE-692071EBA76A.png?v=1772557488&width=800" alt="Fragrances"/>
-        <div class="coll-overlay"></div>
-        <div class="coll-info">
-          <div class="coll-name">Fragrances</div>
-          <div class="coll-count">Exclusive Signature Scents</div>
-          <a href="fragrances.html" class="coll-btn">Explore <i class="fas fa-arrow-right"></i></a>
-        </div>
-      </div>
-      <div class="coll-card" onclick="location.href='accessories.html'">
-        <img src="https://dnstore.pk/cdn/shop/collections/IMG-8713.png?v=1777736201&width=800" alt="Accessories"/>
-        <div class="coll-overlay"></div>
-        <div class="coll-info">
-          <div class="coll-name">Accessories</div>
-          <div class="coll-count">Watches, Sunglasses, Bracelets</div>
-          <a href="accessories.html" class="coll-btn">Explore <i class="fas fa-arrow-right"></i></a>
-        </div>
-      </div>
+    <div class="collections-grid" id="collections-grid-static">
+      <!-- Collections injected dynamically by buildCollections() -->
     </div>
   </div>
 </section>
@@ -304,16 +208,16 @@ fetchAnnouncementFromAPI().then(function() {
 <!-- ===== SALE BANNER + TIMER ===== -->
 <section class="combo-section">
   <div class="container">
-    <div class="sale-banner">
+    <div class="sale-banner" id="sale-banner">
       <div class="sale-text">
-        <h2>Clearance <span>Sale</span><br/>Up to 60% Off</h2>
-        <p>Limited time offer. Don't miss out on our biggest discounts of the season.</p>
-        <a href="view-all.html" class="hero-cta" style="margin-top:18px">Shop Sale <i class="fas fa-fire"></i></a>
+        <h2>Clearance <span>Sale</span><br/><span id="sale-off">Up to 60% Off</span></h2>
+        <p id="sale-desc">Limited time offer. Don't miss out on our biggest discounts of the season.</p>
+        <a href="./viewall.html" class="hero-cta" style="margin-top:18px">Shop Sale <i class="fas fa-fire"></i></a>
       </div>
       <div class="sale-timer" id="countdown">
-        <div class="timer-box"><span id="t-h">00</span><small>Hours</small></div>
-        <div class="timer-box"><span id="t-m">00</span><small>Mins</small></div>
-        <div class="timer-box"><span id="t-s">00</span><small>Secs</small></div>
+        <div class="timer-box"><span id="t-h">00</span><small id="t-h-label">Hours</small></div>
+        <div class="timer-box"><span id="t-m">00</span><small id="t-m-label">Mins</small></div>
+        <div class="timer-box"><span id="t-s">00</span><small id="t-s-label">Secs</small></div>
       </div>
     </div>
 
@@ -364,15 +268,15 @@ fetchAnnouncementFromAPI().then(function() {
           <li><a href="./viewall.html"><i class="fas fa-chevron-right" style="font-size:0.65rem;margin-right:6px;color:var(--accent)"></i>View All</a></li>
           <li><a href="./tops.html"><i class="fas fa-chevron-right" style="font-size:0.65rem;margin-right:6px;color:var(--accent)"></i>Tops</a></li>
           <li><a href="./Bottoms.html"><i class="fas fa-chevron-right" style="font-size:0.65rem;margin-right:6px;color:var(--accent)"></i>Bottoms</a></li>
-          <li><a href="./trackin.js"><i class="fas fa-chevron-right" style="font-size:0.65rem;margin-right:6px;color:var(--accent)"></i>Tracksuits</a></li>
+          <li><a href="./TrackSuits.html"><i class="fas fa-chevron-right" style="font-size:0.65rem;margin-right:6px;color:var(--accent)"></i>Tracksuits</a></li>
           <li><a href="./accessories.html"><i class="fas fa-chevron-right" style="font-size:0.65rem;margin-right:6px;color:var(--accent)"></i>Accessories</a></li>
+          <li><a href="./home-kitchen.html"><i class="fas fa-chevron-right" style="font-size:0.65rem;margin-right:6px;color:var(--accent)"></i>Home & Kitchen</a></li>
         </ul>
       </div>
       <div class="footer-col">
         <h6>Support</h6>
         <ul>
           <li><a href="./contact.html"><i class="fas fa-chevron-right" style="font-size:0.65rem;margin-right:6px;color:var(--accent)"></i>Contact Us</a></li>
-          <!-- <li><a href="my-orders.html"><i class="fas fa-chevron-right" style="font-size:0.65rem;margin-right:6px;color:var(--accent)"></i>Track Order</a></li> -->
           <li><a href="./faqs.html"><i class="fas fa-chevron-right" style="font-size:0.65rem;margin-right:6px;color:var(--accent)"></i>FAQs</a></li>
           <li><a href="./policies.html"><i class="fas fa-chevron-right" style="font-size:0.65rem;margin-right:6px;color:var(--accent)"></i>Refund Policy</a></li>
           <li><a href="./policies.html"><i class="fas fa-chevron-right" style="font-size:0.65rem;margin-right:6px;color:var(--accent)"></i>Privacy Policy</a></li>
@@ -411,17 +315,24 @@ fetchAnnouncementFromAPI().then(function() {
     <div class="cart-empty">
       <i class="fas fa-shopping-bag"></i>
       <p>Your cart is empty</p>
-      <a href="view-all.html" style="color:var(--accent);font-size:0.85rem;text-decoration:none">Continue Shopping →</a>
+      <a href="viewall.html" style="color:var(--accent);font-size:0.85rem;text-decoration:none">Continue Shopping →</a>
     </div>
   </div>
   <div class="cart-footer">
-    <div class="cart-total"><span>Subtotal</span><strong>Rs. 0</strong></div>
+    <div class="cart-total"><span>Subtotal</span><strong>AED 0</strong></div>
     <button class="checkout-btn" onclick="checkoutFromCart()">Proceed to Checkout</button>
   </div>
 </div>
 
 <script src="./js/store.js"></script>
 <script src="./js/api.js"></script>
+<script>
+// Announcement bar (text + live sale percentage) is handled entirely by
+// store.js's DOMContentLoaded handler, which combines the CMS announcement
+// with the active-coupon sale snippet — so coupon edits update the bar
+// automatically. Only an instant cache render is done here.
+applyAnnouncement();
+</script>
 <script>
 // ===== BUILD DYNAMIC SLIDER FROM localStorage =====
 function buildHeroSlider() {
@@ -432,7 +343,7 @@ function buildHeroSlider() {
 
   container.innerHTML = slidesData.map((s, i) => `
     <div class="hero-slide${i === 0 ? ' active' : ''}">
-      <img src="${s.img || 'https://dnstore.pk/cdn/shop/files/IMG_7830.jpg?v=1774721492&width=1920'}" alt="${s.tag || ''}" onerror="this.src='https://dnstore.pk/cdn/shop/files/IMG_7830.jpg?v=1774721492&width=1920'"/>
+      <img src="${(typeof isValidImageUrl === 'function' && isValidImageUrl(s.img)) ? s.img : PLACEHOLDER_IMG}" alt="${s.tag || ''}" onerror="this.onerror=null;this.src=window.PLACEHOLDER_IMG;this.style.opacity='0.5'"/>
       <div class="hero-overlay"></div>
       <div class="hero-content">
         <span class="hero-tag">${s.tag || 'New Arrival'}</span>
@@ -471,16 +382,19 @@ function buildCollections() {
   const cols = getCollections();
   const grid = document.querySelector('.collections-grid');
   if (!grid || !cols.length) return;
-  grid.innerHTML = cols.map(c => `
+  grid.innerHTML = cols.map(c => {
+    var collImg = getProductImage(c);
+    return `
     <div class="coll-card" onclick="location.href='${c.link || '#'}'">
-      <img src="${c.img || 'https://dnstore.pk/cdn/shop/collections/A6F9D276-DD01-4A48-A90F-4C075B4DE837.jpg?v=1777718686&width=1200'}" alt="${c.name}" onerror="this.style.display='none'"/>
+      <img src="${collImg}" alt="${c.name}" onerror="this.onerror=null;this.src=window.PLACEHOLDER_IMG;this.style.opacity='0.5'"/>
       <div class="coll-overlay"></div>
       <div class="coll-info">
         <div class="coll-name">${c.name}</div>
         <div class="coll-count">${c.desc || ''}</div>
         <a href="${c.link || '#'}" class="coll-btn">Explore <i class="fas fa-arrow-right"></i></a>
       </div>
-    </div>`).join('');
+    </div>`;
+  }).join('');
 }
 
 // ===== CART =====
@@ -505,57 +419,163 @@ function toggleMobileMenu() {
 }
 
 // ===== COUNTDOWN TIMER =====
-const endTime = new Date();
+// Default fallback: 11.5 hours from page load.
+// When the sale banner loads, this is replaced by the earliest expiry of the
+// currently active coupons (so the timer reflects admin coupon edits).
+let endTime = new Date();
 endTime.setHours(endTime.getHours() + 11, endTime.getMinutes() + 30, 0, 0);
 function updateTimer() {
   const now = new Date();
   let diff = Math.max(0, Math.floor((endTime - now) / 1000));
-  const h = Math.floor(diff / 3600); diff %= 3600;
-  const m = Math.floor(diff / 60); diff %= 60;
-  const s = diff;
-  document.getElementById('t-h').textContent = String(h).padStart(2,'0');
-  document.getElementById('t-m').textContent = String(m).padStart(2,'0');
-  document.getElementById('t-s').textContent = String(s).padStart(2,'0');
+  const hEl = document.getElementById('t-h');
+  const mEl = document.getElementById('t-m');
+  const sEl = document.getElementById('t-s');
+  const hL = document.getElementById('t-h-label');
+  const mL = document.getElementById('t-m-label');
+  const sL = document.getElementById('t-s-label');
+  let h, m, s;
+  const days = Math.floor(diff / 86400);
+  if (days >= 1) {
+    // Multi-day countdown: show Days | Hours | Mins (keeps 2-digit boxes).
+    h = Math.min(99, days);
+    m = Math.floor((diff % 86400) / 3600);
+    s = Math.floor((diff % 3600) / 60);
+    if (hL) hL.textContent = 'Days';
+    if (mL) mL.textContent = 'Hours';
+    if (sL) sL.textContent = 'Mins';
+  } else {
+    h = Math.floor(diff / 3600); diff %= 3600;
+    m = Math.floor(diff / 60); diff %= 60;
+    s = diff;
+    if (hL) hL.textContent = 'Hours';
+    if (mL) mL.textContent = 'Mins';
+    if (sL) sL.textContent = 'Secs';
+  }
+  if (hEl) hEl.textContent = String(h).padStart(2,'0');
+  if (mEl) mEl.textContent = String(m).padStart(2,'0');
+  if (sEl) sEl.textContent = String(s).padStart(2,'0');
 }
 updateTimer();
 setInterval(updateTimer, 1000);
 
-// ===== PRODUCTS =====
-function formatPrice(n, currency) { return (currency||'Rs.') + ' ' + Number(n).toLocaleString(); }
+// ===== SALE BANNER — DRIVEN BY ACTIVE COUPONS =====
+// Fetches the sale info the backend derives from the active coupons and updates
+// the banner's percentage, text, and countdown end time.
+async function loadSaleBanner() {
+  let sale = null;
+  try {
+    sale = await api.get('/coupons/sale');
+  } catch (e) {
+    // API unreachable — keep the default banner text and timer as-is.
+    console.warn('Sale banner load failed (using defaults):', e.message);
+    return;
+  }
+  if (!sale || sale.saleActive === false) {
+    // No active coupons — show a neutral fallback instead of hiding the section.
+    const offEl = document.getElementById('sale-off');
+    const descEl = document.getElementById('sale-desc');
+    if (offEl) offEl.textContent = 'New Offers Coming Soon';
+    if (descEl) descEl.textContent = 'New discounts and coupon codes are added regularly. Check back soon!';
+    return;
+  }
+    const offEl = document.getElementById('sale-off');
+    if (offEl) {
+      if (sale.maxDiscount > 0) {
+        offEl.textContent = 'Up to ' + sale.maxDiscount + '% Off';
+      } else if (sale.bestFlat > 0) {
+        offEl.textContent = 'Up to ' + (sale.currency || 'AED') + ' ' + Number(sale.bestFlat).toLocaleString() + ' Off';
+      }
+    }
+    const descEl = document.getElementById('sale-desc');
+    if (descEl && sale.codes && sale.codes.length) {
+      descEl.textContent = 'Limited time offer. Use code ' + sale.codes.slice(0,3).join(' or ') + ' at checkout — don\'t miss out!';
+    }
+    if (sale.saleEnd) {
+      const e = new Date(sale.saleEnd);
+      if (!isNaN(e.getTime()) && e > new Date()) endTime = e;
+    }
+}
+loadSaleBanner();
 
-const grid = document.getElementById('products-grid');
+// ===== PRODUCTS =====
+function formatPrice(n, currency) { return (currency||'AED') + ' ' + Number(n).toLocaleString(); }
+
+function renderProductCard(p) {
+  var imgSrc = getProductImage(p);
+  const id = p._id || p.id;
+  const escapedName = (p.name||'').replace(/'/g,"\\'");
+  return `<div class="prod-card" onclick="window.location.href='addTocurt.html?id=${id}'">
+    <div class="prod-img-wrap">
+      <img src="${imgSrc}" alt="${p.name}" loading="lazy" onerror="this.onerror=null;this.src=window.PLACEHOLDER_IMG;this.style.opacity='0.5'"/>
+    ${p.badge ? `<span class="prod-badge ${(p.badge||'').toUpperCase()==='NEW'?'new':''}">${p.badge}</span>` : ''}
+    <button class="prod-wishlist" data-pid="${id}" onclick="event.stopPropagation();toggleWishlistCardFromBtn(this)"><i class="fas fa-heart"></i></button>
+    </div>
+    <div class="prod-body">
+      <div class="prod-name">${p.name}</div>
+      <div class="prod-prices">
+        <span class="prod-price">${formatPrice(p.price, p.currency)}</span>
+        ${p.oldPrice ? `<span class="prod-old">${formatPrice(p.oldPrice, p.currency)}</span>` : ''}
+      </div>
+      <button class="prod-add" onclick="event.stopPropagation();addToCartHome('${id}','${escapedName}','${p.price}','${p.currency||'AED'}','${imgSrc.replace(/'/g,"\\'")}')">
+        <i class="fas fa-shopping-bag" style="margin-right:6px"></i>Add to Cart
+      </button>
+    </div>
+  </div>`;
+}
 
 async function loadProducts() {
+  const grid = document.getElementById('products-grid');
   try {
-    const products = await api.get('/products');
-    if (!products.length) { grid.innerHTML = '<p style="padding:20px">No products available yet.</p>'; return; }
-    grid.innerHTML = products.slice(0,8).map(p => {
-      const imgSrc = p.img || (p.images && p.images[0]) || '';
-      return `<div class="prod-card" onclick="window.location.href='addTocurt.html?id=${p._id||p.id}'">
-        <div class="prod-img-wrap">
-          <img src="${imgSrc}" alt="${p.name}" loading="lazy" onerror="this.src='https://dnstore.pk/cdn/shop/collections/A6F9D276-DD01-4A48-A90F-4C075B4DE837.jpg?v=1777718686&width=500'"/>
-          ${p.badge ? `<span class="prod-badge ${(p.badge||'').toUpperCase()==='NEW'?'new':''}">${p.badge}</span>` : ''}
-        </div>
-        <div class="prod-body">
-          <div class="prod-name">${p.name}</div>
-          <div class="prod-prices">
-            <span class="prod-price">${formatPrice(p.price, p.currency)}</span>
-            ${p.oldPrice ? `<span class="prod-old">${formatPrice(p.oldPrice, p.currency)}</span>` : ''}
-          </div>
-          <button class="prod-add" onclick="event.stopPropagation();addToCartHome('${p._id||p.id}','${p.name.replace(/'/g,"\\'")}','${p.price}','${p.currency||'Rs.'}','${imgSrc.replace(/'/g,"\\'")}')">
-            <i class="fas fa-shopping-bag" style="margin-right:6px"></i>Add to Cart
-          </button>
-        </div>
-      </div>`;
-    }).join('');
+    var products = await api.get('/products');
+    // Merge with localStorage products (ensures locally-saved products appear)
+    var localAll = getProductsFromLocalStorage();
+    if (localAll && localAll.length > 0) {
+      var apiIds = new Set((products||[]).map(function(p) { return p._id || p.id; }));
+      localAll.forEach(function(p) {
+        if (!apiIds.has(p._id || p.id)) products.push(p);
+      });
+    }
+    if (!products || !products.length) { grid.innerHTML = '<p style="padding:20px">No products available yet.</p>'; return; }
+    // Group products by category, take 3 newest from each, max 18 total
+    const categories = ['tops','bottoms','tracksuits','footwear','fragrances','accessories','home-kitchen'];
+    var featured = [];
+    categories.forEach(function(cat) {
+      var catProducts = products.filter(function(p) { return (p.category||'').toLowerCase() === cat; });
+      // Products from API are already sorted by newest first (createdAt desc)
+      featured = featured.concat(catProducts.slice(0,3));
+    });
+    // Sort by newest first (createdAt descending) across all categories
+    featured.sort(function(a, b) {
+      var aTime = new Date(a.createdAt || 0).getTime();
+      var bTime = new Date(b.createdAt || 0).getTime();
+      return bTime - aTime;
+    });
+    // Limit to 21 products total (7 categories × 3 each)
+    grid.innerHTML = featured.slice(0,21).map(function(p) { return renderProductCard(p); }).join('');
   } catch (err) {
-    console.error('Failed to load products:', err);
-    grid.innerHTML = '<p style="padding:20px;color:red">Could not load products.</p>';
+    console.warn('API unavailable, loading from localStorage:', err.message);
+    var localProducts = getProductsFromLocalStorage();
+    if (localProducts && localProducts.length) {
+      var categories = ['tops','bottoms','tracksuits','footwear','fragrances','accessories','home-kitchen'];
+      var featured = [];
+      categories.forEach(function(cat) {
+        var catProducts = localProducts.filter(function(p) { return (p.category||'').toLowerCase() === cat; });
+        featured = featured.concat(catProducts.slice(0,3));
+      });
+      featured.sort(function(a, b) {
+        var aTime = new Date(a.createdAt || 0).getTime();
+        var bTime = new Date(b.createdAt || 0).getTime();
+        return bTime - aTime;
+      });
+      grid.innerHTML = featured.slice(0,21).map(function(p) { return renderProductCard(p); }).join('');
+    } else {
+      grid.innerHTML = '<p style="padding:20px;color:var(--red)">No products available. Is the backend running?</p>';
+    }
   }
 }
 
 function addToCartHome(id, name, price, currency, img) {
-  cartAddItem({ id, name, price: Number(price), currency: currency || 'Rs.', img });
+  cartAddItem({ id, name, price: Number(price), currency: currency || 'AED', img });
   cartRenderDrawer();
   const toast = document.createElement('div');
   toast.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--accent);color:#fff;padding:12px 24px;border-radius:8px;font-weight:700;font-size:0.85rem;z-index:9999;box-shadow:0 4px 16px rgba(0,0,0,0.15)';
@@ -563,7 +583,6 @@ function addToCartHome(id, name, price, currency, img) {
   document.body.appendChild(toast);
   setTimeout(() => toast.remove(), 2500);
 }
-
 // ===== NEWSLETTER =====
 async function subscribeNewsletter() {
   const email = document.getElementById('newsletter-email').value.trim();

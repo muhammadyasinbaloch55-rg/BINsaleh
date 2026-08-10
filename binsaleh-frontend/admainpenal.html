@@ -2,8 +2,18 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8"/>
+  <meta name="description" content="BIN SALEH Store admin panel."/>
+  <link rel="canonical" href="https://www.binsaleh.com/admainpenal.html"/>
+  <meta property="og:type" content="website"/>
+  <meta property="og:site_name" content="BIN SALEH Store"/>
+  <meta property="og:title" content="BIN SALEH Store – Admin Panel"/>
+  <meta property="og:description" content="BIN SALEH Store admin panel."/>
+  <meta property="og:url" content="https://www.binsaleh.com/admainpenal.html"/>
+  <link rel="icon" type="image/svg+xml" href="./favicon.svg"/>
+
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>BIN SALEH Store – Admin Panel</title>
+<script>/* Safety stubs for inline onclick handlers */window.doLogin=window.doLogin||function(){};window.doRegister=window.doRegister||function(){};window.switchAuthTab=window.switchAuthTab||function(){};window.doLogout=window.doLogout||function(){};</script>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
 <style>
@@ -408,7 +418,7 @@ tr:hover td{background:rgba(255,255,255,0.02);}
     <div class="nav-section">
       <div class="nav-section-title">Main</div>
       <div class="nav-item active" onclick="showPage('dashboard',this)"><i class="fas fa-gauge-high"></i> Dashboard</div>
-      <div class="nav-item" onclick="showPage('orders',this)"><i class="fas fa-shopping-cart"></i> Orders <span class="nav-badge">5</span></div>
+      <div class="nav-item" onclick="showPage('orders',this)"><i class="fas fa-shopping-cart"></i> Orders <span class="nav-badge" id="orders-nav-badge">0</span></div>
       <div class="nav-item" onclick="showPage('products',this)"><i class="fas fa-box"></i> Products</div>
       <div class="nav-item" onclick="showPage('categories',this)"><i class="fas fa-layer-group"></i> Categories</div>
       <div class="nav-item" onclick="showPage('customers',this)"><i class="fas fa-users"></i> Customers</div>
@@ -464,7 +474,17 @@ tr:hover td{background:rgba(255,255,255,0.02);}
         <i class="fas fa-search" style="color:var(--muted);font-size:0.85rem"></i>
         <input type="text" placeholder="Search..."/>
       </div>
-      <div class="tb-btn" title="Notifications"><i class="fas fa-bell"></i><span class="tb-dot"></span></div>
+      <div class="tb-btn" title="Notifications" onclick="toggleNotifPanel(event)" id="notif-bell"><i class="fas fa-bell"></i><span class="tb-dot" id="notif-badge" style="display:none">0</span></div>
+      <div id="notif-panel" style="display:none;position:fixed;top:64px;right:90px;width:340px;max-height:420px;overflow:auto;background:var(--bg2,#fff);border:1px solid var(--border,#eee);border-radius:12px;box-shadow:0 12px 40px rgba(0,0,0,.18);z-index:9999;padding:12px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+          <strong style="font-size:0.85rem">Notifications</strong>
+          <span style="display:flex;gap:8px">
+            <button class="btn btn-outline btn-sm" onclick="markAllNotifsRead()" style="font-size:0.7rem">Mark all read</button>
+            <button class="btn btn-outline btn-sm" onclick="clearAllNotifs()" style="font-size:0.7rem;color:var(--red)">Clear</button>
+          </span>
+        </div>
+        <div id="notif-list" style="font-size:0.78rem;color:var(--muted)">Loading notifications...</div>
+      </div>
       <div class="tb-btn" title="Profile" onclick="showPage('settings',null)"><i class="fas fa-user"></i></div>
     </div>
   </div>
@@ -473,10 +493,11 @@ tr:hover td{background:rgba(255,255,255,0.02);}
   <div class="page active" id="page-dashboard">
     <div style="padding:4px 0 20px"><span style="font-size:0.85rem;color:var(--muted)">Welcome back, <strong style="color:var(--accent)">Admin</strong> 👋 Here's what's happening today.</span></div>
 
+    <div id="low-stock-banner" style="display:none;background:rgba(198,40,40,.08);border:1px solid rgba(198,40,40,.3);color:#c62828;border-radius:10px;padding:12px 16px;margin-bottom:20px;font-size:0.85rem"></div>
     <div class="stats-grid">
       <div class="stat-card">
         <div class="stat-top"><div class="stat-icon gold"><i class="fas fa-bag-shopping"></i></div><span class="stat-badge up" id="dash-revenue-badge">↑ 0%</span></div>
-        <div class="stat-value" id="dash-revenue">Rs. 0</div>
+        <div class="stat-value" id="dash-revenue">AED 0</div>
         <div class="stat-label">Total Revenue</div>
       </div>
       <div class="stat-card">
@@ -493,6 +514,36 @@ tr:hover td{background:rgba(255,255,255,0.02);}
         <div class="stat-top"><div class="stat-icon purple"><i class="fas fa-box"></i></div><span class="stat-badge down">↓ 2%</span></div>
         <div class="stat-value" id="dash-product-count">16</div>
         <div class="stat-label">Products</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-top"><div class="stat-icon amber"><i class="fas fa-clock"></i></div></div>
+        <div class="stat-value" id="dash-pending-count">0</div>
+        <div class="stat-label">Pending Orders</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-top"><div class="stat-icon green"><i class="fas fa-check-circle"></i></div></div>
+        <div class="stat-value" id="dash-completed-count">0</div>
+        <div class="stat-label">Completed Orders</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-top"><div class="stat-icon red"><i class="fas fa-ban"></i></div></div>
+        <div class="stat-value" id="dash-cancelled-count">0</div>
+        <div class="stat-label">Cancelled Orders</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-top"><div class="stat-icon gold"><i class="fas fa-star"></i></div></div>
+        <div class="stat-value" id="dash-reviews-count">0</div>
+        <div class="stat-label">Reviews</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-top"><div class="stat-icon blue"><i class="fas fa-envelope"></i></div></div>
+        <div class="stat-value" id="dash-subs-count">0</div>
+        <div class="stat-label">Subscribers</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-top"><div class="stat-icon purple"><i class="fas fa-heart"></i></div></div>
+        <div class="stat-value" id="dash-wishlist-count">0</div>
+        <div class="stat-label">Wishlist Items</div>
       </div>
     </div>
 
@@ -538,14 +589,22 @@ tr:hover td{background:rgba(255,255,255,0.02);}
   <div class="page" id="page-orders">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:10px">
       <div style="display:flex;gap:8px;flex-wrap:wrap">
-        <button class="btn btn-outline btn-sm order-filter active" onclick="filterOrders('all',this)">All</button>
+        <button class="btn btn-outline btn-sm order-filter active" onclick="filterOrders('active',this)">Active</button>
         <button class="btn btn-outline btn-sm order-filter" onclick="filterOrders('pending',this)">Pending</button>
         <button class="btn btn-outline btn-sm order-filter" onclick="filterOrders('processing',this)">Processing</button>
         <button class="btn btn-outline btn-sm order-filter" onclick="filterOrders('shipped',this)">Shipped</button>
         <button class="btn btn-outline btn-sm order-filter" onclick="filterOrders('delivered',this)">Delivered</button>
         <button class="btn btn-outline btn-sm order-filter" onclick="filterOrders('cancelled',this)">Cancelled</button>
+        <button class="btn btn-outline btn-sm order-filter" onclick="filterOrders('history',this)">History</button>
       </div>
-      <button class="btn btn-primary btn-sm" onclick="exportOrders()"><i class="fas fa-file-export"></i> Export</button>
+      <select id="export-status" style="padding:6px 10px;border:1px solid var(--border,#ddd);border-radius:8px;font-size:0.78rem"><option value="">All statuses</option><option value="pending">Pending</option><option value="confirmed">Confirmed</option><option value="processing">Processing</option><option value="packed">Packed</option><option value="shipped">Shipped</option><option value="out_for_delivery">Out for Delivery</option><option value="delivered">Delivered</option><option value="cancelled">Cancelled</option><option value="refunded">Refunded</option></select>
+      <select id="export-payment" style="padding:6px 10px;border:1px solid var(--border,#ddd);border-radius:8px;font-size:0.78rem"><option value="">All payments</option><option value="cod">COD</option><option value="zeina">Zeina</option><option value="paypal">PayPal</option></select>
+      <input type="date" id="export-from" style="padding:6px 10px;border:1px solid var(--border,#ddd);border-radius:8px;font-size:0.78rem" title="From date"/>
+      <input type="date" id="export-to" style="padding:6px 10px;border:1px solid var(--border,#ddd);border-radius:8px;font-size:0.78rem" title="To date"/>
+      <input type="text" id="export-customer" placeholder="Customer name..." style="padding:6px 10px;border:1px solid var(--border,#ddd);border-radius:8px;font-size:0.78rem" title="Customer filter"/>
+      <button class="btn btn-primary btn-sm" onclick="exportOrders('csv')"><i class="fas fa-file-export"></i> Export CSV</button>
+      <button class="btn btn-outline btn-sm" onclick="exportOrders('xlsx')"><i class="fas fa-file-excel"></i> Excel</button>
+      <button class="btn btn-outline btn-sm" onclick="exportOrders('pdf')"><i class="fas fa-file-pdf"></i> PDF</button>
     </div>
     <div class="card">
       <div class="card-body" style="padding:0">
@@ -566,7 +625,7 @@ tr:hover td{background:rgba(255,255,255,0.02);}
   <!-- ===== PRODUCTS ===== -->
   <div class="page" id="page-products">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:10px">
-      <div style="font-size:0.85rem;color:var(--muted)"><strong style="color:var(--text)" id="products-count-text">16</strong> products total <span class="currency-chip" id="products-currency-chip"><i class="fas fa-coins"></i> Display: PKR</span></div>
+      <div style="font-size:0.85rem;color:var(--muted)"><strong style="color:var(--text)" id="products-count-text">16</strong> products total <span class="currency-chip" id="products-currency-chip"><i class="fas fa-coins"></i> Currency: AED</span></div>
       <button class="btn btn-primary" onclick="openAddProductModal()"><i class="fas fa-plus"></i> Add Product</button>
     </div>
     <div class="card">
@@ -593,10 +652,10 @@ tr:hover td{background:rgba(255,255,255,0.02);}
           <thead><tr><th>Image</th><th>Name</th><th>Slug</th><th>Products</th><th>Status</th><th>Actions</th></tr></thead>
           <tbody></tbody>
           <!-- <tbody>
-            <tr><td><img class="td-img" src="https://dnstore.pk/cdn/shop/collections/A6F9D276-DD01-4A48-A90F-4C075B4DE837.jpg?v=1777718686&width=80" onerror="this.style.display='none'"/></td><td>Tops</td><td>tops</td><td>4</td><td><span class="badge badge-active">Active</span></td><td style="display:flex;gap:6px"><button class="icon-btn"><i class="fas fa-pen"></i></button><button class="icon-btn del"><i class="fas fa-trash"></i></button></td></tr>
-            <tr><td><img class="td-img" src="https://dnstore.pk/cdn/shop/collections/DE08A2DA-3732-4893-B320-98C24C91F24F.jpg?v=1777718865&width=80" onerror="this.style.display='none'"/></td><td>Bottoms</td><td>bottoms</td><td>2</td><td><span class="badge badge-active">Active</span></td><td style="display:flex;gap:6px"><button class="icon-btn"><i class="fas fa-pen"></i></button><button class="icon-btn del"><i class="fas fa-trash"></i></button></td></tr>
-            <tr><td><img class="td-img" src="https://dnstore.pk/cdn/shop/collections/26993920-13C0-4CA5-92E5-94F20642AFBD.jpg?v=1777718722&width=80" onerror="this.style.display='none'"/></td><td>Tracksuits</td><td>tracksuits</td><td>4</td><td><span class="badge badge-active">Active</span></td><td style="display:flex;gap:6px"><button class="icon-btn"><i class="fas fa-pen"></i></button><button class="icon-btn del"><i class="fas fa-trash"></i></button></td></tr>
-            <tr><td><img class="td-img" src="https://dnstore.pk/cdn/shop/collections/FullSizeRender.jpg?v=1777735717&width=80" onerror="this.style.display='none'"/></td><td>Footwear</td><td>footwear</td><td>2</td><td><span class="badge badge-active">Active</span></td><td style="display:flex;gap:6px"><button class="icon-btn"><i class="fas fa-pen"></i></button><button class="icon-btn del"><i class="fas fa-trash"></i></button></td></tr>
+            <tr><td><img class="td-img" src="https://dnstore.pk/cdn/shop/collections/A6F9D276-DD01-4A48-A90F-4C075B4DE837.jpg?v=1777718686&width=80" onerror="this.style.display=\'none\'"/></td><td>Tops</td><td>tops</td><td>4</td><td><span class="badge badge-active">Active</span></td><td style="display:flex;gap:6px"><button class="icon-btn"><i class="fas fa-pen"></i></button><button class="icon-btn del"><i class="fas fa-trash"></i></button></td></tr>
+            <tr><td><img class="td-img" src="https://dnstore.pk/cdn/shop/collections/DE08A2DA-3732-4893-B320-98C24C91F24F.jpg?v=1777718865&width=80" onerror="this.style.display=\'none\'"/></td><td>Bottoms</td><td>bottoms</td><td>2</td><td><span class="badge badge-active">Active</span></td><td style="display:flex;gap:6px"><button class="icon-btn"><i class="fas fa-pen"></i></button><button class="icon-btn del"><i class="fas fa-trash"></i></button></td></tr>
+            <tr><td><img class="td-img" src="https://dnstore.pk/cdn/shop/collections/26993920-13C0-4CA5-92E5-94F20642AFBD.jpg?v=1777718722&width=80" onerror="this.style.display=\'none\'"/></td><td>Tracksuits</td><td>tracksuits</td><td>4</td><td><span class="badge badge-active">Active</span></td><td style="display:flex;gap:6px"><button class="icon-btn"><i class="fas fa-pen"></i></button><button class="icon-btn del"><i class="fas fa-trash"></i></button></td></tr>
+            <tr><td><img class="td-img" src="https://dnstore.pk/cdn/shop/collections/FullSizeRender.jpg?v=1777735717&width=80" onerror="this.style.display=\'none\'"/></td><td>Footwear</td><td>footwear</td><td>2</td><td><span class="badge badge-active">Active</span></td><td style="display:flex;gap:6px"><button class="icon-btn"><i class="fas fa-pen"></i></button><button class="icon-btn del"><i class="fas fa-trash"></i></button></td></tr>
             <tr><td></td><td>Fragrances</td><td>fragrances</td><td>2</td><td><span class="badge badge-active">Active</span></td><td style="display:flex;gap:6px"><button class="icon-btn"><i class="fas fa-pen"></i></button><button class="icon-btn del"><i class="fas fa-trash"></i></button></td></tr>
             <tr><td></td><td>Accessories</td><td>accessories</td><td>3</td><td><span class="badge badge-active">Active</span></td><td style="display:flex;gap:6px"><button class="icon-btn"><i class="fas fa-pen"></i></button><button class="icon-btn del"><i class="fas fa-trash"></i></button></td></tr>
           </tbody> -->
@@ -620,9 +679,9 @@ tr:hover td{background:rgba(255,255,255,0.02);}
   <!-- ===== PAYMENTS ===== -->
   <div class="page" id="page-payments">
     <div class="stats-grid" style="grid-template-columns:repeat(3,1fr);margin-bottom:20px">
-      <div class="stat-card"><div class="stat-top"><div class="stat-icon gold"><i class="fas fa-money-bill-wave"></i></div></div><div class="stat-value" id="payments-received">Rs. 0</div><div class="stat-label">Total Received</div></div>
-      <div class="stat-card"><div class="stat-top"><div class="stat-icon blue"><i class="fas fa-clock"></i></div></div><div class="stat-value" id="payments-pending">Rs. 0</div><div class="stat-label">Pending</div></div>
-      <div class="stat-card"><div class="stat-top"><div class="stat-icon red"><div class="stat-icon" style="background:none;color:var(--red)"><i class="fas fa-rotate-left"></i></div></div></div><div class="stat-value" id="payments-cancelled">Rs. 0</div><div class="stat-label">Cancelled / Refunded</div></div>
+      <div class="stat-card"><div class="stat-top"><div class="stat-icon gold"><i class="fas fa-money-bill-wave"></i></div></div><div class="stat-value" id="payments-received">AED 0</div><div class="stat-label">Total Received</div></div>
+      <div class="stat-card"><div class="stat-top"><div class="stat-icon blue"><i class="fas fa-clock"></i></div></div><div class="stat-value" id="payments-pending">AED 0</div><div class="stat-label">Pending</div></div>
+      <div class="stat-card"><div class="stat-top"><div class="stat-icon red"><div class="stat-icon" style="background:none;color:var(--red)"><i class="fas fa-rotate-left"></i></div></div></div><div class="stat-value" id="payments-cancelled">AED 0</div><div class="stat-label">Cancelled / Refunded</div></div>
     </div>
 
     <!-- ====== BANK / DEPOSIT DETAILS MANAGER (matches product.html: dn_bank_settings.deposit[{label,value}]) ====== -->
@@ -635,7 +694,7 @@ tr:hover td{background:rgba(255,255,255,0.02);}
         <p style="font-size:0.78rem;color:var(--muted);margin-bottom:16px">Add your JazzCash, EasyPaisa, or Bank Transfer accounts here (account holder name + account number). These appear in the "Select Deposit Method" dropdown at checkout on every product page — no coding needed, just add/edit/delete below and Save.</p>
         <div id="bank-methods-list"></div>
         <div class="form-grid form-grid-2" style="margin-top:18px">
-          <div class="field"><label>Advance Deposit Amount (Rs.)</label><input type="number" id="bank-advance-amount" placeholder="250"/></div>
+          <div class="field"><label>Advance Deposit Amount (AED)</label><input type="number" id="bank-advance-amount" placeholder="250"/></div>
           <div class="field"><label>WhatsApp Number (for orders)</label><input type="text" id="bank-whatsapp" placeholder="923000000000"/></div>
         </div>
         <button class="btn btn-primary" style="margin-top:16px" onclick="saveBankSettings()"><i class="fas fa-floppy-disk"></i> Save Bank Details</button>
@@ -648,11 +707,30 @@ tr:hover td{background:rgba(255,255,255,0.02);}
       <div class="card-body">
         <p style="font-size:0.78rem;color:var(--muted);margin-bottom:16px">These fees automatically show on every product page's checkout — Standard / Express / Free shipping options.</p>
         <div class="form-grid form-grid-3">
-          <div class="field"><label>Standard Delivery Fee (Rs.)</label><input type="number" id="ship-standard-fee" placeholder="200"/></div>
-          <div class="field"><label>Express Delivery Fee (Rs.)</label><input type="number" id="ship-express-fee" placeholder="400"/></div>
-          <div class="field"><label>Free Shipping Threshold (Rs.)</label><input type="number" id="ship-free-threshold" placeholder="10000"/></div>
+          <div class="field"><label>Standard Delivery Fee (AED)</label><input type="number" id="ship-standard-fee" placeholder="200"/></div>
+          <div class="field"><label>Express Delivery Fee (AED)</label><input type="number" id="ship-express-fee" placeholder="400"/></div>
+          <div class="field"><label>Free Shipping Threshold (AED)</label><input type="number" id="ship-free-threshold" placeholder="10000"/></div>
         </div>
         <button class="btn btn-primary" style="margin-top:16px" onclick="saveShippingSettings()"><i class="fas fa-floppy-disk"></i> Save Shipping Fees</button>
+      </div>
+    </div>
+
+    <!-- ====== ZEINA PAYMENT GATEWAY ====== -->
+    <div class="card" style="margin-bottom:16px">
+      <div class="card-header"><div class="card-title"><i class="fas fa-credit-card" style="margin-right:8px;color:var(--accent)"></i> Zeina (Ziina) Payment Gateway</div></div>
+      <div class="card-body">
+        <p style="font-size:0.78rem;color:var(--muted);margin-bottom:16px">Zeina lets customers pay with UAE cards, Apple Pay &amp; Google Pay. Generate an access token at <strong>docs.ziina.com</strong> (Custom integration → Other builder or custom). Use <strong>test</strong> while sandbox testing, then switch to <strong>live</strong>.</p>
+        <div class="form-grid form-grid-2" style="gap:14px">
+          <div class="field"><label>Access Token</label><input type="password" id="zeina-token" placeholder="Bearer access token from Ziina"/></div>
+          <div class="field"><label>Mode</label>
+            <select id="zeina-mode">
+              <option value="test">Test (sandbox)</option>
+              <option value="live">Live</option>
+            </select>
+          </div>
+        </div>
+        <button class="btn btn-primary" style="margin-top:18px" onclick="saveZeinaSettings()"><i class="fas fa-floppy-disk"></i> Save Zeina Settings</button>
+        <p style="font-size:0.72rem;color:var(--muted);margin-top:10px" id="zeina-save-status"></p>
       </div>
     </div>
 
@@ -696,7 +774,16 @@ tr:hover td{background:rgba(255,255,255,0.02);}
   <!-- ===== COUPONS ===== -->
   <div class="page" id="page-coupons">
     <div style="display:flex;justify-content:flex-end;margin-bottom:20px">
-      <button class="btn btn-primary" onclick="openModal('coupon-modal')"><i class="fas fa-plus"></i> Create Coupon</button>
+      <button class="btn btn-primary" onclick="openCouponModal()"><i class="fas fa-plus"></i> Create Coupon</button>
+    </div>
+    <div class="card" style="margin-bottom:16px">
+      <div class="card-header">
+        <div class="card-title"><i class="fas fa-fire" style="margin-right:8px;color:var(--accent)"></i> Storefront Sale Banner — Live Preview</div>
+        <button class="btn btn-outline btn-sm" onclick="refreshSalePreview()"><i class="fas fa-rotate"></i> Refresh</button>
+      </div>
+      <div class="card-body" id="sale-preview-body">
+        <p style="font-size:0.82rem;color:var(--muted);margin:0">Loading sale banner preview...</p>
+      </div>
     </div>
     <div class="card">
       <div class="card-body" style="padding:0">
@@ -704,9 +791,9 @@ tr:hover td{background:rgba(255,255,255,0.02);}
           <thead><tr><th>Code</th><th>Type</th><th>Discount</th><th>Min Order</th><th>Uses</th><th>Expiry</th><th>Status</th><th>Actions</th></tr></thead>
           <tbody></tbody>
           <!-- <tbody>
-            <tr><td><strong>SUMMER26</strong></td><td>Percentage</td><td>20%</td><td>Rs. 2,000</td><td>45 / 100</td><td>Jun 30, 2026</td><td><span class="badge badge-active">Active</span></td><td style="display:flex;gap:6px"><button class="icon-btn"><i class="fas fa-pen"></i></button><button class="icon-btn del"><i class="fas fa-trash"></i></button></td></tr>
-            <tr><td><strong>DN250</strong></td><td>Flat</td><td>Rs. 250</td><td>Rs. 1,500</td><td>128 / 500</td><td>Jul 15, 2026</td><td><span class="badge badge-active">Active</span></td><td style="display:flex;gap:6px"><button class="icon-btn"><i class="fas fa-pen"></i></button><button class="icon-btn del"><i class="fas fa-trash"></i></button></td></tr>
-            <tr><td><strong>ELITE10</strong></td><td>Percentage</td><td>10%</td><td>Rs. 5,000</td><td>22 / 50</td><td>Jun 20, 2026</td><td><span class="badge badge-inactive">Expired</span></td><td style="display:flex;gap:6px"><button class="icon-btn"><i class="fas fa-pen"></i></button><button class="icon-btn del"><i class="fas fa-trash"></i></button></td></tr>
+            <tr><td><strong>SUMMER26</strong></td><td>Percentage</td><td>20%</td><td>AED 2,000</td><td>45 / 100</td><td>Jun 30, 2026</td><td><span class="badge badge-active">Active</span></td><td style="display:flex;gap:6px"><button class="icon-btn"><i class="fas fa-pen"></i></button><button class="icon-btn del"><i class="fas fa-trash"></i></button></td></tr>
+            <tr><td><strong>DN250</strong></td><td>Flat</td><td>AED 250</td><td>AED 1,500</td><td>128 / 500</td><td>Jul 15, 2026</td><td><span class="badge badge-active">Active</span></td><td style="display:flex;gap:6px"><button class="icon-btn"><i class="fas fa-pen"></i></button><button class="icon-btn del"><i class="fas fa-trash"></i></button></td></tr>
+            <tr><td><strong>ELITE10</strong></td><td>Percentage</td><td>10%</td><td>AED 5,000</td><td>22 / 50</td><td>Jun 20, 2026</td><td><span class="badge badge-inactive">Expired</span></td><td style="display:flex;gap:6px"><button class="icon-btn"><i class="fas fa-pen"></i></button><button class="icon-btn del"><i class="fas fa-trash"></i></button></td></tr>
           </tbody> -->
         </table>
       </div>
@@ -716,10 +803,10 @@ tr:hover td{background:rgba(255,255,255,0.02);}
   <!-- ===== REPORTS ===== -->
   <div class="page" id="page-reports">
     <div class="stats-grid" style="margin-bottom:20px">
-      <div class="stat-card"><div class="stat-top"><div class="stat-icon gold"><i class="fas fa-chart-line"></i></div><span class="stat-badge up" id="reports-revenue-badge">↑ 0%</span></div><div class="stat-value" id="reports-revenue">Rs. 0</div><div class="stat-label">This Month Revenue</div></div>
+      <div class="stat-card"><div class="stat-top"><div class="stat-icon gold"><i class="fas fa-chart-line"></i></div><span class="stat-badge up" id="reports-revenue-badge">↑ 0%</span></div><div class="stat-value" id="reports-revenue">AED 0</div><div class="stat-label">This Month Revenue</div></div>
       <div class="stat-card"><div class="stat-top"><div class="stat-icon green"><i class="fas fa-shopping-bag"></i></div><span class="stat-badge up" id="reports-orders-badge">↑ 0%</span></div><div class="stat-value" id="reports-orders">0</div><div class="stat-label">This Month Orders</div></div>
       <div class="stat-card"><div class="stat-top"><div class="stat-icon blue"><i class="fas fa-users"></i></div></div><div class="stat-value" id="reports-customers">0</div><div class="stat-label">New Customers</div></div>
-      <div class="stat-card"><div class="stat-top"><div class="stat-icon purple"><i class="fas fa-rotate"></i></div></div><div class="stat-value" id="reports-refunds">Rs. 0</div><div class="stat-label">Refunds</div></div>
+      <div class="stat-card"><div class="stat-top"><div class="stat-icon purple"><i class="fas fa-rotate"></i></div></div><div class="stat-value" id="reports-refunds">AED 0</div><div class="stat-label">Refunds</div></div>
     </div>
     <div class="grid-2">
       <div class="card">
@@ -744,6 +831,8 @@ tr:hover td{background:rgba(255,255,255,0.02);}
     </div>
     <div style="display:flex;gap:10px;margin-top:16px;flex-wrap:wrap">
       <button class="btn btn-outline" onclick="exportReportPDF()"><i class="fas fa-file-pdf"></i> Export PDF</button>
+     <button class="btn btn-outline" onclick="exportReportExcel()"><i class="fas fa-file-excel"></i> Export Excel</button>
+     <button class="btn btn-outline" onclick="exportOrders('csv')"><i class="fas fa-file-csv"></i> Export Orders CSV</button>
      
      <button class="btn btn-outline" onclick="exportReportExcel()"><i class="fas fa-file-excel"></i> Export Excel</button>
     </div>
@@ -767,7 +856,7 @@ tr:hover td{background:rgba(255,255,255,0.02);}
 
           <div style="display:flex;flex-direction:column;gap:12px">
   <div style="display:flex;align-items:center;gap:14px;padding:12px;background:var(--bg3);border-radius:10px;">
-    <div style="width:80px;height:50px;background:var(--bg);border-radius:6px;overflow:hidden"><img src="https://dnstore.pk/cdn/shop/collections/A6F9D276-DD01-4A48-A90F-4C075B4DE837.jpg?v=1777718686&width=200" style="width:100%;height:100%;object-fit:cover"/></div>
+    <div style="width:80px;height:50px;background:var(--bg);border-radius:6px;overflow:hidden"><img src="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22200%22%20height%3D%22250%22%3E%3Crect%20fill%3D%22%23e8e0d0%22%20width%3D%22200%22%20height%3D%22250%22%2F%3E%3Ctext%20x%3D%22100%22%20y%3D%22125%22%20text-anchor%3D%22middle%22%20font-family%3D%22sans-serif%22%20font-size%3D%2236%22%20fill%3D%22%23b8860b%22%3E%F0%9F%93%B7%3C%2Ftext%3E%3Ctext%20x%3D%22100%22%20y%3D%22155%22%20text-anchor%3D%22middle%22%20font-family%3D%22sans-serif%22%20font-size%3D%2213%22%20fill%3D%22%23887755%22%3ENO%20IMAGE%3C%2Ftext%3E%3C%2Fsvg%3E" style="width:100%;height:100%;object-fit:cover"/></div>
     <div style="flex:1"><div style="font-size:0.85rem;font-weight:600">Summer Élite '26</div><div style="font-size:0.72rem;color:var(--muted)">Link: ./view.html</div></div>
     <span class="badge badge-active">Active</span>
    <button class="icon-btn" onclick="editSlide(this)"><i class="fas fa-pen"></i></button>   <!-- ❌ no onclick -->
@@ -775,7 +864,7 @@ tr:hover td{background:rgba(255,255,255,0.02);}
   </div>
   ...
           <div style="display:flex;align-items:center;gap:14px;padding:12px;background:var(--bg3);border-radius:10px;">
-            <div style="width:80px;height:50px;background:var(--bg);border-radius:6px;overflow:hidden"><img src="https://dnstore.pk/cdn/shop/collections/26993920-13C0-4CA5-92E5-94F20642AFBD.jpg?v=1777718722&width=200" style="width:100%;height:100%;object-fit:cover"/></div>
+            <div style="width:80px;height:50px;background:var(--bg);border-radius:6px;overflow:hidden"><img src="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22200%22%20height%3D%22250%22%3E%3Crect%20fill%3D%22%23e8e0d0%22%20width%3D%22200%22%20height%3D%22250%22%2F%3E%3Ctext%20x%3D%22100%22%20y%3D%22125%22%20text-anchor%3D%22middle%22%20font-family%3D%22sans-serif%22%20font-size%3D%2236%22%20fill%3D%22%23b8860b%22%3E%F0%9F%93%B7%3C%2Ftext%3E%3Ctext%20x%3D%22100%22%20y%3D%22155%22%20text-anchor%3D%22middle%22%20font-family%3D%22sans-serif%22%20font-size%3D%2213%22%20fill%3D%22%23887755%22%3ENO%20IMAGE%3C%2Ftext%3E%3C%2Fsvg%3E" style="width:100%;height:100%;object-fit:cover"/></div>
             <div style="flex:1"><div style="font-size:0.85rem;font-weight:600">Tracksuits Collection</div><div style="font-size:0.72rem;color:var(--muted)">Link: ./TrackSuits.html</div></div>
             <span class="badge badge-active">Active</span>
             <button class="icon-btn" onclick="editSlide(this)"><i class="fas fa-pen"></i></button>
@@ -791,7 +880,7 @@ tr:hover td{background:rgba(255,255,255,0.02);}
         <p style="font-size:0.78rem;color:var(--muted);margin-bottom:12px">This text appears on the scrolling announcement bar at the top of every page. Change it anytime — no redeploy needed.</p>
         <div class="field" style="margin-bottom:14px">
           <label>Announcement Text</label>
-          <input type="text" id="cms-announce-text" placeholder="e.g. 🚚 Free Shipping on Orders Above Rs. 10,000 | 🎉 Summer Sale Live!" style="width:100%"/>
+          <input type="text" id="cms-announce-text" placeholder="e.g. 🚚 Free Shipping on Orders Above AED 10,000 | 🎉 Summer Sale Live!" style="width:100%"/>
         </div>
         <button class="btn btn-primary" onclick="saveAnnouncementText()"><i class="fas fa-floppy-disk"></i> Save Announcement</button>
       </div>
@@ -827,7 +916,7 @@ tr:hover td{background:rgba(255,255,255,0.02);}
         <div class="card-body">
           <p style="font-size:0.78rem;color:var(--muted);margin-bottom:12px">This text appears on the scrolling announcement bar at the top of every page. Change it anytime — no redeploy needed.</p>
           <div class="field"><label>Announcement Text</label>
-            <input type="text" id="cms-announce-text" placeholder="e.g. 🚚 Free Shipping on Orders Above Rs. 10,000 | 🎉 Summer Sale Live!" style="width:100%"/>
+            <input type="text" id="cms-announce-text" placeholder="e.g. 🚚 Free Shipping on Orders Above AED 10,000 | 🎉 Summer Sale Live!" style="width:100%"/>
           </div>
           <button class="btn btn-primary" style="margin-top:12px" onclick="saveAnnouncementText()"><i class="fas fa-floppy-disk"></i> Save Announcement</button>
         </div>
@@ -847,7 +936,7 @@ tr:hover td{background:rgba(255,255,255,0.02);}
               </select>
             </div>
           </div>
-          <button class="btn btn-primary" style="margin-top:18px" onclick="sendAnnouncementEmail()"><i class="fas fa-paper-plane"></i> Send Email to All Subscribers</button>
+          <button class="btn btn-primary" id="send-campaign-btn" style="margin-top:18px" onclick="sendAnnouncementEmail()"><i class="fas fa-paper-plane"></i> Send Email to All Subscribers</button>
           <p style="font-size:0.72rem;color:var(--muted);margin-top:10px"><i class="fas fa-circle-info"></i> Email goes to every user who signed up / subscribed to the newsletter on the store.</p>
         </div>
       </div>
@@ -977,15 +1066,63 @@ tr:hover td{background:rgba(255,255,255,0.02);}
                 <div class="field"><label>WhatsApp</label><input type="text" value="+92 300 0000000"/></div>
                 <div class="field"><label>Default Display Currency</label>
                   <select id="default-currency" onchange="updateCurrencyDisplays()">
-                    <option value="PKR" selected>PKR – Pakistani Rupee (Rs.)</option>
-                    <option value="AED">AED – UAE Dirham (د.إ)</option>
+                    <option value="AED" selected>AED – UAE Dirham</option>
+                    <option value="PKR">PKR – Pakistani Rupee</option>
                     <option value="USD">USD – US Dollar ($)</option>
                   </select>
                 </div>
-                <div class="field"><label>Advance Amount Required</label><input type="text" value="Rs. 250"/></div>
+                <div class="field"><label>Advance Amount Required</label><input type="text" value="AED 250"/></div>
               </div>
               <button class="btn btn-primary" style="margin-top:18px" onclick="toast('Store settings saved!','success')"><i class="fas fa-floppy-disk"></i> Save</button>
             </div>
+          </div>
+        </div>
+
+        <div class="settings-section">
+          <div class="card">
+            <div class="card-header"><div class="card-title"><i class="fas fa-envelope-open-text" style="margin-right:8px;color:var(--accent)"></i>Email / SMTP Settings</div></div>
+            <div class="card-body">
+              <p style="font-size:0.78rem;color:var(--muted);margin-bottom:14px">Used to send <strong>approval emails</strong>, security alerts, order notifications and newsletter campaigns. For Gmail, create an App Password at <strong>myaccount.google.com → Security → App passwords</strong>.</p>
+              <div class="form-grid" style="gap:14px">
+                <div class="field"><label>SMTP Host</label><input type="text" id="smtp-host" value="smtp.gmail.com"/></div>
+                <div class="field"><label>Port</label><input type="number" id="smtp-port" value="587" onchange="syncSmtpSecure()"/></div>
+                <div class="field"><label>Sender Email</label><input type="email" id="smtp-user" placeholder="binsalehllc946@gmail.com"/></div>
+                <div class="field"><label>App Password</label><input type="password" id="smtp-pass" placeholder="16-character app password"/></div>
+              </div>
+              <div style="display:flex;align-items:center;gap:12px;margin-top:14px">
+                <label class="toggle"><input type="checkbox" id="smtp-secure" onchange="syncSmtpSecure()"/><div class="toggle-slider"></div></label>
+                <span style="font-size:0.84rem">Secure connection (SSL — auto: 465=ON, 587=OFF)</span>
+              </div>
+              <div style="display:flex;gap:12px;margin-top:18px;flex-wrap:wrap">
+                <button class="btn btn-primary" onclick="saveSmtpSettings()"><i class="fas fa-floppy-disk"></i> Save SMTP Settings</button>
+                <button class="btn btn-outline" onclick="sendTestEmail()"><i class="fas fa-paper-plane"></i> Send Test Email</button>
+              </div>
+              <p style="font-size:0.72rem;color:var(--muted);margin-top:12px" id="smtp-save-status"></p>
+            </div>
+          </div>
+        </div>
+
+        <div class="card" style="margin-bottom:16px">
+          <div class="card-header"><div class="card-title"><i class="fas fa-money-bill-wave" style="margin-right:8px;color:var(--accent)"></i>Cash on Delivery (COD) Settings</div></div>
+          <div class="card-body">
+            <p style="font-size:0.78rem;color:var(--muted);margin-bottom:14px">Control whether customers can pay on delivery and how much advance is required to confirm a COD order. The advance is shown to the customer at checkout (fixed amount or percentage of the order total).</p>
+            <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px">
+              <label class="toggle"><input type="checkbox" id="cod-enabled" checked/><div class="toggle-slider"></div></label>
+              <span style="font-size:0.84rem">Enable Cash on Delivery</span>
+            </div>
+            <div class="field"><label>Advance Requirement</label>
+              <select id="cod-advance-type" onchange="syncCodAdvanceFields()">
+                <option value="fixed">Fixed amount</option>
+                <option value="percentage">Percentage of order total</option>
+                <option value="none">No advance required</option>
+              </select>
+            </div>
+            <div class="form-grid form-grid-2" style="gap:14px;margin-top:14px">
+              <div class="field" id="cod-fixed-field"><label>Fixed Advance (AED)</label><input type="number" id="cod-fixed-amount" min="0" step="1" value="50"/></div>
+              <div class="field" id="cod-percent-field" style="display:none"><label>Advance % of total</label><input type="number" id="cod-percentage" min="0" max="100" step="1" value="30"/></div>
+            </div>
+            <button class="btn btn-primary" style="margin-top:18px" onclick="saveCodSettings()"><i class="fas fa-floppy-disk"></i> Save COD Settings</button>
+            <p style="font-size:0.72rem;color:var(--muted);margin-top:10px" id="cod-save-status"></p>
           </div>
         </div>
 
@@ -1023,8 +1160,8 @@ tr:hover td{background:rgba(255,255,255,0.02);}
           <div class="card-header"><div class="card-title"><i class="fas fa-truck" style="margin-right:8px;color:var(--accent)"></i>Shipping</div></div>
           <div class="card-body">
             <div class="form-grid" style="gap:14px">
-              <div class="field"><label>Free Shipping Above</label><input type="text" value="Rs. 10,000"/></div>
-              <div class="field"><label>Standard Shipping Fee</label><input type="text" value="Rs. 200"/></div>
+              <div class="field"><label>Free Shipping Above</label><input type="text" value="AED 10,000"/></div>
+              <div class="field"><label>Standard Shipping Fee</label><input type="text" value="AED 200"/></div>
             </div>
             <div style="display:flex;align-items:center;gap:12px;margin-top:14px">
               <label class="toggle"><input type="checkbox" checked/><div class="toggle-slider"></div></label>
@@ -1100,6 +1237,7 @@ tr:hover td{background:rgba(255,255,255,0.02);}
             <option value="footwear">Footwear</option>
             <option value="fragrances">Fragrances</option>
             <option value="accessories">Accessories</option>
+            <option value="home-kitchen">Home & Kitchen</option>
           </select>
         </div>
       </div>
@@ -1110,7 +1248,7 @@ tr:hover td{background:rgba(255,255,255,0.02);}
         <div class="form-grid form-grid-3">
           <div class="field"><label>Price Currency</label>
             <select id="p-currency" onchange="convertPriceCurrency()">
-              <option value="PKR">PKR – Rs.</option>
+              <option value="PKR">PKR – AED</option>
               <option value="AED">AED – د.إ</option>
               <option value="USD">USD – $</option>
             </select>
@@ -1129,8 +1267,11 @@ tr:hover td{background:rgba(255,255,255,0.02);}
         <div class="field"><label>Badge</label>
           <select id="p-badge"><option value="SALE">SALE</option><option value="NEW">NEW</option><option value="ÉLITE">ÉLITE</option><option value="">None</option></select>
         </div>
-        <div class="field"><label>Stock Status</label>
-          <select id="p-stock"><option value="true">In Stock</option><option value="false">Out of Stock</option></select>
+        <div class="field"><label>Stock Quantity</label>
+          <input type="number" id="p-stock-qty" min="0" value="0" placeholder="0"/>
+        </div>
+        <div class="field"><label>Low Stock Threshold</label>
+          <input type="number" id="p-stock-threshold" min="0" value="5" placeholder="5"/>
         </div>
       </div>
 
@@ -1177,7 +1318,7 @@ tr:hover td{background:rgba(255,255,255,0.02);}
           <textarea id="p-detail-size" rows="6" placeholder="One point per line, e.g.&#10;Case Diameter: 41mm&#10;Strap Length: Adjustable"></textarea>
         </div>
         <div class="detail-tab-pane" id="pane-shipping">
-          <textarea id="p-detail-shipping" rows="6" placeholder="One point per line, e.g.&#10;Nationwide delivery — 2 to 5 working days&#10;Free shipping on orders above Rs. 10,000"></textarea>
+          <textarea id="p-detail-shipping" rows="6" placeholder="One point per line, e.g.&#10;Nationwide delivery — 2 to 5 working days&#10;Free shipping on orders above AED 10,000"></textarea>
         </div>
       </div>
 
@@ -1246,17 +1387,22 @@ tr:hover td{background:rgba(255,255,255,0.02);}
     <div class="modal-header"><div class="modal-title">Create Coupon</div><button class="modal-close" onclick="closeModal('coupon-modal')"><i class="fas fa-times"></i></button></div>
     <div class="modal-body">
       <div class="form-grid form-grid-2">
-        <div class="field"><label>Coupon Code</label><input type="text" placeholder="SUMMER26"/></div>
-        <div class="field"><label>Type</label><select><option>Percentage</option><option>Flat Amount</option></select></div>
-        <div class="field"><label>Discount Value</label><input type="text" placeholder="20 (%) or 250 (Rs.)"/></div>
-        <div class="field"><label>Min Order Value</label><input type="text" placeholder="Rs. 2000"/></div>
-        <div class="field"><label>Usage Limit</label><input type="number" placeholder="100"/></div>
-        <div class="field"><label>Expiry Date</label><input type="date"/></div>
+        <div class="field"><label>Coupon Code</label><input id="cp-code" type="text" placeholder="SUMMER26"/></div>
+        <div class="field"><label>Type</label><select id="cp-type"><option value="percentage">Percentage</option><option value="flat">Flat Amount</option></select></div>
+        <div class="field"><label>Discount Value</label><input id="cp-discount" type="number" step="any" min="0" placeholder="20 (%) or 250 (AED)"/></div>
+        <div class="field"><label>Min Order Value</label><input id="cp-min-order" type="number" step="any" min="0" placeholder="AED 2000"/></div>
+        <div class="field"><label>Usage Limit</label><input id="cp-limit" type="number" min="1" placeholder="100"/></div>
+        <div class="field"><label>Start Date</label><input id="cp-start" type="datetime-local"/></div>
+        <div class="field"><label>Expiry Date</label><input id="cp-expiry" type="datetime-local"/></div>
+        <div class="field" style="display:flex;align-items:center;gap:8px;padding-top:20px">
+          <label class="toggle"><input id="cp-active" type="checkbox" checked/><div class="toggle-slider"></div></label>
+          <span style="font-size:0.84rem;color:var(--muted)">Active</span>
+        </div>
       </div>
     </div>
     <div class="modal-footer">
       <button class="btn btn-outline" onclick="closeModal('coupon-modal')">Cancel</button>
-   <button class="btn btn-primary" onclick="saveCoupon()"><i class="fas fa-floppy-disk"></i> Save</button>
+      <button class="btn btn-primary" onclick="saveCoupon()"><i class="fas fa-floppy-disk"></i> Save</button>
     </div>
   </div>
 </div>
@@ -1313,144 +1459,35 @@ tr:hover td{background:rgba(255,255,255,0.02);}
 <!-- Toast -->
 <div id="toast"></div>
 
-<script src="./js/api.js"></script>
+<script src="./js/api.js?v=2"></script>
 <script>
+// ===== API CONNECTION DIAGNOSTIC =====
+(function checkAPI(){
+  if(typeof api==='undefined'||!api.get){console.error('❌ API not loaded! Check if api.js loaded correctly.');document.body.insertAdjacentHTML('afterbegin','<div style="background:#ff4444;color:white;padding:8px 20px;text-align:center;font-size:14px;z-index:9999;position:sticky;top:0">⚠️ API connection failed — api.js not loaded. Check console.</div>');return;}
+  api.get('/products').then(p=>{console.log('✅ API connected. Products:',p.length);}).catch(e=>{console.error('❌ API error:',e.message);document.body.insertAdjacentHTML('afterbegin','<div style="background:#ff4444;color:white;padding:8px 20px;text-align:center;font-size:14px;z-index:9999;position:sticky;top:0">⚠️ API connection failed: '+e.message+'. Make sure backend is running on port 5000.</div>');});
+})();
+
+// ===== LOCAL PLACEHOLDER (store.js is NOT loaded on admin panel) =====
+// Clean, simple placeholder — a beige box with a camera icon and 'NO IMAGE' text
+// This data URI is validated to be well-formed SVG that always loads
+const PLACEHOLDER_IMG = 'data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22200%22%20height%3D%22250%22%3E%3Crect%20fill%3D%22%23e8e0d0%22%20width%3D%22200%22%20height%3D%22250%22%2F%3E%3Ctext%20x%3D%22100%22%20y%3D%22125%22%20text-anchor%3D%22middle%22%20font-family%3D%22sans-serif%22%20font-size%3D%2236%22%20fill%3D%22%23b8860b%22%3E%F0%9F%93%B7%3C%2Ftext%3E%3Ctext%20x%3D%22100%22%20y%3D%22155%22%20text-anchor%3D%22middle%22%20font-family%3D%22sans-serif%22%20font-size%3D%2213%22%20fill%3D%22%23887755%22%3ENO%20IMAGE%3C%2Ftext%3E%3C%2Fsvg%3E';
+
+// Local fallback for getSliderSlides (store.js is NOT loaded on admin panel)
+function getSliderSlides() {
+  try {
+    var saved = localStorage.getItem('bs_hero_slides');
+    if (saved) {
+      var parsed = JSON.parse(saved);
+      if (Array.isArray(parsed) && parsed.length) return parsed;
+    }
+  } catch(e) {}
+  return [];
+}
+
 // ===== STORAGE KEYS =====
 const LS_PRODUCTS = 'dn_products';
 const LS_BANK     = 'dn_bank_settings';
 // Reviews are now stored per-product as dn_reviews_<productId>, matching product.html's getProductReviews()/saveProductReviews()
-
-// ===== DEFAULT DATA (used only if localStorage is empty, i.e. first run) =====
-const defaultProducts = [
-  { id:1, name:"Linen Co-ord Set – Beige", category:"tracksuits", price:5450, oldPrice:8999, currency:"PKR", badge:"SALE", inStock:true,
-    images:["https://dnstore.pk/cdn/shop/files/IMG_7830.jpg?v=1774721492&width=800"],
-    colors:[{name:"beige", label:"Beige", inStock:true}],
-    details:"Premium Quality | Lightweight Linen Build\nBreathable fabric perfect for summer\nComes with matching top and bottom",
-    care:"Hand wash cold or dry clean only\nDo not bleach\nIron on low heat if needed",
-    size:"Available in S, M, L, XL\nRelaxed fit — true to size\nModel is wearing size M",
-    shipping:"Nationwide delivery — 2 to 5 working days\nFree shipping on orders above Rs. 10,000\nRs. 250 advance required to confirm COD orders",
-    img:"https://dnstore.pk/cdn/shop/files/IMG_7830.jpg?v=1774721492&width=200" },
-  { id:2, name:"DN Baggy Tracksuit – Olive", category:"tracksuits", price:6500, oldPrice:9999, currency:"PKR", badge:"SALE", inStock:true,
-    images:["https://dnstore.pk/cdn/shop/collections/26993920-13C0-4CA5-92E5-94F20642AFBD.jpg?v=1777718722&width=800"],
-    colors:[{name:"olive", label:"Olive", inStock:true}],
-    details:"Premium heavyweight fleece\nBaggy relaxed fit\nRibbed cuffs and hem",
-    care:"Machine wash cold, inside out\nDo not tumble dry on high heat",
-    size:"Available in M, L, XL, XXL\nOversized fit",
-    shipping:"Nationwide delivery — 2 to 5 working days\nFree shipping on orders above Rs. 10,000",
-    img:"https://dnstore.pk/cdn/shop/collections/26993920-13C0-4CA5-92E5-94F20642AFBD.jpg?v=1777718722&width=200" },
-  { id:3, name:"Adidas Samba – White", category:"footwear", price:3550, oldPrice:12000, currency:"PKR", badge:"SALE", inStock:true,
-    images:["https://dnstore.pk/cdn/shop/files/CE97B476-E5CA-4C66-B89B-6E3631B5E368.jpg?v=1767185810&width=800"],
-    colors:[{name:"white", label:"White", inStock:true},{name:"black", label:"Black", inStock:true}],
-    details:"Premium Master Copy — dot perfect\nGenuine leather upper\nGum rubber sole",
-    care:"Wipe clean with a damp cloth\nAvoid direct sunlight for long periods",
-    size:"True to size — order your normal shoe size\nAvailable EU 39–45",
-    shipping:"Nationwide delivery — 2 to 5 working days\nRs. 250 advance required to confirm COD orders",
-    img:"https://dnstore.pk/cdn/shop/files/CE97B476-E5CA-4C66-B89B-6E3631B5E368.jpg?v=1767185810&width=200" },
-  { id:4, name:"212 MEN NYC Fragrance", category:"fragrances", price:3250, oldPrice:7000, currency:"PKR", badge:"SALE", inStock:true,
-    images:["https://dnstore.pk/cdn/shop/files/B0D9EFD9-DFAD-45BE-AE7D-E622AC0BBD51.jpg?v=1748380643&width=800"],
-    colors:[{name:"standard", label:"Standard", inStock:true}],
-    details:"100ml Eau de Toilette\nLong lasting fragrance — 8+ hours\nOriginal scent replica",
-    care:"Store in a cool, dry place away from sunlight\nKeep cap tightly closed when not in use",
-    size:"100ml bottle",
-    shipping:"Nationwide delivery — 2 to 5 working days",
-    img:"https://dnstore.pk/cdn/shop/files/B0D9EFD9-DFAD-45BE-AE7D-E622AC0BBD51.jpg?v=1748380643&width=200" },
-  { id:5, name:"Arabic AURA Watch", category:"accessories", price:1799, oldPrice:4799, currency:"PKR", badge:"NEW", inStock:true,
-    images:["https://dnstore.pk/cdn/shop/files/00257696-1891-4E6D-8F1B-FE61EC13F218.jpg?v=1752099973&width=800"],
-    colors:[{name:"gold", label:"Gold", inStock:true},{name:"silver", label:"Silver", inStock:true}],
-    details:"Premium Quality | Heavyweight Build\nQuartz movement\nWater resistant splash-proof",
-    care:"Avoid prolonged exposure to water\nWipe with soft microfibre cloth",
-    size:"Case Diameter: 40mm\nStrap adjustable, fits most wrists",
-    shipping:"Nationwide delivery — 2 to 5 working days\nFree shipping on orders above Rs. 10,000",
-    img:"https://dnstore.pk/cdn/shop/files/00257696-1891-4E6D-8F1B-FE61EC13F218.jpg?v=1752099973&width=200" },
-  { id:6, name:"Korean Pants – Black", category:"bottoms", price:2200, oldPrice:5500, currency:"PKR", badge:"SALE", inStock:true,
-    images:["https://dnstore.pk/cdn/shop/collections/DE08A2DA-3732-4893-B320-98C24C91F24F.jpg?v=1777718865&width=800"],
-    colors:[{name:"black", label:"Black", inStock:true}],
-    details:"Slim tapered fit\nStretchable fabric for comfort",
-    care:"Machine wash cold\nDo not bleach",
-    size:"Available 28–36 waist sizes",
-    shipping:"Nationwide delivery — 2 to 5 working days",
-    img:"https://dnstore.pk/cdn/shop/collections/DE08A2DA-3732-4893-B320-98C24C91F24F.jpg?v=1777718865&width=200" },
-  { id:7, name:"Accessories Bundle Set", category:"accessories", price:2850, oldPrice:6100, currency:"PKR", badge:"SALE", inStock:false,
-    images:["https://dnstore.pk/cdn/shop/collections/IMG-8713.png?v=1777736201&width=800"],
-    colors:[{name:"mixed", label:"Mixed", inStock:true}],
-    details:"Includes bracelet, sunglasses & wallet\nPremium gift packaging",
-    care:"Wipe clean with soft cloth",
-    size:"One size fits all",
-    shipping:"Nationwide delivery — 2 to 5 working days",
-    img:"https://dnstore.pk/cdn/shop/collections/IMG-8713.png?v=1777736201&width=200" },
-  { id:8, name:"Summer Premium Top", category:"tops", price:1899, oldPrice:3999, currency:"PKR", badge:"NEW", inStock:true,
-    images:["https://dnstore.pk/cdn/shop/collections/A6F9D276-DD01-4A48-A90F-4C075B4DE837.jpg?v=1777718686&width=800"],
-    colors:[{name:"white", label:"White", inStock:true},{name:"beige", label:"Beige", inStock:true}],
-    details:"Breathable cotton blend\nRelaxed everyday fit",
-    care:"Machine wash cold",
-    size:"S, M, L, XL available",
-    shipping:"Nationwide delivery — 2 to 5 working days",
-    img:"https://dnstore.pk/cdn/shop/collections/A6F9D276-DD01-4A48-A90F-4C075B4DE837.jpg?v=1777718686&width=200" },
-  { id:9, name:"Cartier Tank Watch", category:"accessories", price:4500, oldPrice:9999, currency:"PKR", badge:"NEW", inStock:true,
-    images:["https://dnstore.pk/cdn/shop/files/763F2324-5CD9-4056-9009-8878540EFC7E.png?v=1777300230&width=800"],
-    colors:[{name:"gold", label:"Gold", inStock:true}],
-    details:"Master AAA copy — dot perfect\nLeather strap, stainless case",
-    care:"Avoid water exposure\nStore in provided box",
-    size:"Case 25mm x 34mm",
-    shipping:"Nationwide delivery — 2 to 5 working days",
-    img:"https://dnstore.pk/cdn/shop/files/763F2324-5CD9-4056-9009-8878540EFC7E.png?v=1777300230&width=200" },
-  { id:10, name:"Perception Fragrance by DN", category:"fragrances", price:2800, oldPrice:5500, currency:"PKR", badge:"SALE", inStock:true,
-    images:["https://dnstore.pk/cdn/shop/files/FE0E7953-EE9B-4D22-90AE-692071EBA76A.png?v=1772557488&width=800"],
-    colors:[{name:"standard", label:"Standard", inStock:true}],
-    details:"100ml Eau de Parfum\nLong lasting 8+ hours",
-    care:"Store away from sunlight",
-    size:"100ml bottle",
-    shipping:"Nationwide delivery — 2 to 5 working days",
-    img:"https://dnstore.pk/cdn/shop/files/FE0E7953-EE9B-4D22-90AE-692071EBA76A.png?v=1772557488&width=200" },
-  { id:11, name:"Oversized Box-Fit Tee", category:"tops", price:1499, oldPrice:2999, currency:"PKR", badge:"SALE", inStock:true,
-    images:["https://dnstore.pk/cdn/shop/collections/A6F9D276-DD01-4A48-A90F-4C075B4DE837.jpg?v=1777718686&width=800"],
-    colors:[{name:"black", label:"Black", inStock:true},{name:"white", label:"White", inStock:true}],
-    details:"Boxy oversized fit\n240 GSM heavyweight cotton",
-    care:"Machine wash cold, inside out",
-    size:"S–XXL available, fits oversized",
-    shipping:"Nationwide delivery — 2 to 5 working days",
-    img:"https://dnstore.pk/cdn/shop/collections/A6F9D276-DD01-4A48-A90F-4C075B4DE837.jpg?v=1777718686&width=200" },
-  { id:12, name:"Cargo Pants – Khaki", category:"bottoms", price:2600, oldPrice:5200, currency:"PKR", badge:"SALE", inStock:false,
-    images:["https://dnstore.pk/cdn/shop/collections/DE08A2DA-3732-4893-B320-98C24C91F24F.jpg?v=1777718865&width=800"],
-    colors:[{name:"khaki", label:"Khaki", inStock:true}],
-    details:"Multi-pocket cargo design\nStretch fabric",
-    care:"Machine wash cold",
-    size:"28–38 waist sizes",
-    shipping:"Nationwide delivery — 2 to 5 working days",
-    img:"https://dnstore.pk/cdn/shop/collections/DE08A2DA-3732-4893-B320-98C24C91F24F.jpg?v=1777718865&width=200" },
-  { id:13, name:"Sneaker Trainer – Black", category:"footwear", price:4200, oldPrice:8500, currency:"PKR", badge:"SALE", inStock:true,
-    images:["https://dnstore.pk/cdn/shop/collections/FullSizeRender.jpg?v=1777735717&width=800"],
-    colors:[{name:"black", label:"Black", inStock:true}],
-    details:"Premium synthetic leather\nCushioned sole for comfort",
-    care:"Wipe clean with damp cloth",
-    size:"EU 39–45 available",
-    shipping:"Nationwide delivery — 2 to 5 working days",
-    img:"https://dnstore.pk/cdn/shop/collections/FullSizeRender.jpg?v=1777735717&width=200" },
-  { id:14, name:"Summer Co-Ord Set – Blue", category:"tracksuits", price:7200, oldPrice:12000, currency:"PKR", badge:"NEW", inStock:true,
-    images:["https://dnstore.pk/cdn/shop/collections/26993920-13C0-4CA5-92E5-94F20642AFBD.jpg?v=1777718722&width=800"],
-    colors:[{name:"blue", label:"Blue", inStock:true}],
-    details:"Lightweight summer fabric\nMatching top and bottom set",
-    care:"Hand wash cold",
-    size:"S, M, L, XL available",
-    shipping:"Nationwide delivery — 2 to 5 working days",
-    img:"https://dnstore.pk/cdn/shop/collections/26993920-13C0-4CA5-92E5-94F20642AFBD.jpg?v=1777718722&width=200" },
-  { id:15, name:"Bracelet & Sunglasses Pack", category:"accessories", price:1200, oldPrice:2800, currency:"PKR", badge:"SALE", inStock:true,
-    images:["https://dnstore.pk/cdn/shop/collections/IMG-8713.png?v=1777736201&width=800"],
-    colors:[{name:"mixed", label:"Mixed", inStock:true}],
-    details:"Includes bracelet & sunglasses\nUV protection lenses",
-    care:"Wipe clean with soft cloth",
-    size:"One size fits all",
-    shipping:"Nationwide delivery — 2 to 5 working days",
-    img:"https://dnstore.pk/cdn/shop/collections/IMG-8713.png?v=1777736201&width=200" },
-  { id:16, name:"Premium Polo Shirt", category:"tops", price:2100, oldPrice:4200, currency:"PKR", badge:"NEW", inStock:true,
-    images:["https://dnstore.pk/cdn/shop/collections/A6F9D276-DD01-4A48-A90F-4C075B4DE837.jpg?v=1777718686&width=800"],
-    colors:[{name:"navy", label:"Navy", inStock:true},{name:"white", label:"White", inStock:true}],
-    details:"Premium pique cotton\nRibbed collar and cuffs",
-    care:"Machine wash cold",
-    size:"S–XXL available",
-    shipping:"Nationwide delivery — 2 to 5 working days",
-    img:"https://dnstore.pk/cdn/shop/collections/A6F9D276-DD01-4A48-A90F-4C075B4DE837.jpg?v=1777718686&width=200" },
-];
 
 const defaultBankSettings = {
   advanceAmount: 250,
@@ -1497,9 +1534,67 @@ function seedDemoReviewsIfEmpty() {
 // Products ab backend se aate hain (localStorage ki jagah)
 let products = [];
 
+// Sync the current products array to localStorage so frontend pages can use it as fallback
+function syncProductsToLocalStorage() {
+  try {
+    // Clone to avoid mutation issues
+    var copy = JSON.parse(JSON.stringify(products));
+    copy.forEach(function(p) {
+      // Normalize images for consistent display everywhere
+      // Filter out any malformed entries
+      if (typeof p.images === 'string') {
+        p.images = p.images.trim() ? [p.images.trim()] : [];
+      } else if (!Array.isArray(p.images)) {
+        p.images = [];
+      } else {
+        p.images = p.images.filter(function(url) {
+          return url && typeof url === 'string' && url.trim() && url !== 'undefined' && url !== 'null';
+        });
+      }
+      if (!p.images.length && p.img && typeof p.img === 'string' && p.img.trim() && p.img !== 'undefined' && p.img !== 'null') {
+        p.images = [p.img.trim()];
+      }
+      if ((!p.img || p.img === 'undefined' || p.img === 'null') && p.images && p.images.length) {
+        p.img = p.images[0];
+      }
+    });
+    localStorage.setItem('dn_products', JSON.stringify(copy));
+  } catch(e) {}
+}
+
 async function loadProductsFromAPI() {
   try {
     products = await api.get('/products');
+    // Normalize images for local storage (ensure every product has both images and img)
+    // Also filter out any malformed image entries
+    products.forEach(function(p) {
+      // Ensure images is always a clean array
+      if (typeof p.images === 'string') {
+        p.images = p.images.trim() ? [p.images.trim()] : [];
+      } else if (!Array.isArray(p.images)) {
+        p.images = [];
+      } else {
+        // Filter out empty/falsy entries from the array
+        p.images = p.images.filter(function(url) {
+          return url && typeof url === 'string' && url.trim() && url !== 'undefined' && url !== 'null';
+        });
+      }
+      // If still no images, try img field
+      if (!p.images.length) {
+        if (p.img && typeof p.img === 'string' && p.img.trim() && p.img !== 'undefined' && p.img !== 'null') {
+          p.images = [p.img.trim()];
+        }
+      }
+      // Ensure img is set from images[0] if missing
+      if (!p.img && p.images && p.images.length) {
+        p.img = p.images[0];
+      }
+      // Final cleanup: if img exists but images is empty, populate from img
+      if (p.img && typeof p.img === 'string' && p.img.trim() && !p.images.length) {
+        p.images = [p.img.trim()];
+      }
+    });
+    syncProductsToLocalStorage();
     renderProducts();
     renderAllReviewsTable();
   } catch (err) {
@@ -1563,6 +1658,177 @@ function persistShipping() {
 
 // ===== ORDERS — fetched from API =====
 let orders = [];
+let notifData = { notifications: [], unreadCount: 0 };
+
+function toggleNotifPanel(e) {
+  if (e) e.stopPropagation();
+  var p = document.getElementById('notif-panel');
+  if (!p) return;
+  var show = p.style.display === 'none';
+  p.style.display = show ? 'block' : 'none';
+  if (show) loadNotifications();
+}
+document.addEventListener('click', function(e) {
+  var p = document.getElementById('notif-panel');
+  if (p && !p.contains(e.target) && !e.target.closest('#notif-bell')) { p.style.display = 'none'; }
+});
+
+async function loadNotifications() {
+  try {
+    var d = await api.get('/admin/notifications?limit=50');
+    if (!d) return;
+    notifData = d;
+    updateNotifBadge(d.unreadCount || 0);
+    var list = document.getElementById('notif-list');
+    if (!list) return;
+    if (!d.notifications || !d.notifications.length) { list.innerHTML = '<p style="text-align:center;padding:16px">No notifications</p>'; return; }
+    list.innerHTML = d.notifications.map(function(n) {
+      var t = n.title || 'Notification';
+      var m = n.message || '';
+      var time = n.createdAt ? new Date(n.createdAt).toLocaleString() : '';
+      return '<div style="padding:10px;border-bottom:1px solid var(--border,#f0f0f0);cursor:pointer' + (n.read ? '' : ';background:rgba(184,134,11,.08)') + '" onclick="openNotifRef(\'' + n._id + '\',\'' + (n.refType||'') + '\',\'' + (n.refId||'') + '\',\'' + (n.read?'1':'0') + '\')">' +
+        '<div style="font-weight:600;color:var(--text)">' + t + '</div>' +
+        (m ? '<div style="color:var(--muted);margin-top:2px">' + m + '</div>' : '') +
+        '<div style="color:var(--muted);font-size:0.68rem;margin-top:4px">' + time + '</div>' +
+        '<div style="margin-top:6px">' +
+          (!n.read ? '<button class="icon-btn" title="Mark read" onclick="event.stopPropagation();markNotifRead(\'' + n._id + '\')"><i class="fas fa-check"></i></button>' : '') +
+          '<button class="icon-btn del" title="Delete" onclick="event.stopPropagation();deleteNotif(\'' + n._id + '\')"><i class="fas fa-trash"></i></button>' +
+        '</div>' +
+      '</div>';
+    }).join('');
+  } catch (e) { console.warn('Notifications load failed:', e.message); }
+}
+
+function updateNotifBadge(count) {
+  var b = document.getElementById('notif-badge');
+  if (!b) return;
+  if (count > 0) { b.style.display = 'inline-flex'; b.textContent = count > 99 ? '99+' : count; }
+  else b.style.display = 'none';
+}
+
+function openNotifRef(id, refType, refId, read) {
+  try {
+    if (refType === 'order' && refId) { showPage('orders'); viewOrderDetail(refId); }
+    else if (refType === 'review') { showPage('reviews'); }
+    else if (refType === 'product') { showPage('products'); }
+    else if (refType === 'approval') { showPage('activity'); }
+    else { showPage('dashboard'); }
+    if (read !== '1') markNotifRead(id);
+    var p = document.getElementById('notif-panel'); if (p) p.style.display = 'none';
+  } catch (e) {}
+}
+
+async function markNotifRead(id) {
+  try { await api.put('/admin/notifications/' + id, { read: true }); loadNotifications(); } catch (e) {}
+}
+async function markAllNotifsRead() {
+  try { await api.put('/admin/notifications/read-all', {}); loadNotifications(); } catch (e) {}
+}
+async function deleteNotif(id) {
+  try { await api.del('/admin/notifications/' + id); loadNotifications(); } catch (e) {}
+}
+async function clearAllNotifs() {
+  try { await api.del('/admin/notifications'); loadNotifications(); } catch (e) {}
+}
+
+// ---------- AUDIT LOG (Activity page, #14) ----------
+async function loadAuditLogs() {
+  try {
+    var logs = await api.get('/admin/audit?limit=200');
+    var el = document.getElementById('full-activity');
+    if (!el) return;
+    if (!logs || !logs.length) { el.innerHTML = '<p style="color:var(--muted)">No activity recorded yet.</p>'; return; }
+    el.innerHTML = logs.map(function(l) {
+      var d = l.details && typeof l.details === 'object' ? Object.keys(l.details).map(function(k){ return k + ': ' + l.details[k]; }).join(', ') : (l.details || '');
+      return '<div style="padding:10px 0;border-bottom:1px solid var(--border,#f0f0f0)">' +
+        '<div style="display:flex;justify-content:space-between;gap:10px">' +
+          '<div><span class="badge badge-active" style="font-size:0.65rem">' + (l.category || 'system') + '</span> <strong style="font-size:0.82rem">' + (l.action || '') + '</strong></div>' +
+          '<span style="color:var(--muted);font-size:0.7rem">' + (l.createdAt ? new Date(l.createdAt).toLocaleString() : '') + '</span>' +
+        '</div>' +
+        (d ? '<div style="color:var(--muted);font-size:0.75rem;margin-top:3px">' + d + '</div>' : '') +
+        (l.actor && l.actor !== 'system' ? '<div style="color:var(--muted);font-size:0.7rem;margin-top:2px">by ' + l.actor + '</div>' : '') +
+      '</div>';
+    }).join('');
+  } catch (e) { console.warn('Audit load failed:', e.message); }
+}
+
+// ---------- LOW STOCK BANNER + WISHLIST STATS (#2, #4) ----------
+async function loadLowStockBanner() {
+  try {
+    var products2 = await api.get('/products');
+    if (!Array.isArray(products2)) return;
+    var low = products2.filter(function(p) { return (p.stock !== undefined && p.stock !== null) ? Number(p.stock) <= Number(p.lowStockThreshold || 5) : false; });
+    var el = document.getElementById('low-stock-banner');
+    if (el) {
+      if (low.length) {
+        el.style.display = 'block';
+        el.innerHTML = '<i class="fas fa-exclamation-triangle"></i> <strong>' + low.length + ' product(s) low on stock:</strong> ' + low.slice(0,5).map(function(p){ return p.name + ' (' + p.stock + ' left)'; }).join(', ') + (low.length > 5 ? ' +' + (low.length - 5) + ' more' : '');
+      } else el.style.display = 'none';
+    }
+  } catch (e) {}
+}
+
+// ---------- REAL-TIME (Socket.IO client loaded from server, #11) ----------
+function initRealtime() {
+  try {
+    if (window.__bsRealtime) return;
+    var token = getToken();
+    if (!token) return;
+    // Derive the BACKEND origin from API_BASE (js/api.js). The socket.io client
+    // lives on the backend, NOT on the static frontend host — connecting to
+    // window.location.origin would 404 on any static hosting.
+    var backendOrigin = (function() {
+      try { return new URL(API_BASE).origin; } catch (e) { return window.location.origin; }
+    })();
+    if (typeof io === 'undefined') {
+      // Dynamically load the socket.io client from the backend origin.
+      if (!window.__bsRealtimeLoading) {
+        window.__bsRealtimeLoading = true;
+        var s = document.createElement('script');
+        s.src = backendOrigin + '/socket.io/socket.io.js';
+        s.onload = function() { window.__bsRealtimeLoading = false; initRealtime(); };
+        s.onerror = function() {
+          window.__bsRealtimeLoading = false;
+          console.warn('Socket.IO client failed to load — using polling fallback.');
+          startStatsPolling();
+        };
+        document.body.appendChild(s);
+      }
+      return;
+    }
+    window.__bsRealtime = io(backendOrigin, {
+      auth: { token: token },
+      transports: ['websocket', 'polling']
+    });
+    var s = window.__bsRealtime;
+    s.on('new_order', function() { loadDashboardStats(); loadOrdersFromAPI(); });
+    s.on('order_status', function() { loadDashboardStats(); loadOrdersFromAPI(); });
+    s.on('order_deleted', function() { loadDashboardStats(); loadOrdersFromAPI(); });
+    s.on('new_review', function() { loadDashboardStats(); loadNotifications(); });
+    s.on('stock_update', function() { loadLowStockBanner(); });
+    s.on('low_stock', function() { loadLowStockBanner(); loadNotifications(); });
+    s.on('notification', function() { loadNotifications(); });
+    s.on('revenue_change', function() { loadDashboardStats(); });
+    s.on('admin_login_request', function() { loadNotifications(); });
+    s.on('connect', function() { stopStatsPolling(); });
+    s.on('disconnect', function() {
+      // Socket disconnected — restart the polling fallback (#11).
+      console.warn('Realtime socket disconnected — using polling fallback.');
+      startStatsPolling();
+    });
+    s.on('connect_error', function() {
+      console.warn('Realtime connect error — using polling fallback.');
+      startStatsPolling();
+    });
+  } catch (e) { console.warn('Realtime init failed:', e.message); }
+}
+
+// 60s dashboard stats refresh — used ONLY as a fallback when WebSockets are unavailable (#11).
+function stopStatsPolling() { if (window._bsStatsTimer) { clearInterval(window._bsStatsTimer); window._bsStatsTimer = null; } }
+function startStatsPolling() {
+  if (window.__bsRealtime && window.__bsRealtime.connected) return; // socket active — no polling needed
+  if (!window._bsStatsTimer) { window._bsStatsTimer = setInterval(() => { loadDashboardStats(); }, 60000); }
+}
 
 async function loadOrdersFromAPI() {
   try {
@@ -1573,8 +1839,12 @@ async function loadOrdersFromAPI() {
         _id: o._id,
         customer: (o.shippingAddress?.firstName || o.name || 'Customer') + ' ' + (o.shippingAddress?.lastName || ''),
         phone: o.shippingAddress?.phone || o.contact || '',
-        items: Array.isArray(o.items) ? o.items.map(i => i.name || '').join(', ') : 'Order',
+        items: Array.isArray(o.items) ? o.items : [],
+        itemsText: Array.isArray(o.items) ? o.items.map(i => i.name || '').join(', ') : 'Order',
         total: o.total || 0,
+        advanceRequired: o.advanceRequired || 0,
+        advancePaid: o.advancePaid || 0,
+        remainingAmount: o.remainingAmount !== undefined && o.remainingAmount !== null ? o.remainingAmount : (o.total || 0),
         payment: o.paymentMethod ? o.paymentMethod.charAt(0).toUpperCase() + o.paymentMethod.slice(1) : 'COD',
         status: o.status || 'pending',
         date: o.createdAt ? new Date(o.createdAt).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) : 'Recently'
@@ -1583,10 +1853,16 @@ async function loadOrdersFromAPI() {
   } catch (err) {
     console.warn('Order API load failed:', err.message);
   }
-  renderOrders('all');
+  renderOrders('active');
   renderDashOrders();
   // Update orders count text
   document.getElementById('orders-count-text').textContent = orders.length + ' order' + (orders.length !== 1 ? 's' : '');
+  const navBadge = document.getElementById('orders-nav-badge');
+  if (navBadge) navBadge.textContent = orders.length;
+  const dashOrders = document.getElementById('dash-orders-count');
+  if (dashOrders) dashOrders.textContent = orders.length;
+  // Polling is a FALLBACK only — skipped while the realtime socket is connected (#11).
+  startStatsPolling();
   // Render dashboard recent activity from real orders
   renderDashActivity();
 }
@@ -1613,15 +1889,7 @@ async function loadCustomersFromAPI() {
   renderCustomers();
 }
 
-let subscribers = JSON.parse(localStorage.getItem('dn_subscribers') || 'null') || [
-  { email:"ahmed.k@gmail.com", source:"Signup", date:"Jun 1, 2026", status:"subscribed" },
-  { email:"sara.h@gmail.com", source:"Newsletter", date:"Jun 2, 2026", status:"subscribed" },
-  { email:"mohsin.f@gmail.com", source:"Signup", date:"Jun 3, 2026", status:"subscribed" },
-  { email:"zara.m@gmail.com", source:"Newsletter", date:"Jun 4, 2026", status:"subscribed" },
-  { email:"ali.r@gmail.com", source:"Signup", date:"Jun 5, 2026", status:"unsubscribed" },
-  { email:"hamza.k@gmail.com", source:"Signup", date:"Jun 6, 2026", status:"subscribed" },
-  { email:"nida.s@gmail.com", source:"Newsletter", date:"Jun 7, 2026", status:"subscribed" },
-];
+let subscribers = JSON.parse(localStorage.getItem('dn_subscribers') || '[]') || [];
 
 let campaignHistory = JSON.parse(localStorage.getItem('dn_campaigns') || 'null') || [];
 let pixelLog = JSON.parse(localStorage.getItem('dn_pixel_log') || 'null') || [];
@@ -1640,6 +1908,7 @@ function switchAuthTab(tab) {
   document.getElementById('auth-register').style.display = tab === 'register' ? 'block' : 'none';
   document.getElementById('login-hint-text').textContent = '';
 }
+window.switchAuthTab = switchAuthTab;
 
 // ===== REGISTER =====
 async function doRegister() {
@@ -1661,6 +1930,12 @@ async function doRegister() {
       name, email, password: pass, setupKey
     });
 
+    if (data.pending) {
+      hint.textContent = data.message || 'Your admin registration has been sent to the owner for approval. You will be notified once approved.';
+      toast(data.message || 'Registration submitted for owner approval. You will be notified once approved.', 'info');
+      return;
+    }
+
     setToken(data.token);
     document.getElementById('login-screen').style.display = 'none';
     document.getElementById('app').style.display = 'block';
@@ -1671,6 +1946,7 @@ async function doRegister() {
     toast(err.message, 'error');
   }
 }
+window.doRegister = doRegister;
 
 // ===== LOGIN =====
 async function doLogin() {
@@ -1686,6 +1962,12 @@ async function doLogin() {
   try {
     const data = await api.post('/auth/login', { email, password: pass });
 
+    if (data.pending) {
+      hint.textContent = data.message || 'Your login request has been sent to the owner for approval. You will be able to log in once approved.';
+      toast(data.message || 'Login request sent for owner approval. Please wait for approval.', 'info');
+      return;
+    }
+
     if (data.user.role !== 'admin') {
       toast('This account does not have admin access', 'error');
       return;
@@ -1696,10 +1978,11 @@ async function doLogin() {
     document.getElementById('app').style.display = 'block';
     initDashboard();
   } catch (err) {
-    hint.textContent = err.message;
-    toast(err.message, 'error');
+    hint.textContent = err.message;  toast(err.message, 'error');
   }
 }
+window.doLogin = doLogin;
+
 document.addEventListener('keydown',e=>{
   if(e.key!=='Enter') return;
   const regForm = document.getElementById('auth-register');
@@ -1751,6 +2034,7 @@ function showPage(id, el) {
 }
 
 function toggleSidebar() { document.getElementById('sidebar').classList.toggle('open'); }
+window.addEventListener('focus', () => { if (typeof loadDashboardStats === 'function') loadDashboardStats(); });
 
 // ===== DASHBOARD INIT =====
 async function initDashboard() {
@@ -1758,6 +2042,11 @@ async function initDashboard() {
   renderDashOrders();
   loadProductsFromAPI(); // products + reviews table render khud hi ho jayenge
   await loadOrdersFromAPI(); // async — fetches real orders from backend
+  loadNotifications();
+  loadLowStockBanner();
+  loadAuditLogs();
+  loadCouponsFromDB();
+  initRealtime();
   loadCategoriesFromDB(); // load categories from DB, then render
   loadCouponsFromDB(); // load coupons from DB, then render
   await loadCustomersFromAPI(); // load customers from user API
@@ -1775,13 +2064,45 @@ async function initDashboard() {
   await loadSliderFromStorage(); // pre-load CMS slider (from DB + localStorage)
   await loadAnnouncementText(); // load announcement bar text (from DB + localStorage)
   await loadAdminSetupKey();
-  
-  // Update dashboard stats from real data
+  loadSmtpSettings(); // load Email/SMTP config into the Settings page
+  loadCodSettings(); // load COD advance settings into Settings page
+  loadZeinaSettings(); // load Zeina gateway config into Payments page
+  loadReviewsFromDB(); // live reviews from DB API (#4)
+  loadDashboardStats(); // live stats from /orders/stats (#1 #5)
+  loadWishlistStats(); // admin wishlist statistics (#4)
+
+  // Fallback stats from loaded arrays (used if /orders/stats is unreachable)
   document.getElementById('dash-product-count').textContent = products.length;
   const totalRevenue = orders.reduce((sum, o) => sum + (o.total || 0), 0);
-  document.getElementById('dash-revenue').textContent = 'Rs. ' + totalRevenue.toLocaleString();
+  document.getElementById('dash-revenue').textContent = 'AED ' + totalRevenue.toLocaleString();
   document.getElementById('dash-orders-count').textContent = orders.length;
   document.getElementById('dash-customers-count').textContent = customers.length;
+}
+
+// ===== LIVE DASHBOARD STATS FROM DB (/orders/stats) (#1 #5) =====
+async function loadDashboardStats() {
+  try {
+    const s = await api.get('/orders/stats');
+    if (!s) return;
+    const set = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = (val === undefined || val === null) ? '0' : val; };
+    set('dash-orders-count', s.totalOrders);
+    set('dash-pending-count', s.pendingOrders);
+    set('dash-completed-count', s.deliveredOrders);
+    set('dash-cancelled-count', s.cancelledOrders);
+    set('dash-reviews-count', s.totalReviews);
+    set('dash-subs-count', s.totalSubscribers);
+    set('dash-customers-count', s.totalCustomers);
+    const rev = document.getElementById('dash-revenue');
+    if (rev) rev.textContent = 'AED ' + Number(s.totalRevenue || 0).toLocaleString();
+    const badge = document.getElementById('orders-nav-badge');
+    if (badge) badge.textContent = s.totalOrders;
+    const ct = document.getElementById('orders-count-text');
+    if (ct) ct.textContent = s.totalOrders + ' order' + (s.totalOrders !== 1 ? 's' : '');
+    const subBadge = document.getElementById('subs-badge');
+    if (subBadge) subBadge.textContent = s.totalSubscribers;
+  } catch(e) {
+    console.warn('Stats API load failed:', e.message);
+  }
 }
 
 function renderChart() {
@@ -1802,22 +2123,27 @@ function renderChart() {
   }
   const max = Math.max(...vals, 1);
   const c = document.getElementById('chart-bars');
-  c.innerHTML = vals.map((v,i)=>`<div class="chart-bar" style="height:${(v/max)*140}px" data-val="Rs.${v.toLocaleString()}" title="${days[i]}: Rs.${v.toLocaleString()}"></div>`).join('');
+  c.innerHTML = vals.map((v,i)=>`<div class="chart-bar" style="height:${(v/max)*140}px" data-val="AED${v.toLocaleString()}" title="${days[i]}: AED${v.toLocaleString()}"></div>`).join('');
 }
 
 function renderDashOrders() {
   const b=document.getElementById('dash-orders-body');
   if(!orders.length) { b.innerHTML='<tr><td colspan="7" style="text-align:center;color:var(--muted);padding:24px">No orders yet</td></tr>'; return; }
-  b.innerHTML=orders.slice(0,5).map(o=>`
-    <tr>
-      <td style="font-weight:700;color:var(--accent)">${o.id}</td>
-      <td>${o.customer}</td>
-      <td>${o.items}</td>
-      <td style="color:var(--green)">Rs. ${(o.total||0).toLocaleString()}</td>
-      <td><span class="badge badge-${o.status}">${o.status.charAt(0).toUpperCase()+o.status.slice(1)}</span></td>
-      <td style="color:var(--muted)">${o.date}</td>
-      <td><button class="icon-btn" onclick="viewOrder('${o.id}')"><i class="fas fa-eye"></i></button></td>
-    </tr>`).join('');
+  // Show active (non-delivered, non-cancelled) orders first, max 5
+  var activeOrders = orders.filter(function(o){return o.status!=='delivered' && o.status!=='cancelled';});
+  if (!activeOrders.length) activeOrders = orders.slice(0,5);
+  b.innerHTML=activeOrders.slice(0,5).map(o=>{
+    var itemText = Array.isArray(o.items) && o.items.length ? o.items[0].name + (o.items.length>1?' (+'+(o.items.length-1)+' more)':'') : (o.itemsText||'Order');
+    return '<tr>'+
+      '<td style="font-weight:700;color:var(--accent);font-size:0.8rem">'+o.id+'</td>'+
+      '<td style="font-size:0.82rem">'+o.customer+'</td>'+
+      '<td style="font-size:0.78rem;color:var(--muted)">'+itemText+'</td>'+
+      '<td style="color:var(--green);font-weight:600">AED '+(o.total||0).toLocaleString()+'</td>'+
+      '<td><span class="badge badge-'+o.status+'">'+o.status.charAt(0).toUpperCase()+o.status.slice(1)+'</span></td>'+
+      '<td style="color:var(--muted);font-size:0.75rem">'+o.date+'</td>'+
+      '<td><button class="icon-btn" onclick="viewOrderDetail(\''+o._id+'\')"><i class="fas fa-eye"></i></button></td>'+
+    '</tr>';
+  }).join('');
 }
 
 function renderDashActivity() {
@@ -1828,7 +2154,7 @@ function renderDashActivity() {
     const colorMap = { pending: 'gold', paid: 'green', shipped: 'blue', delivered: 'green', cancelled: 'red' };
     return {
       dot: colorMap[o.status] || 'green',
-      text: `Order ${o.id} ${o.status === 'cancelled' ? 'cancelled' : o.status === 'delivered' ? 'delivered' : 'placed'} — Rs. ${(o.total||0).toLocaleString()}`,
+      text: `Order ${o.id} ${o.status === 'cancelled' ? 'cancelled' : o.status === 'delivered' ? 'delivered' : 'placed'} — AED ${(o.total||0).toLocaleString()}`,
       time: timeAgo
     };
   });
@@ -1844,7 +2170,7 @@ function renderDashActivity() {
 }
 
 // ===== CURRENCY HELPERS =====
-const CUR_SYMBOL = { PKR:'Rs.', AED:'AED ', USD:'$' };
+const CUR_SYMBOL = { PKR:'AED', AED:'AED', USD:'$' };
 
 function toPKR(amount, fromCur) {
   if(fromCur==='PKR' || !fromCur) return amount;
@@ -1867,15 +2193,8 @@ function formatMoney(amount, cur) {
 }
 
 function formatProductPrice(p) {
-  const pkr = toPKR(p.price, p.currency);
-  const showMulti = document.getElementById('show-multi-currency') ? document.getElementById('show-multi-currency').checked : true;
-  if(!showMulti) {
-    const displayCur = document.getElementById('default-currency') ? document.getElementById('default-currency').value : 'PKR';
-    return formatMoney(fromPKR(pkr, displayCur), displayCur);
-  }
-  const aed = fromPKR(pkr,'AED');
-  const usd = fromPKR(pkr,'USD');
-  return `${formatMoney(pkr,'PKR')}<br/><span style="font-size:0.7rem;color:var(--muted)">${formatMoney(aed,'AED')} · ${formatMoney(usd,'USD')}</span>`;
+  // Store currency is AED — show the price directly with the product's currency symbol.
+  return formatMoney(Number(p.price) || 0, (p.currency && p.currency !== 'PKR') ? p.currency : 'AED');
 }
 
 function loadCurrencyRates() {
@@ -1910,23 +2229,62 @@ function convertPriceCurrency() {
 // ===== PRODUCTS TABLE =====
 function renderProducts() {
   const b=document.getElementById('products-body');
-  b.innerHTML=products.map(p=>`
-    <tr>
-      <td><img class="td-img" src="${(p.images&&p.images[0])||p.img}" onerror="this.src=''" loading="lazy"/></td>
+  b.innerHTML=products.map(p=>{
+    var imgSrc = '';
+    // Try images array first
+    if (typeof p.images === 'string') {
+      imgSrc = p.images;
+    } else if (Array.isArray(p.images) && p.images.length) {
+      imgSrc = p.images[0];
+    }
+    // Try other fields if images didn't work
+    if (!imgSrc) imgSrc = p.img || p.imageUrl || p.image || '';
+    // Validate that the URL looks like a real image URL
+    if (!imgSrc || !imgSrc.startsWith('http://') && !imgSrc.startsWith('https://') && !imgSrc.startsWith('data:') && !imgSrc.startsWith('//')) {
+      imgSrc = PLACEHOLDER_IMG;
+    }
+    return `<tr>
+      <td><img class="td-img" src="${imgSrc}" onerror="this.onerror=null;this.src='data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22200%22%20height%3D%22250%22%3E%3Crect%20fill%3D%22%23e8e0d0%22%20width%3D%22200%22%20height%3D%22250%22%2F%3E%3Ctext%20x%3D%22100%22%20y%3D%22125%22%20text-anchor%3D%22middle%22%20font-family%3D%22sans-serif%22%20font-size%3D%2236%22%20fill%3D%22%23b8860b%22%3E%F0%9F%93%B7%3C%2Ftext%3E%3Ctext%20x%3D%22100%22%20y%3D%22155%22%20text-anchor%3D%22middle%22%20font-family%3D%22sans-serif%22%20font-size%3D%2213%22%20fill%3D%22%23887755%22%3ENO%20IMAGE%3C%2Ftext%3E%3C%2Fsvg%3E';this.title='Image unavailable'" loading="lazy"/></td>
       <td style="font-weight:600">${p.name}</td>
       <td style="text-transform:capitalize">${p.category}</td>
       <td style="color:var(--green)">${formatProductPrice(p)}</td>
-      <td style="color:var(--muted);text-decoration:line-through">${formatMoney(fromPKR(toPKR(p.oldPrice,p.currency),'PKR'),'PKR')}</td>
-      <td><span class="badge ${p.inStock?'badge-active':'badge-inactive'}">${p.inStock?'In Stock':'Out'}</span></td>
+      <td style="color:var(--muted);text-decoration:line-through">${p.oldPrice ? formatMoney(Number(p.oldPrice)||0, (p.currency && p.currency !== 'PKR') ? p.currency : 'AED') : ''}</td>
+      <td><span class="badge ${p.inStock?'badge-active':'badge-inactive'}" style="cursor:pointer" title="Click to update stock" onclick="quickUpdateStock('${p._id}')">${p.inStock?'In Stock':'Out'}</span> <span style="font-size:0.72rem;color:var(--muted);cursor:pointer" onclick="quickUpdateStock('${p._id}')">${(p.stock!==undefined&&p.stock!==null)?'Qty: '+p.stock+(p.lowStockThreshold!=null?' / Alert < '+p.lowStockThreshold:''):''}</span></td>
       <td><span class="badge ${p.badge==='NEW'?'badge-new':'badge-sale'}">${p.badge}</span></td>
       <td style="display:flex;gap:6px">
         <button class="icon-btn" onclick="copyProductLink('${p._id}')" title="Copy Product Link"><i class="fas fa-link"></i></button>
         <button class="icon-btn" onclick="editProduct('${p._id}')" title="Edit"><i class="fas fa-pen"></i></button>
         <button class="icon-btn del" onclick="deleteProduct('${p._id}')" title="Delete"><i class="fas fa-trash"></i></button>
       </td>
-    </tr>`).join('');
+    </tr>`;
+  }).join('');
   document.getElementById('products-count-text').textContent = products.length;
   document.getElementById('dash-product-count').textContent = products.length;
+}
+
+async function quickUpdateStock(id) {
+  const p = products.find(function(x){ return String(x._id)===String(id); });
+  if (!p) return;
+  const current = (p.stock !== undefined && p.stock !== null) ? p.stock : 0;
+  const val = prompt('Update stock for "' + p.name + '" (current: ' + current + '):', current);
+  if (val === null) return;
+  const stock = Number(val);
+  if (isNaN(stock) || stock < 0) { toast('Invalid stock value','error'); return; }
+  try {
+    await api.put('/products/' + id, { stock: stock });
+    toast('Stock updated to ' + stock,'success');
+    loadProductsFromAPI();
+    loadLowStockBanner();
+  } catch (err) { toast('Stock update failed: ' + err.message,'error'); }
+}
+
+// Wishlist statistics for the admin dashboard (#4)
+async function loadWishlistStats() {
+  try {
+    const w = await api.get('/wishlist/stats');
+    const el = document.getElementById('dash-wishlist-count');
+    if (el && w) el.textContent = (w.totalItems || 0);
+  } catch (e) { /* non-fatal */ }
 }
 
 function copyProductLink(id) {
@@ -1939,27 +2297,54 @@ function copyProductLink(id) {
 }
 
 function renderOrders(filter) {
-  const filtered = filter==='all' ? orders : orders.filter(o=>o.status===filter);
+  var filtered;
+  if (filter==='all' || filter==='active') {
+    filtered = orders.filter(function(o){return o.status!=='delivered' && o.status!=='cancelled';});
+  } else if (filter==='history') {
+    filtered = orders.filter(function(o){return o.status==='delivered' || o.status==='cancelled';});
+  } else {
+    filtered = orders.filter(function(o){return o.status===filter;});
+  }
   const b=document.getElementById('orders-body');
-  b.innerHTML=filtered.map(o=>`
-    <tr>
-      <td style="font-weight:700;color:var(--accent)">${o.id}</td>
-      <td>${o.customer}<br/><span style="font-size:0.7rem;color:var(--muted)">${o.phone}</span></td>
-      <td>${o.items}</td>
-      <td style="color:var(--green)">Rs. ${o.total.toLocaleString()}</td>
-      <td>${o.payment}</td>
-      <td>
-        <select style="background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:4px 8px;border-radius:6px;font-size:0.75rem;cursor:pointer" onchange="updateOrderStatus('${o.id}',this.value)">
-          ${['pending','processing','shipped','delivered','cancelled'].map(s=>`<option ${o.status===s?'selected':''} value="${s}">${s.charAt(0).toUpperCase()+s.slice(1)}</option>`).join('')}
-        </select>
-      </td>
-      <td style="color:var(--muted)">${o.date}</td>
-      <td style="display:flex;gap:6px">
-        <button class="icon-btn" onclick="viewOrder('${o.id}')"><i class="fas fa-eye"></i></button>
-      <button class="icon-btn" title="Print Invoice" onclick="printInvoice('${o.id}')"><i class="fas fa-print"></i></button>
-        
-      </td>
-    </tr>`).join('');
+  b.innerHTML=filtered.map(o=>{
+    // Build item thumbnails with details from the full items array
+    var itemThumbs = '';
+    if (Array.isArray(o.items) && o.items.length) {
+      itemThumbs = o.items.map(function(item) {
+        var imgUrl = item.image || item.img || '';
+        var imgTag = imgUrl ? '<img src="'+imgUrl+'" class="td-img" style="width:36px;height:44px;object-fit:cover;border-radius:4px;margin-right:6px" onerror="this.style.display=\'none\'" />' : '';
+        var details = '<div style="font-size:0.78rem;line-height:1.4">';
+        details += '<div style="font-weight:600;color:var(--text)">'+item.name+'</div>';
+        if (item.color) details += '<span style="color:var(--muted)">Color: '+item.color+'</span> ';
+        details += '<span style="color:var(--muted)">Qty: '+(item.quantity||1)+'</span>';
+        details += '<div style="color:var(--accent)">AED '+Number(item.price||0).toLocaleString()+'</div>';
+        details += '</div>';
+        return '<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;padding:6px;background:var(--bg3);border-radius:6px">'+imgTag+details+'</div>';
+      }).join('');
+    } else {
+      itemThumbs = o.itemsText || 'Order';
+    }
+    return '<tr>'+
+      '<td style="font-weight:700;color:var(--accent);font-size:0.78rem">'+o.id+'</td>'+
+      '<td style="font-size:0.78rem">'+o.customer+'<br/><span style="font-size:0.7rem;color:var(--muted)">'+o.phone+'</span></td>'+
+      '<td style="min-width:200px">'+itemThumbs+'</td>'+
+      '<td style="color:var(--green);font-weight:600">AED '+Number(o.total||0).toLocaleString()+'</td>'+
+      '<td style="font-size:0.78rem">'+o.payment+'</td>'+
+      '<td>'+
+        `<select style="background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:4px 8px;border-radius:6px;font-size:0.75rem;cursor:pointer;max-width:110px" onchange="updateOrderStatus('${o._id}',this.value)">`+
+          ['pending','confirmed','processing','packed','shipped','out_for_delivery','delivered','cancelled','refunded'].map(function(s){return '<option '+(o.status===s?'selected':'')+' value="'+s+'">'+(STATUS_LABELS[s]||s)+'</option>';}).join('')+
+        '</select>'+
+      '</td>'+
+      '<td style="color:var(--muted);font-size:0.75rem">'+o.date+'</td>'+
+      '<td style="display:flex;gap:4px;flex-wrap:wrap">'+
+        '<button class="icon-btn" title="View Details" onclick="viewOrderDetail(\''+o._id+'\')"><i class="fas fa-eye"></i></button>'+
+        '<button class="icon-btn" title="Download Invoice PDF" onclick="downloadInvoice(\''+o._id+'\')"><i class="fas fa-file-pdf"></i></button>'+
+        '<button class="icon-btn" title="Email Invoice" onclick="emailInvoice(\''+o._id+'\')"><i class="fas fa-envelope"></i></button>'+
+        (o.paymentStatus!=='paid' ? `<button class="icon-btn" style="color:var(--green)" title="Confirm Payment" onclick="openConfirmPayment('${o._id}')"><i class="fas fa-check-circle"></i></button>` : '')+
+        `<button class="icon-btn del" title="Delete Order" onclick="deleteOrderConfirm('${o._id}')"><i class="fas fa-trash"></i></button>`+
+      '</td>'+
+    '</tr>';
+  }).join('');
 }
 
 function filterOrders(filter, btn) {
@@ -1969,10 +2354,10 @@ function filterOrders(filter, btn) {
 }
 
 async function updateOrderStatus(id, status) {
-  const o=orders.find(x=>x.id===id);
+  const o=orders.find(x=>x._id===id || x.id===id);
   if(!o) return;
   o.status=status;
-  toast(`Order ${id} → ${status}`,'info');
+  toast('Order '+o.id+' updated to '+status,'info');
   if(status==='delivered' || status==='shipped') {
     firePixelPurchaseEvent(o);
   }
@@ -1983,6 +2368,114 @@ async function updateOrderStatus(id, status) {
       console.warn('Failed to sync status to API:', err.message);
     }
   }
+  renderOrders(document.querySelector('.order-filter.active')?.getAttribute('onclick')?.match(/'(.*?)'/)?.[1] || 'all');
+  loadDashboardStats(); // status changed (e.g. cancelled) → refresh counts (#1)
+}
+
+function viewOrderDetail(mongoId) {
+  const o = orders.find(x => x._id === mongoId);
+  if (!o) { toast('Order not found','error'); return; }
+  var itemsHtml = '';
+  if (Array.isArray(o.items) && o.items.length) {
+    itemsHtml = o.items.map(function(item) {
+      var imgUrl = item.image || item.img || '';
+      var imgTag = imgUrl ? '<img src="'+imgUrl+'" style="width:60px;height:70px;object-fit:cover;border-radius:6px" onerror="this.style.display=\'none\'" />' : '<div style="width:60px;height:70px;background:var(--bg3);border-radius:6px;display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:1.5rem"><i class="fas fa-box"></i></div>';
+      return '<div style="display:flex;align-items:center;gap:12px;padding:10px;background:var(--bg3);border-radius:10px;margin-bottom:8px">'+imgTag+'<div style="flex:1"><div style="font-weight:600;font-size:0.85rem">'+item.name+'</div><div style="font-size:0.78rem;color:var(--muted)">Qty: '+(item.quantity||1)+(item.color?' | Color: '+item.color:'')+'</div><div style="color:var(--accent);font-weight:600;font-size:0.9rem">AED '+Number(item.price||0).toLocaleString()+'</div></div></div>';
+    }).join('');
+  } else {
+    itemsHtml = '<p style="color:var(--muted);padding:12px">'+ (o.itemsText || 'No item details') +'</p>';
+  }
+  var shipAddr = o.shippingAddress || {};
+  var paymentMethod = o.paymentMethod || 'cod';
+  var paymentStatus = o.paymentStatus || 'pending';
+  var paymentBadge = paymentStatus === 'paid' ? 'badge badge-active' : 'badge badge-pending';
+  var html = '<div class="modal-overlay open" id="order-detail-modal" onclick="if(event.target===this)closeOrderDetail()"><div class="modal modal-lg">'+
+    '<div class="modal-header"><div class="modal-title">Order '+o.id+'</div><button class="modal-close" onclick="closeOrderDetail()"><i class="fas fa-times"></i></button></div>'+
+    '<div class="modal-body">'+
+      '<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px">'+
+        '<div style="background:var(--bg3);border-radius:10px;padding:14px">'+
+          '<h5 style="font-size:0.7rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-bottom:10px">Customer Details</h5>'+
+          '<p style="font-size:0.85rem;margin-bottom:4px"><strong>'+o.customer+'</strong></p>'+
+          '<p style="font-size:0.78rem;color:var(--muted)">'+o.phone+'</p>'+
+          '<p style="font-size:0.78rem;color:var(--muted)">'+(shipAddr.address||'')+'</p>'+
+          '<p style="font-size:0.78rem;color:var(--muted)">'+(shipAddr.city||'')+' '+(shipAddr.postal||'')+'</p>'+
+        '</div>'+
+        '<div style="background:var(--bg3);border-radius:10px;padding:14px">'+
+          '<h5 style="font-size:0.7rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-bottom:10px">Payment Info</h5>'+
+          '<p style="font-size:0.85rem;margin-bottom:4px">Method: <strong>'+paymentMethod.charAt(0).toUpperCase()+paymentMethod.slice(1)+'</strong></p>'+
+          '<p style="font-size:0.85rem;margin-bottom:4px">Status: <span class="'+paymentBadge+'">'+paymentStatus+'</span></p>'+
+          '<p style="font-size:0.85rem">Total: <strong style="color:var(--accent)">AED '+Number(o.total||0).toLocaleString()+'</strong></p>'+
+          (o.advanceRequired ? '<p style="font-size:0.78rem;color:var(--muted)">Advance Required: AED '+Number(o.advanceRequired||0).toLocaleString()+'</p>' : '')+
+          (o.advancePaid ? '<p style="font-size:0.78rem;color:var(--muted)">Advance Paid: AED '+Number(o.advancePaid||0).toLocaleString()+'</p>' : '')+
+          '<p style="font-size:0.78rem;color:var(--muted)">Remaining on Delivery: <strong>AED '+Number(o.remainingAmount||0).toLocaleString()+'</strong></p>'+
+          '<p style="font-size:0.78rem;color:var(--muted)">Date: '+o.date+'</p>'+
+        '</div>'+
+      '</div>'+
+      '<h5 style="font-size:0.7rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-bottom:12px">Order Items</h5>'+
+      itemsHtml+
+    '</div>'+
+    '<div class="modal-footer">'+
+      '<button class="btn btn-outline btn-sm" onclick="closeOrderDetail()">Close</button>'+
+      `<button class="btn btn-primary btn-sm" onclick="window.open('https://wa.me/9710566551046?text=Order+${encodeURIComponent(o.id||'')}','_blank')"><i class="fab fa-whatsapp"></i> WhatsApp Customer</button>`+
+    '</div></div></div>';
+  var existing = document.getElementById('order-detail-modal');
+  if (existing) existing.remove();
+  document.body.insertAdjacentHTML('beforeend', html);
+}
+
+function closeOrderDetail() {
+  var el = document.getElementById('order-detail-modal');
+  if (el) el.remove();
+}
+
+function openConfirmPayment(mongoId) {
+  const o = orders.find(x => x._id === mongoId);
+  if (!o) { toast('Order not found','error'); return; }
+  var txnId = prompt('Enter Transaction ID for order '+o.id+':', '');
+  if (txnId === null) return;
+  var amount = prompt('Enter Paid Amount (AED):', String(o.total||0));
+  if (amount === null) return;
+  api.put('/orders/'+o._id+'/payment', {
+    transactionId: txnId,
+    paidAmount: parseFloat(amount) || o.total,
+    notes: 'Payment confirmed via Admin Panel'
+  }).then(function() {
+    o.paymentStatus = 'paid';
+    toast('Payment confirmed for '+o.id,'success');
+    renderOrders(document.querySelector('.order-filter.active')?.getAttribute('onclick')?.match(/'(.*?)'/)?.[1] || 'all');
+  }).catch(function(err) {
+    toast('Failed to confirm payment: '+err.message,'error');
+  });
+}
+
+async function deleteOrderConfirm(mongoId) {
+  const o = orders.find(x => x._id === mongoId);
+  if (!o) { toast('Order not found','error'); return; }
+  var okd = await confirmDialog('Delete order '+o.id+'? This cannot be undone.');
+  if (!okd) return;
+  api.del('/orders/'+o._id).then(function() {
+    orders = orders.filter(x => x._id !== mongoId);
+    toast('Order '+o.id+' deleted','success');
+    renderOrders(document.querySelector('.order-filter.active')?.getAttribute('onclick')?.match(/'(.*?)'/)?.[1] || 'all');
+    renderDashOrders();
+    loadDashboardStats(); // keep the count accurate (#1)
+  }).catch(function(err) {
+    toast('Failed to delete: '+err.message,'error');
+  });
+}
+
+function exportOrders() {
+  var csv = 'Order #,Customer,Phone,Items,Total,Status,Date\n';
+  orders.forEach(function(o) {
+    var itemsText = Array.isArray(o.items) ? o.items.map(function(i){return i.name;}).join('; ') : (o.itemsText || '');
+    csv += (o.id||'')+','+(o.customer||'')+','+(o.phone||'')+',"'+itemsText+'",'+(o.total||0)+','+(o.status||'')+','+(o.date||'')+'\n';
+  });
+  var blob = new Blob([csv], {type:'text/csv'});
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'binsaleh-orders-export.csv';
+  a.click();
+  toast('Orders exported!','success');
 }
 
 function renderCustomers() {
@@ -1994,7 +2487,7 @@ function renderCustomers() {
       <td style="color:var(--muted)">${c.email}</td>
       <td>${c.phone}</td>
       <td>${c.orders}</td>
-      <td style="color:var(--green)">Rs. ${c.spent.toLocaleString()}</td>
+      <td style="color:var(--green)">AED ${c.spent.toLocaleString()}</td>
       <td><span class="badge ${c.status==='active'?'badge-active':'badge-inactive'}">${c.status}</span></td>
       <td style="display:flex;gap:6px">
         <button class="icon-btn"><i class="fas fa-eye"></i></button>
@@ -2011,7 +2504,7 @@ function renderActivity() {
     const colorMap = { pending: 'gold', paid: 'green', shipped: 'blue', delivered: 'green', cancelled: 'red' };
     return {
       dot: colorMap[status] || 'green',
-      text: `Order ${o.id} ${status === 'cancelled' ? 'cancelled' : (status === 'delivered' ? 'delivered' : 'placed')} — Rs. ${(o.total||0).toLocaleString()}${o.payment ? ' (' + o.payment + ')' : ''}`,
+      text: `Order ${o.id} ${status === 'cancelled' ? 'cancelled' : (status === 'delivered' ? 'delivered' : 'placed')} — AED ${(o.total||0).toLocaleString()}${o.payment ? ' (' + o.payment + ')' : ''}`,
       time: timeAgo
     };
   });
@@ -2042,9 +2535,9 @@ function renderPayments() {
   const totalReceived = orders.filter(o => o.status === 'delivered' || o.status === 'paid').reduce((s, o) => s + (o.total || 0), 0);
   const totalPending = orders.filter(o => o.status === 'pending').reduce((s, o) => s + (o.total || 0), 0);
   const totalCancelled = orders.filter(o => o.status === 'cancelled').reduce((s, o) => s + (o.total || 0), 0);
-  document.getElementById('payments-received').textContent = 'Rs. ' + totalReceived.toLocaleString();
-  document.getElementById('payments-pending').textContent = 'Rs. ' + totalPending.toLocaleString();
-  document.getElementById('payments-cancelled').textContent = 'Rs. ' + totalCancelled.toLocaleString();
+  document.getElementById('payments-received').textContent = 'AED ' + totalReceived.toLocaleString();
+  document.getElementById('payments-pending').textContent = 'AED ' + totalPending.toLocaleString();
+  document.getElementById('payments-cancelled').textContent = 'AED ' + totalCancelled.toLocaleString();
 
   // Transaction history table
   const tbody = document.getElementById('payments-txn-body');
@@ -2062,7 +2555,7 @@ function renderPayments() {
       <td>${o.id}</td>
       <td>${o.shippingAddress?.firstName || 'Customer'} ${o.shippingAddress?.lastName || ''}</td>
       <td>${method}</td>
-      <td style="color:${status === 'cancelled' ? 'var(--red)' : 'var(--green)'}">Rs. ${(o.total || 0).toLocaleString()}</td>
+      <td style="color:${status === 'cancelled' ? 'var(--red)' : 'var(--green)'}">AED ${(o.total || 0).toLocaleString()}</td>
       <td><span class="badge ${badgeClass}">${badgeText}</span></td>
       <td style="color:var(--muted)">${date}</td>
     </tr>`;
@@ -2080,10 +2573,10 @@ function renderReports() {
   const monthOrdersCount = monthOrders.length;
   const monthCancelled = monthOrders.filter(o => o.status === 'cancelled').reduce((s, o) => s + (o.total || 0), 0);
   
-  document.getElementById('reports-revenue').textContent = 'Rs. ' + monthRevenue.toLocaleString();
+  document.getElementById('reports-revenue').textContent = 'AED ' + monthRevenue.toLocaleString();
   document.getElementById('reports-orders').textContent = monthOrdersCount;
   document.getElementById('reports-customers').textContent = customers.length;
-  document.getElementById('reports-refunds').textContent = 'Rs. ' + monthCancelled.toLocaleString();
+  document.getElementById('reports-refunds').textContent = 'AED ' + monthCancelled.toLocaleString();
 
   // Top selling products from orders
   const productSales = {};
@@ -2102,7 +2595,7 @@ function renderReports() {
   if (!topProducts.length) {
     topBody.innerHTML = '<tr><td colspan="3" style="text-align:center;color:var(--muted);padding:24px">No product sales data yet</td></tr>';
   } else {
-    topBody.innerHTML = topProducts.map(([name, data]) => `<tr><td>${name}</td><td>${data.qty}</td><td style="color:var(--green)">Rs. ${data.revenue.toLocaleString()}</td></tr>`).join('');
+    topBody.innerHTML = topProducts.map(([name, data]) => `<tr><td>${name}</td><td>${data.qty}</td><td style="color:var(--green)">AED ${data.revenue.toLocaleString()}</td></tr>`).join('');
   }
 
   // Category breakdown from products
@@ -2182,14 +2675,43 @@ function sendAnnouncementEmail() {
   if(!subject || !body) { toast('Please enter subject & message','error'); return; }
   const recipients = getAudienceList(audience);
   if(recipients.length===0) { toast('No subscribers in this audience','error'); return; }
-  const now = new Date();
-  const dateStr = now.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
-  campaignHistory.unshift({ subject, body, audience, recipients: recipients.length, date: dateStr });
-  localStorage.setItem('dn_campaigns', JSON.stringify(campaignHistory));
-  renderCampaignHistory();
-  toast(`Email sent to ${recipients.length} subscriber(s)!`,'success');
-  document.getElementById('email-subject').value='';
-  document.getElementById('email-body').value='';
+  
+  // Show sending indicator
+  const btn = document.getElementById('send-campaign-btn');
+  if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...'; }
+  
+  // Send campaign via backend API
+  api.post('/contact/send-campaign', {
+    subject: subject,
+    body: body,
+    audience: audience
+  }).then(function(result) {
+    const now = new Date();
+    const dateStr = now.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+    campaignHistory.unshift({ 
+      subject: subject, 
+      body: body, 
+      audience: audience, 
+      recipients: result.total || recipients.length, 
+      date: dateStr 
+    });
+    localStorage.setItem('dn_campaigns', JSON.stringify(campaignHistory));
+    renderCampaignHistory();
+    toast(result.message || ('Email sent to ' + (result.sent || recipients.length) + ' subscriber(s)!'),'success');
+    document.getElementById('email-subject').value='';
+    document.getElementById('email-body').value='';
+  }).catch(function(err) {
+    console.error('Campaign send failed:', err);
+    toast('Failed to send campaign: ' + (err.message || 'Unknown error') + '. Saving to local history only.','error');
+    // Fallback: save to local history anyway
+    const now = new Date();
+    const dateStr = now.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+    campaignHistory.unshift({ subject, body, audience, recipients: recipients.length, date: dateStr });
+    localStorage.setItem('dn_campaigns', JSON.stringify(campaignHistory));
+    renderCampaignHistory();
+  }).finally(function() {
+    if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fas fa-paper-plane"></i> Send Email to All Subscribers'; }
+  });
 }
 
 function exportSubscribers() {
@@ -2306,8 +2828,9 @@ function syncProductToPixels(product, syncFlags) {
 }
 
 function firePixelPurchaseEvent(order) {
-  if(pixelSettings.tiktok.enabled) addPixelLog('Purchase Event', order.id+' — '+order.items, 'TikTok Pixel', 'Sent');
-  if(pixelSettings.fb.enabled) addPixelLog('Purchase Event', order.id+' — '+order.items, 'Facebook Pixel', 'Sent');
+  var pixItemsText = Array.isArray(order.items) ? order.items.map(function(i){ return i.name || 'Item'; }).join(', ') : (order.itemsText || 'Order');
+  if(pixelSettings.tiktok.enabled) addPixelLog('Purchase Event', order.id+' — '+pixItemsText, 'TikTok Pixel', 'Sent');
+  if(pixelSettings.fb.enabled) addPixelLog('Purchase Event', order.id+' — '+pixItemsText, 'Facebook Pixel', 'Sent');
 }
 
 // ===== NEW: BANK / DEPOSIT DETAILS (matches product.html structure: deposit[{label,value}]) =====
@@ -2367,24 +2890,54 @@ let currentProductReviews = []; // array of review objects for current product b
 
 function renderGalleryManager() {
   const wrap = document.getElementById('gallery-manager');
-  let html = currentGalleryImages.map((img,i)=>`
-    <div class="gallery-thumb">
-      <img src="${img}"/>
+  let html = currentGalleryImages.map((img,i)=>{
+    var safeImg = img && typeof img === 'string' ? img.replace(/'/g,"\\'") : '';
+    return `<div class="gallery-thumb">
+      <img src="${safeImg}" onerror="console.warn('Gallery: image failed to load:',this.src);this.closest('.gallery-thumb').style.opacity='0.4';this.title='Image failed to load'" alt="Product image ${i+1}"/>
       <div class="rm" onclick="removeGalleryImage(${i})">✕</div>
       ${i===0?'<div class="primary-tag">COVER</div>':''}
-    </div>`).join('');
+    </div>`;
+  }).join('');
   html += `<div class="gallery-add-box" onclick="document.getElementById('gallery-file-input').click()"><i class="fas fa-cloud-arrow-up"></i></div>`;
   wrap.innerHTML = html;
 }
 
-function addGalleryImageFromUrl() {
+async function addGalleryImageFromUrl() {
   const input = document.getElementById('p-img-url-new');
-  const url = input.value.trim();
+  var url = input.value.trim();
   if(!url) { toast('Enter an image URL first','error'); return; }
-  currentGalleryImages.push(url);
-  input.value='';
-  renderGalleryManager();
-  toast('Image added to gallery','success');
+  if(url.length < 5) { toast('URL seems too short, please check it','error'); return; }
+  
+  // Upload the image to Cloudinary via backend — this bypasses hotlink
+  // protection because our backend downloads the image first with a real
+  // browser User-Agent, then uploads the binary to Cloudinary.
+  // The returned Cloudinary URL is stored permanently in the gallery.
+  try {
+    toast('⏳ Uploading image from URL...','info');
+    const result = await api.uploadFromUrl(url);
+    
+    if (result && result.url) {
+      currentGalleryImages.push(result.url);
+      input.value='';
+      renderGalleryManager();
+      toast('✓ Image uploaded to Cloudinary and added!','success');
+    } else {
+      toast('Upload failed — no URL returned from server','error');
+    }
+  } catch (err) {
+    console.error('uploadFromUrl error:', err);
+    var errMsg = (err && err.message) ? err.message : 'Unknown error';
+    // Show specific blocked/error messages to help the user understand the issue
+    if (errMsg.includes('blocked') || errMsg.includes('403') || errMsg.includes('Forbidden')) {
+      toast('❌ The image URL was blocked by the source server (hotlink protection). Try downloading the image to your computer and uploading it directly instead.','error');
+    } else if (errMsg.includes('404') || errMsg.includes('not found') || errMsg.includes('not point')) {
+      toast('❌ No image found at that URL (404). Please check the URL.','error');
+    } else if (errMsg.includes('Cannot reach')) {
+      toast('❌ Cannot reach the image server. The URL may be invalid or the server is down.','error');
+    } else {
+      toast('❌ Failed to upload from URL: ' + errMsg, 'error');
+    }
+  }
 }
 
 function removeGalleryImage(idx) {
@@ -2507,7 +3060,8 @@ function openAddProductModal() {
   document.getElementById('p-price').value = '';
   document.getElementById('p-old').value = '';
   document.getElementById('p-badge').value = 'SALE';
-  document.getElementById('p-stock').value = 'true';
+  document.getElementById('p-stock-qty').value = 0;
+  document.getElementById('p-stock-threshold').value = 5;
   document.getElementById('p-img-url-new').value = '';
   document.getElementById('p-detail-details').value = '';
   document.getElementById('p-detail-care').value = '';
@@ -2540,7 +3094,8 @@ function editProduct(id) {
   document.getElementById('p-old').value = p.oldPrice;
   document.getElementById('p-currency').value = p.currency || 'PKR';
   document.getElementById('p-badge').value = p.badge;
-  document.getElementById('p-stock').value = String(p.inStock);
+  document.getElementById('p-stock-qty').value = (p.stock!==undefined&&p.stock!==null) ? p.stock : (p.inStock?1:0);
+  document.getElementById('p-stock-threshold').value = (p.lowStockThreshold!==undefined&&p.lowStockThreshold!==null) ? p.lowStockThreshold : 5;
   document.getElementById('p-detail-details').value = p.details || '';
   document.getElementById('p-detail-care').value = p.care || '';
   document.getElementById('p-detail-size').value = p.size || '';
@@ -2561,12 +3116,14 @@ function editProduct(id) {
 async function saveProduct() {
   const editId = document.getElementById('p-edit-id').value;
   const name = document.getElementById('p-name').value.trim();
-  const cat = document.getElementById('p-cat').value;
+  const cat = document.getElementById('p-cat').value.toLowerCase().trim();
   const currency = document.getElementById('p-currency').value;
   const price = parseFloat(document.getElementById('p-price').value) || 0;
   const old = parseFloat(document.getElementById('p-old').value) || 0;
   const badge = document.getElementById('p-badge').value;
-  const inStock = document.getElementById('p-stock').value === 'true';
+  const stockQty = parseInt(document.getElementById('p-stock-qty').value, 10) || 0;
+  const lowStockThreshold = parseInt(document.getElementById('p-stock-threshold').value, 10) || 5;
+  const inStock = stockQty > 0;
   const details = document.getElementById('p-detail-details').value.trim();
   const care = document.getElementById('p-detail-care').value.trim();
   const size = document.getElementById('p-detail-size').value.trim();
@@ -2580,13 +3137,36 @@ async function saveProduct() {
 
   if(!name || !price) { toast('Please fill in name and price','error'); return; }
 
-  const images = currentGalleryImages.length ? currentGalleryImages : ['https://dnstore.pk/cdn/shop/collections/A6F9D276-DD01-4A48-A90F-4C075B4DE837.jpg?v=1777718686&width=800'];
-  const colors = currentColorVariants.filter(c=>c.name && c.name.trim());
+  // Guard: make sure API module is loaded before proceeding
+  if(typeof api === 'undefined' || !api.post || !api.put) {
+    toast('API not connected — make sure backend is running on port 5000','error');
+    console.error('SaveProduct: api object is missing. api.js may not have loaded.');
+    return;
+  }
 
+  // Collect images from currentGalleryImages — keep ALL valid URL strings
+  // Remove only truly broken entries (null, undefined, empty string, 'undefined'/'null' text)
+  var rawImages = Array.isArray(currentGalleryImages) ? currentGalleryImages : [];
+  var cleanImages = rawImages.filter(function(url) {
+    return url && typeof url === 'string' && url.trim() && url !== 'undefined' && url !== 'null';
+  }).map(function(url) { return url.trim(); });
+  
+  // Warn if no images but still allow save (user can add later)
+  if(!cleanImages.length && rawImages.length === 0) {
+    // Only warn if they never added any images at all (not just filtered out)
+    toast('No images added — product will display with placeholder until you add images.','info');
+  }
+  
+  var mainImg = cleanImages.length ? cleanImages[0] : '';
+  const colors = (currentColorVariants || []).filter(function(c) { return c.name && c.name.trim(); });
+  
   const payload = {
     name, category:cat, price, oldPrice: old||price, currency, badge, inStock,
-    images, img: images[0], colors, details, care, size, shipping
+    stock: stockQty, lowStockThreshold,
+    images: cleanImages, img: mainImg, colors, details, care, size, shipping
   };
+  // Also add imageUrl for backward compatibility with getProductImage in store.js
+  if (mainImg) { payload.imageUrl = mainImg; }
 
   try {
     if(editId) {
@@ -2599,6 +3179,7 @@ async function saveProduct() {
       renderAllReviewsTable();
       closeModal('product-modal');
       toast('Product updated successfully!','success');
+      syncProductsToLocalStorage();
     } else {
       // Adding new product
       const newP = await api.post('/products', payload);
@@ -2609,9 +3190,12 @@ async function saveProduct() {
       closeModal('product-modal');
       toast('Product saved successfully!','success');
       syncProductToPixels(newP, syncFlags);
+      syncProductsToLocalStorage();
     }
   } catch (err) {
-    toast('Failed to save product: ' + err.message, 'error');
+    console.error('Save product error:', err);
+    var errMsg = (err && err.message) ? err.message : 'Unknown error - check console';
+    toast('Failed to save product: ' + errMsg, 'error');
   }
 }
 
@@ -2620,6 +3204,7 @@ async function deleteProduct(id) {
     await api.del(`/products/${id}`);
     products = products.filter(x=>x._id!==id);
     localStorage.removeItem('dn_reviews_' + id);
+    syncProductsToLocalStorage();
     renderProducts();
     renderAllReviewsTable();
     toast('Product deleted','error');
@@ -2628,34 +3213,88 @@ async function deleteProduct(id) {
   }
 }
 
-// ===== ALL REVIEWS TABLE (Reviews nav page) =====
+// ===== ALL REVIEWS TABLE (Reviews nav page) — DB-backed (#4) =====
+let dbReviews = [];
+
+async function loadReviewsFromDB() {
+  try {
+    const reviews = await api.get('/reviews/all');
+    dbReviews = Array.isArray(reviews) ? reviews : [];
+  } catch(e) {
+    console.warn('Reviews API load failed:', e.message);
+    dbReviews = [];
+  }
+  renderAllReviewsTable();
+  const dc = document.getElementById('dash-reviews-count');
+  if (dc) dc.textContent = dbReviews.length;
+}
+
 function renderAllReviewsTable() {
   const b = document.getElementById('all-reviews-body');
   if(!b) return;
-  const allReviews = getAllReviewsFlat();
-  if(allReviews.length===0) {
-    b.innerHTML = `<tr><td colspan="7" style="text-align:center;color:var(--muted);padding:24px">No reviews yet.</td></tr>`;
+  if(!dbReviews.length) {
+    b.innerHTML = `<tr><td colspan="7" style="text-align:center;color:var(--muted);padding:24px">No reviews yet. Reviews submitted on product pages appear here for moderation.</td></tr>`;
     return;
   }
-  b.innerHTML = allReviews.map((r,idx)=>{
-    const p = products.find(x=>x._id===r.productId);
-    const pname = p ? p.name : '(deleted product)';
+  b.innerHTML = dbReviews.map(r=>{
+    const p = products.find(x=>String(x._id)===String(r.product));
+    const pname = p ? p.name : '(product)';
+    const statusClass = r.status === 'approved' ? 'badge-active' : r.status === 'rejected' ? 'badge-cancelled' : 'badge-pending';
+    const stars = '⭐'.repeat(Math.max(1, Math.min(5, r.rating || 0)));
+    const replyHtml = r.reply ? `<div style="margin-top:6px;padding:6px 8px;background:#f0f7e8;border-radius:6px;font-size:0.75rem;color:var(--green)"><strong>Your reply:</strong> ${r.reply}</div>` : '';
+    const safeReply = String(r.reply || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
     return `
     <tr>
       <td>${r.name}</td>
       <td>${pname}</td>
-      <td>${'⭐'.repeat(r.stars)}</td>
-      <td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${r.text}</td>
-      <td>${r.date}</td>
-      <td><span class="badge ${r.verified?'badge-active':'badge-pending'}">${r.verified?'Verified':'Unverified'}</span></td>
-      <td style="display:flex;gap:6px"><button class="icon-btn del" onclick="deleteReviewGlobal(${r.productId}, ${idx})"><i class="fas fa-trash"></i></button></td>
+      <td>${stars}</td>
+      <td style="max-width:220px">${r.text}${replyHtml}</td>
+      <td>${r.createdAt ? new Date(r.createdAt).toLocaleDateString() : '—'}</td>
+      <td><span class="badge ${statusClass}">${r.status}</span></td>
+      <td style="display:flex;gap:6px;flex-wrap:wrap">
+        ${r.status !== 'approved' ? `<button class="icon-btn" style="color:var(--green)" title="Approve" onclick="setReviewStatus('${r._id}','approved')"><i class="fas fa-check"></i></button>` : ''}
+        ${r.status !== 'rejected' ? `<button class="icon-btn" style="color:var(--red)" title="Reject" onclick="setReviewStatus('${r._id}','rejected')"><i class="fas fa-xmark"></i></button>` : ''}
+        <button class="icon-btn" title="Reply" onclick="replyToReview('${r._id}','${safeReply}')"><i class="fas fa-reply"></i></button>
+        <button class="icon-btn del" title="Delete" onclick="deleteReviewFromDB('${r._id}')"><i class="fas fa-trash"></i></button>
+      </td>
     </tr>`;
   }).join('');
 }
 
+async function setReviewStatus(id, status) {
+  try {
+    await api.put('/reviews/'+id, { status });
+    toast('Review ' + status, 'success');
+    await loadReviewsFromDB();
+  } catch(err) {
+    toast('Failed: ' + err.message, 'error');
+  }
+}
+
+async function deleteReviewFromDB(id) {
+  var okr = await confirmDialog('Delete this review?');
+  if (!okr) return;
+  try {
+    await api.del('/reviews/'+id);
+    toast('Review deleted','success');
+    await loadReviewsFromDB();
+  } catch(err) {
+    toast('Failed to delete: ' + err.message, 'error');
+  }
+}
+
+function replyToReview(id, currentReply) {
+  const reply = prompt('Write a reply to this review (or leave empty to clear):', currentReply || '');
+  if (reply === null) return;
+  api.put('/reviews/'+id, { reply }).then(async ()=>{
+    toast('Reply saved','success');
+    await loadReviewsFromDB();
+  }).catch(err=>toast('Failed: '+err.message,'error'));
+}
+
+// Fallback legacy helper (still used by the add-product modal's review list)
 function deleteReviewGlobal(productId, displayIdx) {
   const reviews = getProductReviews(productId);
-  // find matching review by content since flat list index != per-product index; simplest: rebuild and remove first match
   const flat = getAllReviewsFlat();
   const target = flat[displayIdx];
   if(!target) return;
@@ -2663,31 +3302,6 @@ function deleteReviewGlobal(productId, displayIdx) {
   saveProductReviews(productId, filtered);
   renderAllReviewsTable();
   toast('Review deleted','error');
-}
-
-// ===== ORDER VIEW =====
-function viewOrder(id) {
-  const o=orders.find(x=>x.id===id);
-  if(!o) return;
-  document.getElementById('order-modal-title').textContent='Order '+o.id;
-  document.getElementById('order-modal-body').innerHTML=`
-    <div class="form-grid form-grid-2">
-      <div><div style="font-size:0.7rem;color:var(--muted);margin-bottom:4px">CUSTOMER</div><div style="font-weight:600">${o.customer}</div><div style="font-size:0.8rem;color:var(--muted)">${o.phone||'—'}</div></div>
-      <div><div style="font-size:0.7rem;color:var(--muted);margin-bottom:4px">TOTAL</div><div style="font-weight:700;color:var(--green);font-size:1.1rem">Rs. ${(o.total||0).toLocaleString()}</div></div>
-      <div><div style="font-size:0.7rem;color:var(--muted);margin-bottom:4px">ITEMS</div><div>${o.items}</div></div>
-      <div><div style="font-size:0.7rem;color:var(--muted);margin-bottom:4px">PAYMENT</div><div>${o.payment}</div></div>
-      <div><div style="font-size:0.7rem;color:var(--muted);margin-bottom:4px">DATE</div><div>${o.date}</div></div>
-      <div><div style="font-size:0.7rem;color:var(--muted);margin-bottom:4px">STATUS</div>
-        <select style="background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:6px 10px;border-radius:8px;width:100%" onchange="updateOrderStatus('${o.id}',this.value)">
-          ${['pending','processing','shipped','delivered','cancelled'].map(s=>`<option ${o.status===s?'selected':''} value="${s}">${s.charAt(0).toUpperCase()+s.slice(1)}</option>`).join('')}
-        </select>
-      </div>
-    </div>
-    <div style="margin-top:16px;padding:12px;background:var(--bg3);border-radius:10px">
-      <div style="font-size:0.7rem;color:var(--muted);margin-bottom:6px">TRACKING ID</div>
-      <div style="display:flex;gap:8px"><input type="text" placeholder="Enter tracking ID..." style="flex:1;padding:8px 12px;background:var(--bg2);border:1px solid var(--border);color:var(--text);border-radius:8px;font-size:0.83rem;outline:none"/><button class="btn btn-primary btn-sm">Save</button></div>
-    </div>`;
-  openModal('order-modal');
 }
 
 // ===== MODALS =====
@@ -2722,7 +3336,7 @@ function previewSlideImg() {
   const prev = document.getElementById('slide-img-preview');
   prev.src = url;
   prev.style.display = 'block';
-  prev.onerror = () => { prev.style.display='none'; toast('Image load nahi hui URL se','error'); };
+  prev.onerror = () => { console.warn('CMS slide image failed to load:',prev.src); prev.style.opacity='0.3'; };
   toast('Image preview ready!','success');
 }
 
@@ -2783,7 +3397,7 @@ function saveSlide() {
     el.style.cssText = 'display:flex;align-items:center;gap:14px;padding:12px;background:var(--bg3);border-radius:10px;';
     el.innerHTML = `
       <div style="width:80px;height:50px;background:var(--bg);border-radius:6px;overflow:hidden">
-        <img src="${thumbSrc}" style="width:100%;height:100%;object-fit:cover" onerror="this.style.display='none'"/>
+        <img src="${thumbSrc}" style="width:100%;height:100%;object-fit:cover" onerror="this.style.display=\'none\'"/>
       </div>
       <div style="flex:1">
         <div style="font-size:0.85rem;font-weight:600">${title}</div>
@@ -2856,7 +3470,7 @@ async function persistSlidesToStorage() {
 //   el.style.cssText = 'display:flex;align-items:center;gap:14px;padding:12px;background:var(--bg3);border-radius:10px;';
 //   el.innerHTML = `
 //     <div style="width:80px;height:50px;background:var(--bg);border-radius:6px;overflow:hidden">
-//       <img src="${thumbSrc}" style="width:100%;height:100%;object-fit:cover" onerror="this.style.display='none'"/>
+//       <img src="${thumbSrc}" style="width:100%;height:100%;object-fit:cover" onerror="this.style.display=\'none\'"/>
 //     </div>
 //     <div style="flex:1">
 //       <div style="font-size:0.85rem;font-weight:600">${title}</div>
@@ -2916,6 +3530,7 @@ let categories = JSON.parse(localStorage.getItem('dn_categories') || 'null') || 
   { name:"Footwear", slug:"footwear", img:"https://dnstore.pk/cdn/shop/collections/FullSizeRender.jpg?v=1777735717&width=80", products:2, status:"Active" },
   { name:"Fragrances", slug:"fragrances", img:"", products:2, status:"Active" },
   { name:"Accessories", slug:"accessories", img:"", products:3, status:"Active" },
+  { name:"Home & Kitchen", slug:"home-kitchen", img:"", products:0, status:"Active" },
 ];
 async function persistCategories() { 
   localStorage.setItem('dn_categories', JSON.stringify(categories)); 
@@ -2972,7 +3587,7 @@ async function loadSliderFromStorage() {
     const thumbSrc = s.img || 'https://dnstore.pk/cdn/shop/collections/A6F9D276-DD01-4A48-A90F-4C075B4DE837.jpg?v=1777718686&width=200';
     return `<div style="display:flex;align-items:center;gap:14px;padding:12px;background:var(--bg3);border-radius:10px;">
       <div style="width:80px;height:50px;background:var(--bg);border-radius:6px;overflow:hidden">
-        <img src="${thumbSrc}" style="width:100%;height:100%;object-fit:cover" onerror="this.style.display='none'"/>
+        <img src="${thumbSrc}" style="width:100%;height:100%;object-fit:cover" onerror="this.style.display=\'none\'"/>
       </div>
       <div style="flex:1">
         <div style="font-size:0.85rem;font-weight:600">${s.title}</div>
@@ -3006,6 +3621,131 @@ async function loadSettingFromDB(key) {
   } catch(e) {
     // Not found or API error — silent
     return null;
+  }
+}
+
+// ===== EMAIL / SMTP SETTINGS =====
+// ===== ZEINA SETTINGS (Payments page) =====
+async function loadZeinaSettings() {
+  try {
+    const v = await loadSettingFromDB('payment_settings');
+    if (v && Array.isArray(v.methods)) {
+      const z = v.methods.find(m => m.id === 'zeina');
+      if (z && z.config) {
+        const elT = document.getElementById('zeina-token'); if (elT) elT.value = z.config.accessToken || '';
+        const elM = document.getElementById('zeina-mode'); if (elM) elM.value = z.config.mode || 'test';
+      }
+    }
+  } catch(e) {}
+}
+
+async function saveZeinaSettings() {
+  try {
+    let v = await loadSettingFromDB('payment_settings') || { methods: [] };
+    if (!Array.isArray(v.methods)) v.methods = [];
+    let z = v.methods.find(m => m.id === 'zeina');
+    if (!z) { z = { id:'zeina', name:'Zeina (Card / Apple Pay)', icon:'fas fa-credit-card', enabled:true, type:'gateway', config:{ accessToken:'', mode:'test' } }; v.methods.push(z); }
+    z.enabled = true;
+    z.config = z.config || {};
+    z.config.accessToken = (document.getElementById('zeina-token').value || '').trim();
+    z.config.mode = document.getElementById('zeina-mode').value || 'test';
+    await saveSettingToDB('payment_settings', v);
+    const st = document.getElementById('zeina-save-status');
+    if (st) {
+      st.textContent = z.config.accessToken ? '✅ Zeina configured (' + z.config.mode + ' mode).' : '⚠️ Token empty — checkout will show Zeina as not configured.';
+      st.style.color = z.config.accessToken ? 'var(--green)' : '#b8860b';
+    }
+    toast('Zeina settings saved!','success');
+  } catch(err) { toast('Failed: '+err.message,'error'); }
+}
+
+// ===== COD SETTINGS (Settings page) (#2) =====
+let codSettings = { enabled:true, advanceType:'fixed', fixedAmount:50, percentage:30 };
+
+async function loadCodSettings() {
+  try {
+    const v = await loadSettingFromDB('cod_settings');
+    if (v) codSettings = Object.assign({ enabled:true, advanceType:'fixed', fixedAmount:50, percentage:30 }, typeof v === 'string' ? JSON.parse(v) : v);
+  } catch(e) {}
+  const elEnabled = document.getElementById('cod-enabled');
+  if (elEnabled) elEnabled.checked = !!codSettings.enabled;
+  const elType = document.getElementById('cod-advance-type');
+  if (elType) { elType.value = codSettings.advanceType || 'fixed'; syncCodAdvanceFields(); }
+  const elFixed = document.getElementById('cod-fixed-amount');
+  if (elFixed) elFixed.value = codSettings.fixedAmount != null ? codSettings.fixedAmount : 50;
+  const elPct = document.getElementById('cod-percentage');
+  if (elPct) elPct.value = codSettings.percentage != null ? codSettings.percentage : 30;
+}
+
+function syncCodAdvanceFields() {
+  const t = document.getElementById('cod-advance-type') ? document.getElementById('cod-advance-type').value : 'fixed';
+  const f = document.getElementById('cod-fixed-field'); if (f) f.style.display = t === 'fixed' ? '' : 'none';
+  const p = document.getElementById('cod-percent-field'); if (p) p.style.display = t === 'percentage' ? '' : 'none';
+}
+
+async function saveCodSettings() {
+  codSettings = {
+    enabled: !!document.getElementById('cod-enabled').checked,
+    advanceType: document.getElementById('cod-advance-type').value,
+    fixedAmount: parseInt(document.getElementById('cod-fixed-amount').value) || 0,
+    percentage: parseInt(document.getElementById('cod-percentage').value) || 0
+  };
+  await saveSettingToDB('cod_settings', codSettings);
+  const st = document.getElementById('cod-save-status');
+  if (st) { st.textContent = '✅ COD settings saved — checkout uses these values immediately.'; st.style.color = 'var(--green)'; }
+  toast('COD settings saved!','success');
+}
+
+async function loadSmtpSettings() {
+  try {
+    const dbVal = await loadSettingFromDB('smtp_settings');
+    if (dbVal) {
+      const smtp = typeof dbVal === 'string' ? JSON.parse(dbVal) : dbVal;
+      if (smtp && smtp.host) document.getElementById('smtp-host').value = smtp.host;
+      if (smtp && smtp.port) document.getElementById('smtp-port').value = smtp.port;
+      if (smtp && smtp.user) document.getElementById('smtp-user').value = smtp.user;
+      document.getElementById('smtp-secure').checked = !!(smtp && smtp.secure);
+      const status = document.getElementById('smtp-save-status');
+      if (status) {
+        const configured = smtp && smtp.user && smtp.pass;
+        status.textContent = configured
+          ? '✅ SMTP configured — emails send from ' + smtp.user
+          : '⚠️ SMTP not configured — enter your App Password below';
+        status.style.color = configured ? '#2e7d32' : '#c62828';
+      }
+    }
+  } catch (e) { console.warn('SMTP load failed:', e.message); }
+}
+
+async function saveSmtpSettings() {
+  const smtp = {
+    host: document.getElementById('smtp-host').value.trim() || 'smtp.gmail.com',
+    port: parseInt(document.getElementById('smtp-port').value) || 587,
+    secure: parseInt(document.getElementById('smtp-port').value) === 465,
+    user: document.getElementById('smtp-user').value.trim(),
+    pass: document.getElementById('smtp-pass').value
+  };
+  if (!smtp.user || !smtp.pass) { toast('Enter sender email and App Password','error'); return; }
+  await saveSettingToDB('smtp_settings', smtp);
+  document.getElementById('smtp-pass').value = '';
+  const status = document.getElementById('smtp-save-status');
+  if (status) { status.textContent = '✅ SMTP saved — emails now send from ' + smtp.user; status.style.color = '#2e7d32'; }
+  toast('SMTP settings saved! Approval & security emails will now send.','success');
+}
+
+function syncSmtpSecure() {
+  const port = parseInt(document.getElementById('smtp-port').value) || 587;
+  const cb = document.getElementById('smtp-secure');
+  if (cb) cb.checked = (port === 465);
+}
+
+async function sendTestEmail() {
+  try {
+    toast('Sending test email...','info');
+    const res = await api.post('/settings/test-email', {});
+    toast(res && res.message ? res.message : 'Test email sent! Check the inbox.','success');
+  } catch (err) {
+    toast('Test email failed: ' + (err.message || 'SMTP error'), 'error');
   }
 }
 
@@ -3095,7 +3835,7 @@ function renderCategories() {
   if(!tbody) return;
   tbody.innerHTML = categories.map((c,idx)=>`
     <tr>
-      <td>${c.img ? `<img class="td-img" src="${c.img}" onerror="this.style.display='none'"/>` : ''}</td>
+      <td>${c.img ? `<img class="td-img" src="${c.img}" onerror="this.style.display=\'none\'"/>` : ''}</td>
       <td>${c.name}</td>
       <td>${c.slug}</td>
       <td>${c.products}</td>
@@ -3151,135 +3891,253 @@ function saveCategory() {
   modal.querySelector('.field select').value = 'Active';
 }
 
-// ===== NEW: COUPONS DATA + CRUD =====
-let coupons = JSON.parse(localStorage.getItem('dn_coupons') || 'null') || [
-  { code:"SUMMER26", type:"Percentage", discount:"20%", minOrder:"Rs. 2,000", uses:"45 / 100", expiry:"Jun 30, 2026", status:"Active" },
-  { code:"DN250", type:"Flat", discount:"Rs. 250", minOrder:"Rs. 1,500", uses:"128 / 500", expiry:"Jul 15, 2026", status:"Active" },
-  { code:"ELITE10", type:"Percentage", discount:"10%", minOrder:"Rs. 5,000", uses:"22 / 50", expiry:"Jun 20, 2026", status:"Expired" },
-];
-async function persistCoupons() { 
-  localStorage.setItem('dn_coupons', JSON.stringify(coupons)); 
-  try { await api.put('/settings/coupons', { value: JSON.stringify(coupons) }); } catch(e) { console.warn('Coupons DB save failed:', e.message); }
-}
+// ===== COUPONS: DB-BACKED CRUD (real API, no mock data) =====
+let coupons = [];
 
+function escHtml(v) {
+  return String(v == null ? '' : v).replace(/[&<>"']/g, function (ch) {
+    return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch];
+  });
+}
+function fmtDiscount(c) {
+  if (c.type === 'flat') return (c.currency || 'AED') + ' ' + Number(c.discount || 0).toLocaleString();
+  return Number(c.discount || 0) + '%';
+}
+function fmtUses(c) { return (Number(c.used) || 0) + ' / ' + (Number(c.maxUses) || 100); }
+function fmtExpiry(c) {
+  if (!c.expiry) return '—';
+  var d = new Date(c.expiry);
+  return isNaN(d.getTime()) ? c.expiry : d.toLocaleDateString();
+}
+function couponStatus(c) {
+  if (c.active === false) return 'Inactive';
+  if (c.startDate && new Date(c.startDate) > new Date()) return 'Scheduled';
+  if (c.expiry && new Date(c.expiry) < new Date()) return 'Expired';
+  return 'Active';
+}
 async function loadCouponsFromDB() {
   try {
-    const result = await api.get('/settings/coupons');
-    if (result && result.value) {
-      const parsed = typeof result.value === 'string' ? JSON.parse(result.value) : result.value;
-      if (Array.isArray(parsed) && parsed.length) {
-        coupons = parsed;
-        localStorage.setItem('dn_coupons', JSON.stringify(coupons));
-      }
-    }
-  } catch(e) { /* silent */ }
+    var data = await api.get('/coupons');
+    coupons = Array.isArray(data) ? data : [];
+  } catch (e) { console.warn('Coupons DB load failed:', e.message); coupons = []; }
   renderCoupons();
+  refreshSalePreview();
 }
 
-let editingCouponIdx = null;
-
+// Live preview of the storefront sale banner derived from the active coupons.
+async function refreshSalePreview() {
+  const el = document.getElementById('sale-preview-body');
+  if (!el) return;
+  try {
+    const sale = await api.get('/coupons/sale');
+    if (!sale || !sale.saleActive) {
+      el.innerHTML = '<p style="font-size:0.82rem;color:var(--muted);margin:0"><i class="fas fa-circle-info" style="margin-right:6px"></i>No active coupons right now — the homepage sale section shows "New Offers Coming Soon". Create or activate a coupon and the real sale banner appears automatically.</p>';
+      return;
+    }
+    let offTxt;
+    if (sale.maxDiscount > 0) offTxt = 'Up to ' + sale.maxDiscount + '% Off';
+    else if (sale.bestFlat > 0) offTxt = 'Up to ' + (sale.currency || 'AED') + ' ' + Number(sale.bestFlat).toLocaleString() + ' Off';
+    else offTxt = 'Sale Live';
+    const endTxt = sale.saleEnd ? new Date(sale.saleEnd).toLocaleString() : '—';
+    const codes = (sale.codes || []).join(', ') || '—';
+    el.innerHTML =
+      '<div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap">' +
+        '<div style="flex:1;min-width:220px">' +
+          '<div style="font-size:1.05rem;font-weight:700;color:var(--accent)">Clearance Sale — ' + escHtml(offTxt) + '</div>' +
+          '<div style="font-size:0.78rem;color:var(--muted);margin-top:4px">Active codes: <strong>' + escHtml(codes) + '</strong> (' + sale.count + ' active)</div>' +
+        '</div>' +
+        '<div style="text-align:right">' +
+          '<div style="font-size:0.7rem;color:var(--muted)">Countdown ends</div>' +
+          '<div style="font-size:0.9rem;font-weight:700">' + escHtml(endTxt) + '</div>' +
+        '</div>' +
+      '</div>';
+  } catch (e) {
+    el.innerHTML = '<p style="font-size:0.82rem;color:var(--red);margin:0"><i class="fas fa-triangle-exclamation" style="margin-right:6px"></i>Preview unavailable: ' + escHtml(e.message) + '</p>';
+  }
+}
 function renderCoupons() {
   const tbody = document.querySelector('#page-coupons table tbody');
-  if(!tbody) return;
-  tbody.innerHTML = coupons.map((c,idx)=>`
-    <tr>
-      <td><strong>${c.code}</strong></td>
-      <td>${c.type}</td>
-      <td>${c.discount}</td>
-      <td>${c.minOrder}</td>
-      <td>${c.uses}</td>
-      <td>${c.expiry}</td>
-      <td><span class="badge ${c.status==='Active'?'badge-active':'badge-inactive'}">${c.status}</span></td>
-      <td style="display:flex;gap:6px">
-        <button class="icon-btn" onclick="editCoupon(${idx})"><i class="fas fa-pen"></i></button>
-        <button class="icon-btn del" onclick="deleteCoupon(${idx})"><i class="fas fa-trash"></i></button>
-      </td>
-    </tr>`).join('');
+  if (!tbody) return;
+  if (!coupons.length) {
+    tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;color:var(--muted);padding:24px">No coupons yet. Click "Create Coupon" to add one.</td></tr>';
+    return;
+  }
+  tbody.innerHTML = coupons.map((c, idx) => {
+    const st = couponStatus(c);
+    const badgeCls = st === 'Active' ? 'badge-active' : 'badge-inactive';
+    return '<tr>' +
+      '<td><strong>' + escHtml(c.code) + '</strong></td>' +
+      '<td>' + (c.type === 'flat' ? 'Flat' : 'Percentage') + '</td>' +
+      '<td>' + fmtDiscount(c) + '</td>' +
+      '<td>' + (c.minOrder ? (c.currency || 'AED') + ' ' + Number(c.minOrder).toLocaleString() : '—') + '</td>' +
+      '<td>' + fmtUses(c) + '</td>' +
+      '<td>' + fmtExpiry(c) + '</td>' +
+      '<td><span class="badge ' + badgeCls + '">' + st + '</span></td>' +
+      '<td style="display:flex;gap:6px">' +
+        '<button class="icon-btn" onclick="editCoupon(' + idx + ')" title="Edit"><i class="fas fa-pen"></i></button>' +
+        '<button class="icon-btn" onclick="toggleCoupon(' + idx + ')" title="' + (c.active !== false ? 'Deactivate' : 'Activate') + '"><i class="fas ' + (c.active !== false ? 'fa-pause' : 'fa-play') + '"></i></button>' +
+        '<button class="icon-btn del" onclick="deleteCoupon(' + idx + ')" title="Delete"><i class="fas fa-trash"></i></button>' +
+      '</td>' +
+    '</tr>';
+  }).join('');
 }
-
+let editingCouponIdx = null;
+function openCouponModal() {
+  editingCouponIdx = null;
+  const modal = document.getElementById('coupon-modal');
+  modal.querySelector('.modal-title').textContent = 'Create Coupon';
+  ['cp-code','cp-discount','cp-min-order','cp-limit','cp-start','cp-expiry'].forEach(function (id) {
+    var el = document.getElementById(id);
+    if (el) el.value = '';
+  });
+  var t = document.getElementById('cp-type'); if (t) t.value = 'percentage';
+  var a = document.getElementById('cp-active'); if (a) a.checked = true;
+  openModal('coupon-modal');
+}
 function editCoupon(idx) {
   const c = coupons[idx];
+  if (!c) return;
   editingCouponIdx = idx;
   const modal = document.getElementById('coupon-modal');
   modal.querySelector('.modal-title').textContent = 'Edit Coupon';
-  const inputs = modal.querySelectorAll('.field input');
-  const select = modal.querySelector('.field select');
-  inputs[0].value = c.code;
-  select.value = c.type;
-  inputs[1].value = c.discount;
-  inputs[2].value = c.minOrder;
-  inputs[3].value = (c.uses.split('/')[1] || '').trim();
+  document.getElementById('cp-code').value = c.code || '';
+  document.getElementById('cp-type').value = c.type === 'flat' ? 'flat' : 'percentage';
+  document.getElementById('cp-discount').value = c.discount != null ? c.discount : '';
+  document.getElementById('cp-min-order').value = c.minOrder != null ? c.minOrder : '';
+  document.getElementById('cp-limit').value = c.maxUses != null ? c.maxUses : 100;
+  document.getElementById('cp-start').value = c.startDate ? String(c.startDate).slice(0, 16) : '';
+  document.getElementById('cp-expiry').value = c.expiry ? String(c.expiry).slice(0, 16) : '';
+  document.getElementById('cp-active').checked = c.active !== false;
   openModal('coupon-modal');
 }
-
-function deleteCoupon(idx) {
-  coupons.splice(idx,1);
-  persistCoupons();
-  renderCoupons();
-  toast('Coupon deleted','error');
+async function toggleCoupon(idx) {
+  var c = coupons[idx];
+  if (!c) return;
+  try {
+    await api.put('/coupons/' + encodeURIComponent(c.code), {
+      type: c.type || 'percentage', discount: Number(c.discount) || 0, minOrder: Number(c.minOrder) || 0,
+      maxUses: Number(c.maxUses) || 100, expiry: c.expiry || '', startDate: c.startDate || '',
+      active: c.active === false
+    });
+    toast((c.active === false ? 'Coupon activated' : 'Coupon deactivated'), 'success');
+    await loadCouponsFromDB();
+  } catch (e) { toast('Toggle failed: ' + e.message, 'error'); }
+}
+function confirmDialog(message) {
+  return new Promise(function (resolve) {
+    var ov = document.createElement('div');
+    ov.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:99999;display:flex;align-items:center;justify-content:center';
+    var box = document.createElement('div');
+    box.style.cssText = 'background:#fff;border-radius:12px;padding:22px 24px;max-width:360px;width:90%;box-shadow:0 12px 40px rgba(0,0,0,.25);font-family:inherit';
+    var safe = escHtml(message);
+    box.innerHTML = '<div style="font-weight:700;margin-bottom:10px;color:#111">Confirm</div>' +
+      '<div style="font-size:.9rem;color:#444;margin-bottom:18px">' + safe + '</div>' +
+      '<div style="display:flex;justify-content:flex-end;gap:8px">' +
+      '<button class="btn btn-outline" id="cd-no" type="button">Cancel</button>' +
+      '<button type="button" id="cd-yes" style="background:#c62828;color:#fff;border:none;border-radius:8px;padding:8px 16px;font-weight:700;cursor:pointer">Delete</button></div>';
+    ov.appendChild(box);
+    document.body.appendChild(ov);
+    function close(val) { ov.remove(); resolve(val); }
+    ov.addEventListener('click', function (e) { if (e.target === ov) close(false); });
+    box.querySelector('#cd-no').onclick = function () { close(false); };
+    box.querySelector('#cd-yes').onclick = function () { close(true); };
+  });
 }
 
-function saveCoupon() {
-  const modal = document.getElementById('coupon-modal');
-  const inputs = modal.querySelectorAll('.field input');
-  const select = modal.querySelector('.field select');
-  const code = inputs[0].value.trim();
-  const type = select.value;
-  const discount = inputs[1].value.trim();
-  const minOrder = inputs[2].value.trim();
-  const limit = inputs[3].value.trim();
-  const expiry = inputs[4].value;
-  if(!code) { toast('Enter coupon code','error'); return; }
-  if(editingCouponIdx !== null) {
-    coupons[editingCouponIdx] = { ...coupons[editingCouponIdx], code, type, discount, minOrder, expiry: expiry || coupons[editingCouponIdx].expiry };
-    editingCouponIdx = null;
-    toast('Coupon updated!','success');
-  } else {
-    coupons.push({ code, type, discount, minOrder, uses:`0 / ${limit||100}`, expiry: expiry || '—', status:'Active' });
-    toast('Coupon created!','success');
+async function deleteCoupon(idx) {
+  var c = coupons[idx];
+  if (!c) return;
+  var okd = await confirmDialog('Delete coupon ' + c.code + '?');
+  if (!okd) return;
+  try {
+    await api.del('/coupons/' + encodeURIComponent(c.code));
+    coupons.splice(idx, 1);
+    renderCoupons();
+    toast('Coupon deleted', 'success');
+  } catch (e) { toast('Delete failed: ' + e.message, 'error'); }
+}
+async function saveCoupon() {
+  const code = (document.getElementById('cp-code').value || '').trim().toUpperCase();
+  const type = document.getElementById('cp-type').value === 'flat' ? 'flat' : 'percentage';
+  const discount = parseFloat(document.getElementById('cp-discount').value) || 0;
+  const minOrder = parseFloat(document.getElementById('cp-min-order').value) || 0;
+  const maxUses = parseInt(document.getElementById('cp-limit').value, 10) || 100;
+  const startDate = document.getElementById('cp-start').value || '';
+  const expiry = document.getElementById('cp-expiry').value || '';
+  const active = document.getElementById('cp-active').checked;
+
+  if (!code) { toast('Enter coupon code', 'error'); return; }
+  if (discount <= 0) { toast('Enter a discount value', 'error'); return; }
+  if (type === 'percentage' && discount > 100) { toast('Percentage discount cannot exceed 100%', 'error'); return; }
+  if (startDate && expiry && new Date(startDate) >= new Date(expiry)) {
+    toast('Expiry must be after the start date', 'error'); return;
   }
-  persistCoupons();
-  renderCoupons();
-  closeModal('coupon-modal');
-  modal.querySelector('.modal-title').textContent = 'Create Coupon';
-  inputs.forEach(i=>i.value='');
+  try {
+    await api.put('/coupons/' + encodeURIComponent(code), {
+      type: type, discount: discount, minOrder: minOrder, maxUses: maxUses,
+      expiry: expiry, startDate: startDate, active: active
+    });
+    toast(editingCouponIdx !== null ? 'Coupon updated!' : 'Coupon created!', 'success');
+    editingCouponIdx = null;
+    closeModal('coupon-modal');
+    await loadCouponsFromDB();
+  } catch (e) { toast('Save failed: ' + e.message, 'error'); }
 }
 
-// ===== NEW: REPORTS EXPORT =====
-function exportReportPDF() { toast('Report exported as PDF!','success'); }
-function exportReportExcel() { toast('Report exported as Excel!','success'); }
 
-// ===== NEW: ORDERS EXPORT + PRINT INVOICE =====
-function exportOrders() {
-  let csv = 'Order,Customer,Phone,Items,Total,Payment,Status,Date\n';
-  orders.forEach(o=>{ csv += `${o.id},${o.customer},${o.phone},"${o.items}",${o.total},${o.payment},${o.status},${o.date}\n`; });
-  const blob = new Blob([csv], {type:'text/csv'});
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url; a.download = 'bin-saleh-orders.csv';
-  a.click();
-  URL.revokeObjectURL(url);
-  toast('Orders exported!','success');
+// ===== PRODUCTION: REPORTS + ORDERS EXPORT + INVOICE (#5,#6,#7,#8,#12) =====
+const STATUS_LABELS = { pending:'Pending', confirmed:'Confirmed', processing:'Processing', packed:'Packed', shipped:'Shipped', out_for_delivery:'Out for Delivery', delivered:'Delivered', cancelled:'Cancelled', refunded:'Refunded' };
+
+function apiBaseUrl() { return (typeof API_BASE !== 'undefined' ? API_BASE : 'http://localhost:5000/api'); }
+
+function downloadViaAuth(endpoint, filename) {
+  fetch(apiBaseUrl() + endpoint, {
+    method: 'GET',
+    headers: { 'Authorization': 'Bearer ' + getToken() }
+  }).then(function(res) {
+    if (!res.ok) throw new Error('Export failed (' + res.status + ')');
+    var disp = res.headers.get('Content-Disposition') || '';
+    var m = disp.match(/filename="?([^";]+)"?/);
+    var name = (m && m[1]) || filename;
+    return res.blob().then(function(blob) { return { blob: blob, name: name }; });
+  }).then(function(r) {
+    var url = URL.createObjectURL(r.blob);
+    var a = document.createElement('a');
+    a.href = url; a.download = r.name; a.click();
+    URL.revokeObjectURL(url);
+    toast('Export downloaded!','success');
+  }).catch(function(err) { toast(err.message,'error'); console.error(err); });
 }
 
-function printInvoice(id) {
-  const o = orders.find(x=>x.id===id);
-  if(!o) return;
-  const win = window.open('', '_blank');
-  win.document.write(`
-    <html><head><title>Invoice ${o.id}</title>
-      
-    <style>body{font-family:Arial,sans-serif;padding:40px;color:#222}h1{color:#b8860b}table{width:100%;border-collapse:collapse;margin-top:20px}td,th{padding:8px 12px;border:1px solid #ccc;text-align:left}</style>
-    </head><body>
-    <h1>BIN SALEH STORE</h1>
-    <h3>Invoice ${o.id}</h3>
-    <p><strong>Customer:</strong> ${o.customer}<br/><strong>Phone:</strong> ${o.phone}<br/><strong>Date:</strong> ${o.date}</p>
-    <table><tr><th>Items</th><th>Payment</th><th>Status</th><th>Total</th></tr>
-    <tr><td>${o.items}</td><td>${o.payment}</td><td>${o.status}</td><td>Rs. ${o.total.toLocaleString()}</td></tr></table>
-      <` + `/body> </` + `html>`);
-  win.document.close();
-  win.print();
+function exportOrders(format) {
+  format = format || 'csv';
+  var params = [];
+  var s = document.getElementById('export-status'); if (s && s.value) params.push('status=' + encodeURIComponent(s.value));
+  var pm = document.getElementById('export-payment'); if (pm && pm.value) params.push('paymentMethod=' + encodeURIComponent(pm.value));
+  var from = document.getElementById('export-from'); if (from && from.value) params.push('from=' + encodeURIComponent(from.value));
+  var to = document.getElementById('export-to'); if (to && to.value) params.push('to=' + encodeURIComponent(to.value));
+  var cust = document.getElementById('export-customer'); if (cust && cust.value) params.push('customer=' + encodeURIComponent(cust.value));
+  downloadViaAuth('/export/orders?format=' + format + (params.length ? '&' + params.join('&') : ''), 'orders.' + format);
 }
+
+function downloadInvoice(id) {
+  downloadViaAuth('/invoice/' + id + '/pdf', 'invoice-' + id + '.pdf');
+}
+
+async function emailInvoice(id) {
+  try {
+    var o = orders.find(function(x){ return x._id===id || x.id===id; });
+    var email = (o && o.shippingAddress && o.shippingAddress.email) || (o && o.contact && o.contact.includes('@') ? o.contact : null);
+    var addr = email ? email : prompt('Customer email for this invoice:', '');
+    if (!addr) return;
+    await api.post('/invoice/' + id + '/email', { email: addr });
+    toast('Invoice emailed to ' + addr,'success');
+  } catch (err) { toast('Email failed: ' + err.message,'error'); }
+}
+
+function exportReportPDF() { downloadViaAuth('/export/reports/sales?format=pdf', 'sales-report.pdf'); }
+function exportReportExcel() { downloadViaAuth('/export/reports/sales?format=xlsx', 'sales-report.xlsx'); }
+
 </script>
 </body>
 </html>

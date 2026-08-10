@@ -1,0 +1,5 @@
+# BIN SALEH Store — robots.txt
+User-agent: *
+Allow: /
+
+Sitemap: https://www.binsaleh.com/sitemap.xml

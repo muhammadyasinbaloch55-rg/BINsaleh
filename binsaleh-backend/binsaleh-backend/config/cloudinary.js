@@ -23,7 +23,7 @@ const storage = new CloudinaryStorage({
   cloudinary: cloudinary,
   params: {
     folder: 'binsaleh-products',
-    allowed_formats: ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg'],
+    allowed_formats: ['jpg', 'jpeg', 'png', 'gif', 'webp'], // SVG excluded — can carry scripts (XSS)
     transformation: [{ width: 1200, height: 1200, crop: 'limit', quality: 'auto' }],
     public_id: (req, file) => 'product_' + Date.now() + '_' + Math.round(Math.random() * 100000)
   }

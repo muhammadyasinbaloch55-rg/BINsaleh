@@ -8,7 +8,9 @@ const {
   getOrders,
   getMyOrders,
   getOrderById,
+  getStats,
   updateOrderStatus,
+  confirmPayment,
   deleteOrder
 } = require('../controllers/orderController');
 
@@ -19,6 +21,9 @@ router.post('/', optionalProtect, createOrder);
 // Customer apni orders dekhe — login zaroori
 router.get('/my', protect, getMyOrders);
 
+// Admin: dashboard aggregate stats (before /:id so it isn't swallowed)
+router.get('/stats', protect, isAdmin, getStats);
+
 // Admin: sab orders dekhna
 router.get('/', protect, isAdmin, getOrders);
 
@@ -27,6 +32,9 @@ router.get('/:id', protect, getOrderById);
 
 // Admin: order status update karna
 router.put('/:id/status', protect, isAdmin, updateOrderStatus);
+
+// Admin: payment confirm karna
+router.put('/:id/payment', protect, isAdmin, confirmPayment);
 
 // Admin: order delete karna
 router.delete('/:id', protect, isAdmin, deleteOrder);

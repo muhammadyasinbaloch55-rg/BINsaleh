@@ -1,18 +1,11 @@
-# netlify.toml — BIN SALEH Store
+# netlify.toml — BIN SALEH Store (frontend static hosting only)
+# The backend API runs on Render (see binsaleh-frontend/js/api.js API_BASE).
 # https://docs.netlify.com/configure-builds/file-based-configuration/
 
 [build]
   publish = "binsaleh-frontend"  # All static HTML/CSS/JS files are here
-  functions = "netlify/functions"  # Netlify Functions directory
 
-# Route ALL /api/* requests to the Netlify Function
-# This replaces the need for a separate backend server (Render, Railway, etc.)
-[[redirects]]
-  from = "/api/*"
-  to = "/.netlify/functions/api/:splat"
-  status = 200
-
-# Single-page app fallback — serve index.html for unknown routes (optional)
+# SPA fallback — serve index.html for unknown client-side routes (optional)
 # [[redirects]]
 #   from = "/*"
 #   to = "/index.html"

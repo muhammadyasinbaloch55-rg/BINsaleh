@@ -2,14 +2,23 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8"/>
+  <meta name="description" content="View product details, reviews and secure checkout at BIN SALEH Store. Cash on Delivery and online payment available."/>
+  <link rel="canonical" href="https://www.binsaleh.com/addTocurt.html"/>
+  <meta property="og:type" content="website"/>
+  <meta property="og:site_name" content="BIN SALEH Store"/>
+  <meta property="og:title" content="BIN SALEH Store"/>
+  <meta property="og:description" content="View product details, reviews and secure checkout at BIN SALEH Store. Cash on Delivery and online payment available."/>
+  <meta property="og:url" content="https://www.binsaleh.com/addTocurt.html"/>
+  <link rel="icon" type="image/svg+xml" href="./favicon.svg"/>
+
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title id="page-title-tag">Loading product… – BIN SALEH Store</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
 
-<!-- Same stylesheet used across the whole store, untouched, so this page matches index/view/category pages -->
-<link rel="stylesheet" href="./css/style.css">
+<!-- Same stylesheet used across the whole store, untouched, so this page matches index/view/category pages -->  <link rel="stylesheet" href="./css/style.css">
+<!-- PayPal SDK loaded dynamically from config -->
 
 <!--
   ============================================================================
@@ -438,20 +447,8 @@
 
 <!-- ANNOUNCE -->
 <div class="announce">
-  <span class="announce-scroll" id="announce-text">🚚 Free Shipping Above Rs. 10,000 &nbsp;|&nbsp; 💰 COD Available Nationwide &nbsp;|&nbsp; 🔄 Easy 30-Day Exchange</span>
+  <span class="announce-scroll" id="announce-text">🚚 Free Shipping Above AED 10,000 &nbsp;|&nbsp; 💰 COD Available Nationwide &nbsp;|&nbsp; 🔄 Easy 30-Day Exchange</span>
 </div>
-<script>
-// Load dynamic announcement text from localStorage (set in Admin Panel → CMS)
-// Also fetch from database via store.js functions
-fetchAnnouncementFromAPI().then(function() {
-  try {
-    const saved = localStorage.getItem('bs_announcement_text');
-    if (saved && saved.trim()) {
-      document.getElementById('announce-text').textContent = saved;
-    }
-  } catch(e) {}
-});
-</script>
 
 <!-- NAVBAR -->
 <nav>
@@ -466,6 +463,7 @@ fetchAnnouncementFromAPI().then(function() {
       <li><a href="./Footwear.html">Footwear</a></li>
       <li><a href="./fragrances.html">Fragrances</a></li>
       <li><a href="./accessories.html">Accessories</a></li>
+      <li><a href="./home-kitchen.html">Home & Kitchen</a></li>
       <li class="nav-more">
         <a href="#">More <i class="fas fa-chevron-down" style="font-size:.65rem"></i></a>
         <div class="more-dropdown">
@@ -488,10 +486,10 @@ fetchAnnouncementFromAPI().then(function() {
     </div>
   </div>
   <div class="mobile-menu" id="mobile-menu">
-    <a href="index.html">🏠 Home</a><a href="./viewall.html">🛍️ View All</a>
-    <a href="top.html">👕 Tops</a><a href="./Bottoms.html">👖 Bottoms</a>
-    <a href="tracksuits.html">🧥 Tracksuits</a><a href="Footwear.html">👟 Footwear</a>
-    <a href="fragrace.html">🌸 Fragrances</a><a href="./accessories.html">⌚ Accessories</a>
+    <a href="index.html"><i class="fas fa-house"></i> Home</a><a href="./viewall.html"><i class="fas fa-store"></i> View All</a>
+    <a href="tops.html"><i class="fas fa-shirt"></i> Tops</a><a href="./Bottoms.html"><i class="fas fa-vest"></i> Bottoms</a>
+    <a href="TrackSuits.html"><i class="fas fa-person-running"></i> Tracksuits</a><a href="Footwear.html"><i class="fas fa-shoe-prints"></i> Footwear</a>
+    <a href="fragrances.html"><i class="fas fa-spray-can"></i> Fragrances</a><a href="./accessories.html"><i class="fas fa-gem"></i> Accessories</a><a href="./home-kitchen.html"><i class="fas fa-kitchen-set"></i> Home & Kitchen</a>
     <a href="profile.html"><i class="fas fa-user"></i> My Profile</a>
     <a href="contact.html"><i class="fas fa-headset"></i> Contact Us</a>
     <a href="faqs.html"><i class="fas fa-circle-question"></i> FAQs</a>
@@ -543,8 +541,8 @@ fetchAnnouncementFromAPI().then(function() {
     </div>
 
     <div class="prod-price-row">
-      <span class="price-sale" id="price-sale">Rs. 0</span>
-      <span class="price-orig" id="price-orig" style="display:none">Rs. 0</span>
+      <span class="price-sale" id="price-sale">AED 0</span>
+      <span class="price-orig" id="price-orig" style="display:none">AED 0</span>
       <span class="price-disc" id="price-disc" style="display:none">-0% OFF</span>
     </div>
 
@@ -574,6 +572,12 @@ fetchAnnouncementFromAPI().then(function() {
       </button>
       <button class="btn-buy" id="btn-buy-now" onclick="openCheckout()">
         <i class="fas fa-bolt"></i> Buy it Now
+      </button>
+      <button class="btn-wa" id="btn-wishlist" onclick="toggleWishlist()" style="background:rgba(184,134,11,.08);color:#b8860b;border:1.5px solid rgba(184,134,11,.4)">
+        <i class="fas fa-heart" id="wishlist-heart-icon"></i> <span id="wishlist-heart-text">Add to Wishlist</span>
+      </button>
+      <button class="btn-wa" id="btn-view-wishlist" onclick="openWishlistModal()" style="background:rgba(59,130,246,.08);color:#3b82f6;border:1.5px solid rgba(59,130,246,.4)">
+        <i class="fas fa-list"></i> View Wishlist
       </button>
       <button class="btn-wa" onclick="openWhatsApp()">
         <i class="fab fa-whatsapp"></i> Order via WhatsApp
@@ -686,8 +690,19 @@ fetchAnnouncementFromAPI().then(function() {
     <div class="cart-empty"><i class="fas fa-shopping-bag"></i><p>Your cart is empty</p></div>
   </div>
   <div class="cart-footer">
-    <div class="cart-total"><span>Subtotal</span><strong id="cart-total">Rs. 0</strong></div>
+    <div class="cart-total"><span>Subtotal</span><strong id="cart-total">AED 0</strong></div>
     <button class="checkout-btn" onclick="openCheckout();toggleCart()">Proceed to Checkout</button>
+  </div>
+</div>
+
+<!-- WISHLIST MODAL -->
+<div class="modal-overlay" id="wishlist-modal" onclick="if(event.target===this)closeWishlistModal()">
+  <div class="checkout-modal">
+    <div class="modal-hdr">
+      <h3><i class="fas fa-heart" style="margin-right:8px;font-size:1rem;color:#c62828"></i>My Wishlist</h3>
+      <button class="modal-close" onclick="closeWishlistModal()" style="background:none;border:none;font-size:1.2rem;cursor:pointer;color:var(--muted)"><i class="fas fa-times"></i></button>
+    </div>
+    <div id="wishlist-modal-body" style="max-height:62vh;overflow-y:auto;padding:20px"></div>
   </div>
 </div>
 
@@ -710,7 +725,7 @@ fetchAnnouncementFromAPI().then(function() {
           <div class="item-name" id="checkout-name">—</div>
           <div class="item-sub" id="checkout-meta">—</div>
         </div>
-        <div class="item-price" id="checkout-price">Rs. 0</div>
+        <div class="item-price" id="checkout-price">AED 0</div>
       </div>
 
       <div class="section-heading">Contact Information</div>
@@ -744,14 +759,14 @@ fetchAnnouncementFromAPI().then(function() {
       <div class="shipping-options">
         <label class="shipping-option selected" onclick="selectShipping(this,'standard')">
           <div class="shipping-option-label"><input type="radio" name="shipping" value="standard" checked/> Standard Delivery (2–5 Working Days)</div>
-          <span class="shipping-option-price" id="ship-standard-price">Rs. 200</span>
+          <span class="shipping-option-price" id="ship-standard-price">AED 200</span>
         </label>
         <label class="shipping-option" onclick="selectShipping(this,'express')">
           <div class="shipping-option-label"><input type="radio" name="shipping" value="express"/> Express Delivery (1–2 Working Days)</div>
-          <span class="shipping-option-price" id="ship-express-price">Rs. 400</span>
+          <span class="shipping-option-price" id="ship-express-price">AED 400</span>
         </label>
         <label class="shipping-option" onclick="selectShipping(this,'free')">
-          <div class="shipping-option-label"><input type="radio" name="shipping" value="free"/> <span id="ship-free-label">Free Shipping (Orders above Rs. 10,000)</span></div>
+          <div class="shipping-option-label"><input type="radio" name="shipping" value="free"/> <span id="ship-free-label">Free Shipping (Orders above AED 10,000)</span></div>
           <span class="shipping-option-price" style="color:var(--green)">FREE</span>
         </label>
       </div>
@@ -763,30 +778,43 @@ fetchAnnouncementFromAPI().then(function() {
           <div class="pay-opt-left"><input type="radio" name="payment" value="cod" checked/> Cash on Delivery (COD)</div>
           <div class="pay-icons-row"><span class="pay-chip">COD</span></div>
         </label>
-        <label class="pay-opt" onclick="selectPayment(this,'jazzcash')">
-          <div class="pay-opt-left"><input type="radio" name="payment" value="jazzcash"/> JazzCash / EasyPaisa</div>
-          <div class="pay-icons-row"><span class="pay-chip">JC</span><span class="pay-chip">EP</span></div>
+        <label class="pay-opt" onclick="selectPayment(this,'zeina')">
+          <div class="pay-opt-left"><input type="radio" name="payment" value="zeina"/> Zeina (Card / Apple Pay)</div>
+          <div class="pay-icons-row"><span class="pay-chip">Z</span><span class="pay-chip">💳</span></div>
         </label>
-        <label class="pay-opt" onclick="selectPayment(this,'bank')">
-          <div class="pay-opt-left"><input type="radio" name="payment" value="bank"/> Bank Transfer</div>
-          <div class="pay-icons-row"><span class="pay-chip">HBL</span><span class="pay-chip">MCB</span></div>
+        <label class="pay-opt" onclick="selectPayment(this,'paypal')">
+          <div class="pay-opt-left"><input type="radio" name="payment" value="paypal"/> PayPal / Credit / Debit Card</div>
+          <div class="pay-icons-row"><span class="pay-chip">PP</span><span class="pay-chip">💳</span></div>
         </label>
       </div>
+
+      <div class="section-heading" style="margin-top:20px">Coupon Code</div>
+      <div style="display:flex;gap:8px;align-items:center;margin-bottom:6px">
+        <input type="text" id="coupon-input" placeholder="Enter coupon code (e.g. SUMMER26)" style="flex:1;padding:10px 12px;border:1.5px solid var(--border,#ddd);border-radius:8px;font-size:0.85rem;outline:none;text-transform:uppercase"/>
+        <button class="btn btn-primary btn-sm" onclick="applyCheckoutCoupon()" style="padding:10px 16px;font-size:0.8rem"><i class="fas fa-tag"></i> Apply</button>
+      </div>
+      <div id="coupon-status" style="font-size:0.78rem;color:var(--muted);margin-bottom:14px"></div>
 
       <div class="section-heading" style="margin-top:20px">Advance Deposit</div>
       <div class="deposit-box">
-        <p>To confirm your Cash on Delivery order, a small advance deposit of <strong id="deposit-amount-text">Rs. 250</strong> is required. This is deducted from your final bill at delivery.</p>
-        <div class="deposit-amount"><i class="fas fa-money-bill-wave" style="margin-right:8px;color:var(--accent)"></i>Advance: <span id="deposit-amount-text2">Rs. 250</span></div>
+        <p>To confirm your Cash on Delivery order, an advance deposit of <strong id="deposit-amount-text">AED 50</strong> is required. This is deducted from your final bill at delivery.</p>
+        <div class="deposit-amount"><i class="fas fa-money-bill-wave" style="margin-right:8px;color:var(--accent)"></i>Advance: <span id="deposit-amount-text2">AED 50</span></div>
         <select class="deposit-select" id="deposit-method">
           <option value="">— Select Deposit Method —</option>
         </select>
+        <input type="text" id="payment-txn-id" placeholder="Transaction / reference ID (after sending the advance)" style="width:100%;margin-top:8px;padding:10px 12px;border:1.5px solid var(--border,#ddd);border-radius:8px;font-size:0.85rem;outline:none;"/>
       </div>
 
       <div class="order-summary-box" style="margin-top:16px">
-        <div class="order-line"><span>Product</span><span id="co-product-cost">Rs. 0</span></div>
-        <div class="order-line"><span>Shipping</span><span id="co-shipping-cost">Rs. 200</span></div>
-        <div class="order-line"><span>Advance Paid</span><span id="co-advance-line">— Rs. 250</span></div>
-        <div class="order-line total"><span>Total at Delivery</span><span id="co-total-display">Rs. 0</span></div>
+        <div class="order-line"><span>Product</span><span id="co-product-cost">AED 0</span></div>
+        <div class="order-line"><span>Shipping</span><span id="co-shipping-cost">AED 0</span></div>
+        <div class="order-line"><span>Shipping</span><span id="co-shipping-cost">AED 0</span></div>
+        <div class="order-line" id="co-coupon-row" style="display:none"><span>Coupon Discount</span><span id="co-coupon-discount" style="color:var(--green)">- AED 0</span></div>
+        <div class="order-line total"><span>Order Total</span><span id="co-order-total">AED 0</span></div>
+        <div class="order-line" id="co-advance-row"><span>Required Advance</span><span id="co-advance-required">AED 0</span></div>
+        <div class="order-line" id="co-advance-paid-row"><span>Advance Paid</span><span id="co-advance-line">— AED 0</span></div>
+        <div class="order-line total"><span>Remaining on Delivery</span><span id="co-remaining-display">AED 0</span></div>
+        <div class="order-line total" style="display:none"><span>Total</span><span id="co-total-display">AED 0</span></div>
       </div>
 
       <button class="place-order-btn" onclick="placeOrder()">
@@ -812,7 +840,7 @@ fetchAnnouncementFromAPI().then(function() {
           <a href="https://wa.me/9710566551046" class="social-btn" target="_blank"><i class="fab fa-whatsapp"></i></a>
         </div>
       </div>
-      <div class="footer-col"><h6>Shop</h6><ul><li><a href="view.html">View All</a></li><li><a href="top.html">Tops</a></li><li><a href="Botom.html">Bottoms</a></li><li><a href="tracksuits.html">Tracksuits</a></li><li><a href="Footwear.html">Footwear</a></li><li><a href="assesories.html">Accessories</a></li></ul></div>
+      <div class="footer-col"><h6>Shop</h6><ul><li><a href="viewall.html">View All</a></li><li><a href="tops.html">Tops</a></li><li><a href="Bottoms.html">Bottoms</a></li><li><a href="TrackSuits.html">Tracksuits</a></li><li><a href="Footwear.html">Footwear</a></li><li><a href="accessories.html">Accessories</a></li><li><a href="home-kitchen.html">Home & Kitchen</a></li></ul></div>
       <div class="footer-col"><h6>Support</h6><ul><li><a href="contact.html">Contact Us</a></li><li><a href="./policies.html">Return Policy</a></li><li><a href="./faqs.html">FAQs</a></li></ul></div>
       <div class="footer-col"><h6>Contact</h6><ul>
         <li><a href="tel:+9710566551046"><i class="fas fa-phone" style="margin-right:8px;color:var(--accent)"></i>+9710566551046</a></li>
@@ -847,11 +875,18 @@ fetchAnnouncementFromAPI().then(function() {
      dn_reviews_<productId> -> array of reviews submitted on THIS page for that product
    ============================================================================ */
 
-const FALLBACK_IMG = "https://dnstore.pk/cdn/shop/collections/A6F9D276-DD01-4A48-A90F-4C075B4DE837.jpg?v=1777718686&width=1024";
+// PLACEHOLDER_IMG is already defined in store.js (loaded above)
+const FALLBACK_IMG = window.PLACEHOLDER_IMG || 'data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22800%22%20height%3D%22800%22%3E%3Crect%20width%3D%22800%22%20height%3D%22800%22%20fill%3D%22%23f0f0f0%22%2F%3E%3Ctext%20x%3D%22400%22%20y%3D%22400%22%20font-family%3D%22DM%20Sans%2C%20sans-serif%22%20font-size%3D%2224%22%20fill%3D%22%23bbb%22%20text-anchor%3D%22middle%22%20dominant-baseline%3D%22middle%22%3EBIN%20SALEH%3C%2Ftext%3E%3C%2Fsvg%3E';
 
 const DEFAULT_BANK_SETTINGS = {
   advanceAmount: 250,
   whatsapp: "9710566551046",
+  bankName: "HBL",
+  accountTitle: "BIN SALEH LLC",
+  accountNumber: "0123456789",
+  iban: "PK36HBLB0123456789",
+  branchName: "Main Branch",
+  paymentInstructions: "Please transfer the advance amount to the account above and send the receipt on WhatsApp.",
   deposit: [
     { label:"JazzCash: 0300-0000000", value:"jazzcash" },
     { label:"EasyPaisa: 0300-0000000", value:"easypaisa" },
@@ -860,33 +895,100 @@ const DEFAULT_BANK_SETTINGS = {
   ]
 };
 
-const DEFAULT_SHIPPING_SETTINGS = { standardFee:200, expressFee:400, freeThreshold:10000 };
+const DEFAULT_SHIPPING_SETTINGS = { standardFee:200, expressFee:400, urgentFee:600, sameDayFee:800, freeThreshold:10000 };
+const DEFAULT_COD_SETTINGS = { enabled:true, advanceType:'fixed', fixedAmount:50, percentage:30 };
+function getCodSettings(){ return { ...DEFAULT_COD_SETTINGS, ...safeParse('dn_cod_settings', {}) }; }
+function getAdvanceRequired(){
+  const cod = getCodSettings();
+  if (selectedPayment !== 'cod' || cod.enabled === false) return 0;
+  const orderTotal = (product.price * qty) + selectedShipping;
+  if (cod.advanceType === 'percentage') return Math.round(orderTotal * (Number(cod.percentage) || 0) / 100);
+  if (cod.advanceType === 'none') return 0;
+  return Number(cod.fixedAmount) || 0;
+}
+// Convert product-currency amount to AED for Zeina (Ziina) payments
+function toAEDAmount(amount){
+  const cur = product.currency || 'AED';
+  const rates = JSON.parse(localStorage.getItem('dn_currency_rates') || 'null') || { AED: 0.0132, USD: 0.0036 };
+  if (cur === 'AED') return Math.round(Number(amount) * 100) / 100;
+  if (cur === 'USD') return Math.round(Number(amount) * (rates.AED / (rates.USD || 0.0036)) * 100) / 100;
+  return Math.round(Number(amount) * (rates.AED || 0.0132) * 100) / 100; // PKR -> AED
+}
 
 // Used ONLY if localStorage has no products yet (first run / preview).
-const DEMO_PRODUCTS = [
-  { id:1, name:"Linen Co-ord Set – Beige", category:"tracksuits", price:5450, oldPrice:8999, currency:"PKR", badge:"SALE", inStock:true,
-    images:["https://dnstore.pk/cdn/shop/files/IMG_7830.jpg?v=1774721492&width=1024"],
-    colors:[{name:"beige",label:"Beige",inStock:true},{name:"olive",label:"Olive",inStock:true}],
-    rating:4.8 },
-  { id:2, name:"Adidas Samba – White", category:"footwear", price:3550, oldPrice:12000, currency:"PKR", badge:"SALE", inStock:true,
-    images:["https://dnstore.pk/cdn/shop/files/CE97B476-E5CA-4C66-B89B-6E3631B5E368.jpg?v=1767185810&width=1024"],
-    colors:[{name:"white",label:"White",inStock:true}],
-    rating:4.7 }
-];
+const DEMO_PRODUCTS = [];
 
 function safeParse(key, fallback){
   try{ const raw = localStorage.getItem(key); if(!raw) return fallback; const val = JSON.parse(raw); return val ?? fallback; }
   catch(e){ return fallback; }
 }
 
+async function fetchProductsFromAPI() {
+  try {
+    const result = await api.get('/products');
+    if (Array.isArray(result) && result.length) {
+      // Merge API products with existing localStorage products (don't overwrite local-only ones)
+      var existing = safeParse('dn_products', []);
+      if (Array.isArray(existing) && existing.length) {
+        var apiIds = new Set(result.map(function(p) { return p._id || p.id; }));
+        existing.forEach(function(p) {
+          if (!apiIds.has(p._id || p.id)) result.push(p);
+        });
+      }
+      localStorage.setItem('dn_products', JSON.stringify(result));
+      return result;
+    }
+  } catch(e) {}
+  return null;
+}
+
 function getAllProducts(){
   const arr = safeParse('dn_products', null);
   return (Array.isArray(arr) && arr.length) ? arr : DEMO_PRODUCTS;
 }
+// Fetch bank settings from DB via API first, fall back to localStorage
+async function fetchCodSettingsFromDB() {
+  try {
+    const result = await api.get('/settings/cod_settings');
+    if (result && result.value) {
+      var val = typeof result.value === 'string' ? JSON.parse(result.value) : result.value;
+      localStorage.setItem('dn_cod_settings', JSON.stringify(val));
+      return val;
+    }
+  } catch(e) {}
+  return null;
+}
+async function fetchBankSettingsFromDB() {
+  try {
+    const result = await api.get('/settings/bank_settings');
+    if (result && result.value) {
+      var val = typeof result.value === 'string' ? JSON.parse(result.value) : result.value;
+      localStorage.setItem('dn_bank_settings', JSON.stringify(val));
+      return val;
+    }
+  } catch(e) {}
+  return null;
+}
+
+// Fetch shipping settings from DB via API first, fall back to localStorage
+async function fetchShippingSettingsFromDB() {
+  try {
+    const result = await api.get('/settings/shipping_settings');
+    if (result && result.value) {
+      var val = typeof result.value === 'string' ? JSON.parse(result.value) : result.value;
+      localStorage.setItem('dn_shipping_settings', JSON.stringify(val));
+      return val;
+    }
+  } catch(e) {}
+  return null;
+}
+
 function getBankSettings(){ return { ...DEFAULT_BANK_SETTINGS, ...safeParse('dn_bank_settings', {}) }; }
 // wa.me needs digits only (no +, spaces or dashes) — admin might save the number in any format
 function sanitizePhone(num){ return (num || '').replace(/\D/g, ''); }
 function getShippingSettings(){ return { ...DEFAULT_SHIPPING_SETTINGS, ...safeParse('dn_shipping_settings', {}) }; }
+
+// Bank/shipping now fetched inside init() with await
 function getProductReviews(id){ return safeParse('dn_reviews_'+id, null); }
 function saveProductReviews(id, reviews){ localStorage.setItem('dn_reviews_'+id, JSON.stringify(reviews)); }
 
@@ -894,7 +996,7 @@ function getRequestedProduct(){
   const params = new URLSearchParams(window.location.search);
   const id = params.get('id') || params.get('pid');
   const all = getAllProducts();
-  let found = id ? all.find(p => String(p.id) === String(id)) : null;
+  let found = id ? all.find(p => String(p._id || p.id) === String(id)) : null;
   if(!found) found = all[0]; // graceful fallback so the page never shows blank
   return found || null;
 }
@@ -902,13 +1004,25 @@ function getRequestedProduct(){
 // Fills in any missing field with a tasteful generic default so old/simple
 // products saved before this update still render a complete page.
 function normalizeProduct(p){
-  const images = (p.images && p.images.length) ? p.images : (p.img ? [p.img] : [FALLBACK_IMG]);
+  var images = [];
+  var bestImg = getProductImage(p);
+  if (p.images && Array.isArray(p.images) && p.images.length) {
+    images = p.images.filter(function(u) { return u && typeof u === 'string' && u !== 'undefined' && u !== 'null'; });
+  }
+  if (!images.length && bestImg && bestImg !== PLACEHOLDER_IMG) {
+    images = [bestImg];
+  }
+  if (!images.length) {
+    images = [FALLBACK_IMG];
+  }
   const colors = (p.colors && p.colors.length) ? p.colors : [{ name:"default", label:"Standard", inStock: p.inStock !== false }];
-  const reviews = getProductReviews(p.id) ?? (p.reviews || []);
+  // Normalize id: MongoDB stores _id, admin store uses id — support both
+  const normalizedId = p._id || p.id;
+  const reviews = getProductReviews(normalizedId) ?? (p.reviews || []);
   return {
-    id: p.id, name: p.name || "Unnamed Product", category: p.category || "products",
+    _id: normalizedId, id: normalizedId, name: p.name || "Unnamed Product", category: p.category || "products",
     price: Number(p.price)||0, oldPrice: Number(p.oldPrice)|| Number(p.price)||0,
-    currency: p.currency || "PKR", badge: p.badge || "", inStock: p.inStock !== false,
+    currency: p.currency || "AED", badge: p.badge || "", inStock: p.inStock !== false,
     images, colors, rating: p.rating || (reviews.length ? (reviews.reduce((s,r)=>s+r.stars,0)/reviews.length) : 4.8),
     description: p.description && p.description.bullets ? p.description : {
       intro: `${p.name || "This product"} is made with quality materials and finished with attention to detail, built for everyday comfort and style.`,
@@ -924,19 +1038,66 @@ function normalizeProduct(p){
 // ---- STATE ----
 let product = null;
 let qty = 1, selectedColor = "", selectedShipping = 200, selectedPayment = "cod";
+let appliedCoupon = null; // { code, type, discount, discountAmount }
+
+// ---- COUPON APPLICATION (#3) ----
+async function applyCheckoutCoupon() {
+  const code = (document.getElementById("coupon-input").value || "").trim().toUpperCase();
+  const statusEl = document.getElementById("coupon-status");
+  if (!code) { statusEl.innerHTML = '<span style="color:#c62828">Please enter a coupon code.</span>'; return; }
+  const subtotal = product.price * qty;
+  try {
+    const res = await api.post("/coupons/validate", { code: code, subtotal: subtotal, customerEmail: (typeof getToken === "function" ? (JSON.parse(localStorage.getItem("bs_user")||"null")||{}).email || "" : "") });
+    if (res && res.valid) {
+      appliedCoupon = { code: res.code, type: res.type, discount: res.discount, discountAmount: res.discountAmount };
+      statusEl.innerHTML = '<span style="color:#2e7d32">' + (res.message || "Coupon applied!") + '</span>';
+      document.getElementById("coupon-input").value = res.code;
+    } else {
+      appliedCoupon = null;
+      statusEl.innerHTML = '<span style="color:#c62828">' + (res.message || "Invalid coupon.") + '</span>';
+    }
+  } catch (e) {
+    appliedCoupon = null;
+    statusEl.innerHTML = '<span style="color:#c62828">Coupon validation failed.</span>';
+  }
+  updateOrderTotals();
+}
 let activeImgIndex = 0, checkoutActiveImgIdx = 0, currentStarRating = 0;
 let cartItems = [];
+let availablePaymentMethods = [];
 
-const CUR_SYMBOL = { PKR:"Rs.", AED:"AED ", USD:"$" };
+const CUR_SYMBOL = { AED:"AED", PKR:"AED", USD:"$" };
 function formatPrice(amount){
-  const sym = CUR_SYMBOL[product.currency] || "Rs.";
+  const sym = CUR_SYMBOL[product.currency] || "AED";
   return product.currency === "USD" ? sym + Number(amount).toFixed(2) : sym + " " + Math.round(amount).toLocaleString();
 }
 
 // ============================================================================
 // INIT
 // ============================================================================
-function init(){
+async function init(){
+  // Fetch latest bank & shipping settings from DB first so checkout uses latest values
+  try { await fetchBankSettingsFromDB(); } catch(e) {}
+  try { await fetchShippingSettingsFromDB(); } catch(e) {}
+  try { await fetchCodSettingsFromDB(); } catch(e) {}
+  handleZeinaReturn(); // if returning from the Zeina hosted payment page (#3)
+  
+  // Always try to fetch latest products from backend API first
+  // This ensures newly added products (with URL or uploaded images) appear
+  try { await fetchProductsFromAPI(); } catch(e) {}
+  
+  // If API failed and no products in localStorage, try fetching just this specific product by ID
+  const params = new URLSearchParams(window.location.search);
+  const urlId = params.get('id') || params.get('pid');
+  if (!getAllProducts().length && urlId) {
+    try {
+      const singleProduct = await api.get('/products/' + urlId);
+      if (singleProduct && singleProduct._id) {
+        localStorage.setItem('dn_products', JSON.stringify([singleProduct]));
+      }
+    } catch(e) { /* API not available */ }
+  }
+  
   const raw = getRequestedProduct();
   if(!raw){
     showNotFound();
@@ -947,6 +1108,8 @@ function init(){
 
   renderGallery();
   renderInfo();
+  updateWishlistButton();
+  syncWishlistOnLoad();
   renderAccordions();
   renderReviews();
   buildShippingOptions();
@@ -954,6 +1117,10 @@ function init(){
   buildCheckoutThumbs();
   renderRelated();
   initPixels();
+  
+  // Ensure deposit box is visible by default (COD)
+  var depositBox = document.querySelector('.deposit-box');
+  if (depositBox) depositBox.style.display = 'block';
 }
 
 function showNotFound(){
@@ -962,8 +1129,13 @@ function showNotFound(){
       <i class="fas fa-box-open"></i>
       <h2 style="font-family:'Bebas Neue';letter-spacing:1px;margin-bottom:10px">Product Not Found</h2>
       <p style="color:var(--muted,#888);margin-bottom:18px">This product may have been removed or the link is incorrect.</p>
-      <a href="view.html" class="btn-buy" style="display:inline-block;text-decoration:none;padding:12px 24px">Browse All Products</a>
+      <a href="viewall.html" class="btn-buy" style="display:inline-block;text-decoration:none;padding:12px 24px">Browse All Products</a>
     </div>`;
+  // Hide reviews section since there's no product to review
+  var revSection = document.getElementById('reviews-section');
+  if (revSection) revSection.style.display = 'none';
+  var relSection = document.getElementById('related-section');
+  if (relSection) relSection.style.display = 'none';
 }
 
 // ============================================================================
@@ -1001,13 +1173,14 @@ function renderInfo(){
   document.getElementById('sale-badge').style.display = product.badge ? 'inline-flex' : 'none';
   document.getElementById('sale-badge').textContent = product.badge;
 
+  const isOos = isProductOutOfStock(product);
   const stockBadge = document.getElementById('stock-badge');
-  stockBadge.innerHTML = product.inStock
-    ? '<i class="fas fa-circle" style="font-size:.45rem"></i> In Stock'
-    : '<i class="fas fa-circle" style="font-size:.45rem"></i> Out of Stock';
-  document.getElementById('stock-label').textContent = product.inStock ? 'In stock — ready to ship' : 'Currently unavailable';
-  document.getElementById('btn-add-cart').disabled = !product.inStock;
-  document.getElementById('btn-buy-now').disabled = !product.inStock;
+  stockBadge.innerHTML = isOos
+    ? '<i class="fas fa-circle" style="font-size:.45rem"></i> Out of Stock'
+    : (product.stock !== undefined && product.stock !== null && Number(product.stock) <= Number(product.lowStockThreshold||5) ? '<i class="fas fa-circle" style="font-size:.45rem;color:#e67e22"></i> Only ' + product.stock + ' left' : '<i class="fas fa-circle" style="font-size:.45rem"></i> In Stock');
+  document.getElementById('stock-label').textContent = isOos ? 'Currently unavailable' : (product.stock !== undefined && product.stock !== null ? 'In stock — ' + product.stock + ' available' : 'In stock — ready to ship');
+  document.getElementById('btn-add-cart').disabled = isOos;
+  document.getElementById('btn-buy-now').disabled = isOos;
   if(!product.inStock){
     document.getElementById('btn-add-cart').style.opacity = '0.5';
     document.getElementById('btn-buy-now').style.opacity = '0.5';
@@ -1058,8 +1231,8 @@ function renderAccordions(){
   const bank = getBankSettings();
   const shipBullets = product.shippingInfo || [
     "Nationwide delivery — 2 to 5 working days.",
-    `Free shipping on orders above Rs. ${shipping.freeThreshold.toLocaleString()}.`,
-    `Rs. ${bank.advanceAmount} advance required to confirm COD orders.`,
+    `Free shipping on orders above AED ${shipping.freeThreshold.toLocaleString()}.`,
+    `AED ${bank.advanceAmount} advance required to confirm COD orders.`,
     "Express delivery available — contact us on WhatsApp."
   ];
   document.getElementById('acc-shipping-body').innerHTML = `<ul>${shipBullets.map(b=>`<li>${b}</li>`).join('')}</ul>`;
@@ -1076,6 +1249,15 @@ function renderStarsDisplay(id, rating, full){
     const half = !filled && (i < rating);
     return `<i class="fas fa-star" style="opacity:${filled?1:half?.5:.2}"></i>`;
   }).join('');
+}
+
+// Escape HTML in user-generated review text (stored-XSS defense).
+// Reviews are rendered via innerHTML below, so names and text MUST be escaped
+// before they are inserted — even though the backend also sanitizes them.
+function escHtml(s){
+  return String(s == null ? '' : s)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
 }
 
 function renderReviews(){
@@ -1095,13 +1277,13 @@ function renderReviews(){
     <div class="review-card">
       <div class="review-card-header">
         <div class="reviewer-info">
-          <div class="name">${rv.name}</div>
-          <div class="date">${rv.date}</div>
+          <div class="name">${escHtml(rv.name)}</div>
+          <div class="date">${escHtml(rv.date)}</div>
           ${rv.verified ? '<span class="verified-badge"><i class="fas fa-check-circle"></i> Verified Purchase</span>' : ''}
         </div>
         <div class="review-stars">${Array.from({length:5},(_,i)=>`<i class="fas fa-star" style="opacity:${i<rv.stars?1:.2}"></i>`).join('')}</div>
       </div>
-      <div class="review-text">${rv.text}</div>
+      <div class="review-text">${escHtml(rv.text)}</div>
     </div>`).join('');
 }
 
@@ -1125,6 +1307,8 @@ function submitReview(){
   product.reviews.unshift({ name, date:'Just now', stars: currentStarRating, text, verified:false });
   product.rating = product.reviews.reduce((s,r)=>s+r.stars,0) / product.reviews.length;
   saveProductReviews(product.id, product.reviews);
+  // Also save review to backend API (MongoDB) for persistence and Admin Panel display
+  api.post('/reviews', { productId: product._id || product.id, name, email, rating: currentStarRating, text }).catch(function(){});
   renderReviews();
   toggleReviewForm();
   document.getElementById('rev-name').value = '';
@@ -1139,17 +1323,18 @@ function submitReview(){
 // RELATED PRODUCTS (same category, excluding current)
 // ============================================================================
 function renderRelated(){
-  const all = getAllProducts().filter(p => p.category === product.category && String(p.id) !== String(product.id)).slice(0,4);
+  const all = getAllProducts().filter(p => p.category === product.category && String(p._id || p.id) !== String(product.id)).slice(0,4);
   const grid = document.getElementById('related-grid');
   if(!all.length){ document.getElementById('related-section').style.display = 'none'; return; }
   grid.innerHTML = all.map(p => {
-    const img = (p.images && p.images[0]) || p.img || FALLBACK_IMG;
+    const img = getProductImage(p);
+    const pid = p._id || p.id;
     return `
-    <a href="addTocurt.html?id=${p.id}" style="text-decoration:none;color:inherit;display:block;border:1px solid var(--border,#eee);border-radius:10px;overflow:hidden">
+    <a href="addTocurt.html?id=${pid}" style="text-decoration:none;color:inherit;display:block;border:1px solid var(--border,#eee);border-radius:10px;overflow:hidden">
       <img src="${img}" alt="${p.name}" style="width:100%;aspect-ratio:1/1.1;object-fit:cover;display:block"/>
       <div style="padding:10px">
         <div style="font-size:.82rem;font-weight:600;color:#111;line-height:1.3;margin-bottom:4px">${p.name}</div>
-        <div style="font-size:.82rem;color:var(--accent,#b8860b);font-weight:700">Rs. ${Number(p.price).toLocaleString()}</div>
+        <div style="font-size:.82rem;color:var(--accent,#b8860b);font-weight:700">AED ${Number(p.price).toLocaleString()}</div>
       </div>
     </a>`;
   }).join('');
@@ -1161,10 +1346,10 @@ function renderRelated(){
 function changeQty(d){ qty = Math.max(1, qty + d); document.getElementById('qty-display').value = qty; }
 
 function addToCartAction(){
-  if(!product.inStock){ showToast('<i class="fas fa-ban" style="margin-right:8px"></i>This product is out of stock.'); return; }
+  if(isProductOutOfStock(product)){ showToast('<i class="fas fa-ban" style="margin-right:8px"></i>This product is out of stock.'); return; }
   const activeImg = product.images[activeImgIndex] || product.images[0];
   // Save to shared localStorage cart
-  cartAddItem({ id: product.id, name: product.name, color: selectedColor, qty, price: product.price, currency: product.currency||'Rs.', img: activeImg });
+  cartAddItem({ id: product.id, name: product.name, color: selectedColor, qty, price: product.price, currency: product.currency||'AED', img: activeImg });
   cartRenderDrawer();
   toggleCart();
   showToast('<i class="fas fa-check" style="margin-right:8px"></i>Added to cart!');
@@ -1200,9 +1385,9 @@ function switchCheckoutImg(idx){
 
 function buildShippingOptions(){
   const s = getShippingSettings();
-  document.getElementById('ship-standard-price').textContent = 'Rs. ' + s.standardFee;
-  document.getElementById('ship-express-price').textContent = 'Rs. ' + s.expressFee;
-  document.getElementById('ship-free-label').textContent = `Free Shipping (Orders above Rs. ${s.freeThreshold.toLocaleString()})`;
+  document.getElementById('ship-standard-price').textContent = 'AED ' + s.standardFee;
+  document.getElementById('ship-express-price').textContent = 'AED ' + s.expressFee;
+  document.getElementById('ship-free-label').textContent = `Free Shipping (Orders above AED ${s.freeThreshold.toLocaleString()})`;
   selectedShipping = s.standardFee;
 }
 function buildDepositOptions(){
@@ -1210,13 +1395,26 @@ function buildDepositOptions(){
   const sel = document.getElementById('deposit-method');
   sel.innerHTML = '<option value="">— Select Deposit Method —</option>' +
     bank.deposit.map(d => `<option value="${d.value}">${d.label}</option>`).join('');
-  document.getElementById('deposit-amount-text').textContent = 'Rs. ' + bank.advanceAmount;
-  document.getElementById('deposit-amount-text2').textContent = 'Rs. ' + bank.advanceAmount;
-  document.getElementById('co-advance-line').textContent = '— Rs. ' + bank.advanceAmount;
+  document.getElementById('deposit-amount-text').textContent = 'AED ' + bank.advanceAmount;
+  document.getElementById('deposit-amount-text2').textContent = 'AED ' + bank.advanceAmount;
+  document.getElementById('co-advance-line').textContent = '— AED ' + bank.advanceAmount;
+}
+
+// Load payment methods from localStorage or defaults for checkout
+function loadPaymentMethods() {
+  try {
+    const saved = localStorage.getItem('bs_payment_methods');
+    if (saved) {
+      const methods = JSON.parse(saved);
+      if (Array.isArray(methods) && methods.length) return;
+    }
+  } catch(e) {}
+  // Default payment methods defined inline in HTML radio buttons
 }
 
 function openCheckout(){
-  if(!product.inStock){ showToast('<i class="fas fa-ban" style="margin-right:8px"></i>This product is out of stock.'); return; }
+  loadPaymentMethods();
+  if(isProductOutOfStock(product)){ showToast('<i class="fas fa-ban" style="margin-right:8px"></i>This product is out of stock.'); return; }
   checkoutActiveImgIdx = activeImgIndex;
   document.getElementById('checkout-main-img').src = product.images[activeImgIndex] || product.images[0];
   document.querySelectorAll('.checkout-thumb').forEach((t,i)=>t.classList.toggle('active', i===activeImgIndex));
@@ -1245,14 +1443,291 @@ function selectPayment(el, method){
   el.classList.add('selected');
   el.querySelector('input').checked = true;
   selectedPayment = method;
+  // Show/hide the deposit section based on payment method
+  const depositBox = document.querySelector('.deposit-box');
+  if (depositBox) {
+    depositBox.style.display = method === 'cod' ? 'block' : 'none';
+  }
+  // Show/hide advance rows in the order summary (COD only) (#2)
+  const advRow = document.getElementById('co-advance-row');
+  const advPaidRow = document.getElementById('co-advance-paid-row');
+  if (advRow) advRow.style.display = method === 'cod' ? '' : 'none';
+  if (advPaidRow) advPaidRow.style.display = method === 'cod' ? '' : 'none';
+  updateOrderTotals();
+  // Bank section placeholder for showing account details
+  updateBankPaymentInfo(method);
+}
+
+function updateBankPaymentInfo(method) {
+  // Show bank account details for non-COD payment methods
+  const bank = getBankSettings();
+  const existingInfo = document.getElementById('bank-payment-info');
+  if (existingInfo) existingInfo.remove();
+  
+  if (method === 'cod') return;
+  
+  var detailsHtml = '';
+  if (method === 'zeina') {
+    detailsHtml = `
+      <div id="bank-payment-info" style="background:var(--bg2,#f9f9f9);border:1px solid var(--border,#e0e0e0);border-radius:10px;padding:16px;margin-top:12px;">
+        <div style="font-weight:700;margin-bottom:12px;color:#111;"><i class="fas fa-credit-card"></i> Pay with Zeina</div>
+        <div style="font-size:0.85rem;color:#333;line-height:1.6">
+          <p style="margin-bottom:12px;"><strong>Amount to Pay:</strong> ${formatPrice(product.price * qty + selectedShipping)}</p>
+          <p style="margin-top:8px;padding:8px;background:#e8f5e9;border-radius:6px;font-size:0.78rem;color:#2e7d32;">
+            <i class="fas fa-lock"></i> Secure payment by Zeina (Ziina). UAE cards, Apple Pay &amp; Google Pay accepted.
+          </p>
+          <p style="margin-top:6px;padding:8px;background:#fff3cd;border-radius:6px;font-size:0.78rem;color:#856404;">
+            <i class="fas fa-info-circle"></i> After completing payment, you'll be returned here and the order is confirmed automatically.
+          </p>
+        </div>
+      </div>`;
+  } else if (method === 'paypal') {
+    // PayPal / Credit / Debit Card via PayPal Checkout
+    detailsHtml = `
+      <div id="bank-payment-info" style="background:var(--bg2,#f9f9f9);border:1px solid var(--border,#e0e0e0);border-radius:10px;padding:16px;margin-top:12px;">
+        <div style="font-weight:700;margin-bottom:12px;color:#111;"><i class="fab fa-paypal"></i> Pay with PayPal</div>
+        <div style="font-size:0.85rem;color:#333;line-height:1.6">
+          <p style="margin-bottom:12px;"><strong>Amount to Pay:</strong> AED ${(product.price * qty + selectedShipping).toLocaleString()}</p>
+          <div id="paypal-button-container" style="margin:10px 0;min-height:45px;">
+            <p style="color:#888;font-size:0.82rem;"><i class="fas fa-spinner fa-spin"></i> Loading PayPal...</p>
+          </div>
+          <p style="margin-top:8px;padding:8px;background:#e8f5e9;border-radius:6px;font-size:0.78rem;color:#2e7d32;">
+            <i class="fas fa-lock"></i> Secure payment by PayPal. Visa, Mastercard, Amex, and Debit Cards accepted.
+          </p>
+          <p style="margin-top:6px;padding:8px;background:#fff3cd;border-radius:6px;font-size:0.78rem;color:#856404;">
+            <i class="fas fa-info-circle"></i> After completing payment, the order will be confirmed automatically.
+          </p>
+        </div>
+      </div>`;
+    // Load PayPal SDK after a brief delay
+    setTimeout(loadPayPal, 100);
+  } else if (method === 'bank' || method === 'hbl' || method === 'meezan') {
+    var bankName = method === 'hbl' ? 'HBL' : method === 'meezan' ? 'Meezan Bank' : 'Bank';
+    var bankAcct = bank.accountNumber || '0123456789';
+    var bankTitle = bank.accountTitle || 'BIN SALEH LLC';
+    var bankIban = bank.iban || '';
+    
+    detailsHtml = `
+      <div id="bank-payment-info" style="background:var(--bg2,#f9f9f9);border:1px solid var(--border,#e0e0e0);border-radius:10px;padding:16px;margin-top:12px;">
+        <div style="font-weight:700;margin-bottom:8px;color:#111;"><i class="fas fa-university"></i> Bank Transfer Details — ${bankName}</div>
+        <div style="font-size:0.85rem;color:#333;line-height:1.8">
+          <p><strong>Bank:</strong> ${bankName}${bank.branchName ? ' (' + bank.branchName + ')' : ''}</p>
+          <p><strong>Account Title:</strong> ${bankTitle}</p>
+          <p><strong>Account Number:</strong> ${bankAcct}</p>
+          ${bankIban ? '<p><strong>IBAN:</strong> ' + bankIban + '</p>' : ''}
+          <p><strong>Amount to Transfer:</strong> AED ${(product.price * qty + selectedShipping).toLocaleString()}</p>
+          <p style="margin-top:8px;padding:8px;background:#fff3cd;border-radius:6px;font-size:0.78rem;color:#856404;">
+            <i class="fas fa-info-circle"></i> After transferring, enter the transaction/reference number below and confirm your order.
+          </p>
+        </div>
+        <div style="margin-top:10px">
+          <label style="font-size:0.75rem;font-weight:600;display:block;margin-bottom:4px;color:#555;">Transaction ID / Reference Number</label>
+          <input type="text" id="payment-txn-id" placeholder="e.g. TRX123456789" style="width:100%;padding:10px 12px;border:1.5px solid var(--border,#ddd);border-radius:8px;font-size:0.85rem;outline:none;"/>
+        </div>
+      </div>`;
+  }
+  
+  // Insert after the payment options
+  var paySection = document.querySelector('.payment-options');
+  if (paySection && detailsHtml) {
+    paySection.insertAdjacentHTML('afterend', detailsHtml);
+  }
 }
 function updateOrderTotals(){
-  const bank = getBankSettings();
   const subtotal = product.price * qty;
-  document.getElementById('co-product-cost').textContent = formatPrice(subtotal);
-  document.getElementById('ship-standard-price'); // no-op guard
-  document.getElementById('co-shipping-cost').textContent = selectedShipping === 0 ? 'FREE' : 'Rs. ' + selectedShipping;
-  document.getElementById('co-total-display').textContent = formatPrice(subtotal + selectedShipping - bank.advanceAmount);
+  const couponDiscount = appliedCoupon ? (Number(appliedCoupon.discountAmount) || 0) : 0;
+  const orderTotal = Math.max(0, subtotal + selectedShipping - couponDiscount);
+  const advance = getAdvanceRequired();
+  const el = id => document.getElementById(id);
+  if (el('co-product-cost')) el('co-product-cost').textContent = formatPrice(subtotal);
+  if (el('co-shipping-cost')) el('co-shipping-cost').textContent = selectedShipping === 0 ? 'FREE' : formatPrice(selectedShipping);
+  if (el('co-coupon-row')) el('co-coupon-row').style.display = couponDiscount > 0 ? 'flex' : 'none';
+  if (el('co-coupon-discount')) el('co-coupon-discount').textContent = couponDiscount > 0 ? '- ' + formatPrice(couponDiscount) : '- AED 0';
+  if (el('co-order-total')) el('co-order-total').textContent = formatPrice(orderTotal);
+  if (el('co-advance-required')) el('co-advance-required').textContent = formatPrice(advance);
+  if (el('co-advance-line')) el('co-advance-line').textContent = advance > 0 ? '— ' + formatPrice(advance) : '— AED 0';
+  if (el('co-remaining-display')) el('co-remaining-display').textContent = formatPrice(orderTotal - advance);
+  if (el('co-total-display')) el('co-total-display').textContent = formatPrice(orderTotal);
+  if (el('deposit-amount-text')) el('deposit-amount-text').textContent = formatPrice(advance);
+  if (el('deposit-amount-text2')) el('deposit-amount-text2').textContent = formatPrice(advance);
+  const depositBox = document.querySelector('.deposit-box');
+  if (depositBox) depositBox.style.display = selectedPayment === 'cod' ? 'block' : 'none';
+}
+
+// ============================================================================
+// PAYPAL CHECKOUT
+// ============================================================================
+let paypalLoaded = false;
+let paypalProcessing = false;
+
+async function loadPayPal() {
+  if (paypalLoaded) return;
+  
+  try {
+    const config = await api.get('/payments/config');
+    if (!config.paypalClientId) {
+      document.getElementById('paypal-button-container').innerHTML = '<p style="color:#dc3545;font-size:0.82rem;">⚠️ PayPal is not configured. Contact the store admin.</p>';
+      return;
+    }
+    
+    // Load PayPal SDK script
+    var script = document.createElement('script');
+    script.src = 'https://www.paypal.com/sdk/js?client-id=' + config.paypalClientId + '&currency=PKR&intent=capture';
+    script.async = true;
+    script.onload = function() {
+      paypalLoaded = true;
+      renderPayPalButtons();
+    };
+    script.onerror = function() {
+      document.getElementById('paypal-button-container').innerHTML = '<p style="color:#dc3545;font-size:0.82rem;">⚠️ Failed to load PayPal. Please try again.</p>';
+    };
+    document.body.appendChild(script);
+  } catch (err) {
+    document.getElementById('paypal-button-container').innerHTML = '<p style="color:#dc3545;font-size:0.82rem;">⚠️ ' + err.message + '</p>';
+  }
+}
+
+function renderPayPalButtons() {
+  if (typeof paypal === 'undefined') {
+    document.getElementById('paypal-button-container').innerHTML = '<p style="color:#dc3545;font-size:0.82rem;">⚠️ PayPal SDK not loaded. Please refresh.</p>';
+    return;
+  }
+  
+  var container = document.getElementById('paypal-button-container');
+  if (!container) return;
+  container.innerHTML = '';
+  
+  paypal.Buttons({
+    style: {
+      layout: 'vertical',
+      color: 'gold',
+      shape: 'rect',
+      label: 'paypal',
+      height: 45
+    },
+    
+    createOrder: function() {
+      // Validate form fields first
+      var contact = document.getElementById('co-contact').value.trim();
+      var fname = document.getElementById('co-fname').value.trim();
+      var lname = document.getElementById('co-lname').value.trim();
+      var address = document.getElementById('co-address').value.trim();
+      var city = document.getElementById('co-city').value.trim();
+      var phone = document.getElementById('co-phone').value.trim();
+      
+      if (!contact || !fname || !lname || !address || !city || !phone) {
+        showToast('<i class="fas fa-exclamation-triangle" style="margin-right:8px"></i>Please fill all required fields first!');
+        throw new Error('Please fill all required fields first!');
+      }
+      
+      var subtotal = product.price * qty;
+      var shipping = selectedShipping;
+      var total = subtotal + shipping;
+      
+      return api.post('/payments/create-paypal-order', {
+        amount: total,
+        currency: product.currency || 'AED',
+        description: 'BIN SALEH Store - ' + product.name
+      }).then(function(response) {
+        return response.orderId;
+      }).catch(function(err) {
+        showToast('<i class="fas fa-exclamation-triangle" style="margin-right:8px"></i>Failed to create payment: ' + err.message);
+        throw err;
+      });
+    },
+    
+    onApprove: function(data) {
+      paypalProcessing = true;
+      
+      var contact = document.getElementById('co-contact').value.trim();
+      var fname = document.getElementById('co-fname').value.trim();
+      var lname = document.getElementById('co-lname').value.trim();
+      var address = document.getElementById('co-address').value.trim();
+      var city = document.getElementById('co-city').value.trim();
+      var phone = document.getElementById('co-phone').value.trim();
+      var subtotal = product.price * qty;
+      var shipping = selectedShipping;
+      var total = subtotal + shipping;
+      var shippingMethod = shipping === 0 ? 'free' : shipping > 250 ? 'express' : 'standard';
+      
+      var btn = document.querySelector('.place-order-btn');
+      if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Confirming Payment...'; }
+      document.getElementById('paypal-button-container').innerHTML = '<p style="text-align:center;color:#2e7d32;font-size:0.85rem;"><i class="fas fa-spinner fa-spin"></i> Processing payment...</p>';
+      
+      // Capture the PayPal order
+      api.post('/payments/capture-paypal-order', { orderId: data.orderID }).then(function(capture) {
+        if (capture.status === 'COMPLETED') {
+          // Payment successful — save the order
+          var orderData = {
+            contact: contact,
+            shippingAddress: {
+              country: document.getElementById('co-country').value,
+              firstName: fname,
+              lastName: lname,
+              address: address,
+              apartment: document.getElementById('co-apt') ? document.getElementById('co-apt').value.trim() : '',
+              city: city,
+              postal: document.getElementById('co-postal') ? document.getElementById('co-postal').value.trim() : '',
+              phone: phone
+            },
+            items: [{ productId: product.id || null, name: product.name, color: selectedColor, quantity: qty, price: product.price, image: product.images[0] || '' }],
+            subtotal: subtotal,
+            shippingCost: shipping,
+            shippingMethod: shippingMethod,
+            total: total,
+            paymentMethod: 'paypal',
+            paymentStatus: 'paid',
+            currency: product.currency || 'AED',
+            paymentDetails: {
+              transactionId: capture.transactionId,
+              paidAmount: capture.paidAmount,
+              paidAt: capture.paidAt || new Date().toISOString(),
+              confirmedBy: contact,
+              notes: 'Paid via PayPal - Transaction: ' + capture.transactionId
+            }
+          };
+          
+          return api.post('/orders', orderData);
+        } else {
+          throw new Error('Payment ' + capture.status);
+        }
+      }).then(function(savedOrder) {
+
+        closeCheckout();
+        
+        var msg = '<i class="fas fa-check-circle" style="margin-right:8px"></i>Payment confirmed! Order is now being processed.';
+        showToast(msg);
+        
+        // Clear cart after successful order - comprehensive cleanup
+        localStorage.removeItem('bs_cart_items');
+        saveCart([]);
+        cartUpdateBadge();
+        if (typeof cartRenderDrawer === 'function') cartRenderDrawer();
+        
+        if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fas fa-paper-plane"></i> Complete Order'; }
+        paypalProcessing = false;
+      }).catch(function(err) {
+        console.error('Payment save failed:', err.message);
+        showToast('<i class="fas fa-exclamation-triangle" style="margin-right:8px"></i>Payment confirmed but order save failed: ' + err.message);
+        if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fas fa-paper-plane"></i> Complete Order'; }
+        paypalProcessing = false;
+        // Reload PayPal buttons
+        setTimeout(loadPayPal, 500);
+      });
+    },
+    
+    onCancel: function() {
+      showToast('<i class="fas fa-info-circle" style="margin-right:8px"></i>PayPal payment was cancelled.');
+      paypalProcessing = false;
+    },
+    
+    onError: function(err) {
+      console.error('PayPal error:', err);
+      showToast('<i class="fas fa-exclamation-triangle" style="margin-right:8px"></i>PayPal encountered an error. Please try again.');
+      paypalProcessing = false;
+      setTimeout(loadPayPal, 500);
+    }
+  }).render('#paypal-button-container');
 }
 
 function placeOrder(){
@@ -1266,10 +1741,87 @@ function placeOrder(){
     showToast('<i class="fas fa-exclamation-triangle" style="margin-right:8px"></i>Please fill all required fields!');
     return;
   }
-  const bank = getBankSettings();
-  
-  // === Save order to MongoDB via API (primary behavior) ===
-  const orderData = {
+
+  // PayPal uses its own inline button flow — Complete Order isn't used
+  if (selectedPayment === 'paypal') {
+    showToast('<i class="fas fa-info-circle" style="margin-right:8px"></i>Please complete your payment with the PayPal button above.');
+    return;
+  }
+
+  var subtotal = product.price * qty;
+  var shipping = selectedShipping;
+  var total = subtotal + shipping;
+  var couponDiscountAmt = appliedCoupon ? (Number(appliedCoupon.discountAmount) || 0) : 0;
+  total = Math.max(0, total - couponDiscountAmt);
+  var advanceRequired = getAdvanceRequired();
+  var shippingMethod = shipping === 0 ? 'free' : shipping > 250 ? 'express' : 'standard';
+
+  // ---- ZEINA: redirect to hosted checkout; order created only after payment success (#3) ----
+  if (selectedPayment === 'zeina') {
+    var btnZ = document.querySelector('.place-order-btn');
+    if (btnZ) { btnZ.disabled = true; btnZ.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Redirecting to Zeina...'; }
+    var baseUrl = window.location.href.split('#')[0];
+    var sep = baseUrl.indexOf('?') > -1 ? '&' : '?';
+    var pendingOrder = {
+      contact: contact,
+      shippingAddress: {
+        country: document.getElementById('co-country').value,
+        firstName: fname,
+        lastName: lname,
+        address: address,
+        apartment: document.getElementById('co-apt') ? document.getElementById('co-apt').value.trim() : '',
+        city: city,
+        postal: document.getElementById('co-postal') ? document.getElementById('co-postal').value.trim() : '',
+        phone: phone
+      },
+      items: [{ productId: product.id || null, name: product.name, color: selectedColor, quantity: qty, price: product.price, image: product.images[0] || '' }],
+      subtotal: subtotal,
+      shippingCost: shipping,
+      shippingMethod: shippingMethod,
+      total: total,
+      coupon: appliedCoupon || null,
+      paymentMethod: 'zeina',
+      paymentStatus: 'pending',
+      currency: product.currency || 'AED',
+      advanceRequired: 0,
+      advancePaid: 0,
+      remainingAmount: total
+    };
+    sessionStorage.setItem('bs_zeina_pending_order', JSON.stringify(pendingOrder));
+    api.post('/payments/create-zeina-payment', {
+      amount: toAEDAmount(total),
+      description: 'BIN SALEH Store - ' + product.name,
+      successUrl: baseUrl + sep + 'zeina_pi={PAYMENT_INTENT_ID}',
+      cancelUrl: baseUrl + sep + 'zeina_cancel=1'
+    }).then(function(resp) {
+      if (resp && resp.redirectUrl) {
+        window.location.href = resp.redirectUrl;
+      } else {
+        throw new Error('Zeina did not return a payment link');
+      }
+    }).catch(function(err) {
+      console.error('Zeina error:', err.message);
+      showToast('<i class="fas fa-exclamation-triangle" style="margin-right:8px"></i>Zeina payment failed: ' + err.message);
+      if (btnZ) { btnZ.disabled = false; btnZ.innerHTML = '<i class="fas fa-paper-plane"></i> Complete Order'; }
+      sessionStorage.removeItem('bs_zeina_pending_order');
+    });
+    return;
+  }
+
+  // ---- COD: create order immediately; save advance fields (#2) ----
+  var advancePaid = 0;
+  var txnInput = document.getElementById('payment-txn-id');
+  var depSel = document.getElementById('deposit-method');
+  // If the customer paid the advance (method selected + txn id entered), record it
+  if (selectedPayment === 'cod' && depSel && depSel.value && txnInput && txnInput.value.trim()) {
+    advancePaid = advanceRequired;
+  }
+  var remainingAmount = Math.max(0, total - advancePaid);
+
+  var btn = document.querySelector('.place-order-btn');
+  if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Placing Order...'; }
+
+  var orderData = {
     contact: contact,
     shippingAddress: {
       country: document.getElementById('co-country').value,
@@ -1282,36 +1834,119 @@ function placeOrder(){
       phone: phone
     },
     items: [{ productId: product.id || null, name: product.name, color: selectedColor, quantity: qty, price: product.price, image: product.images[0] || '' }],
-    subtotal: product.price * qty,
-    shippingCost: selectedShipping,
-    shippingMethod: selectedShipping === 0 ? 'free' : selectedShipping > 250 ? 'express' : 'standard',
-    total: (product.price * qty) + selectedShipping - (bank.advanceAmount || 0),
-    paymentMethod: selectedPayment,
-    currency: product.currency || 'PKR'
+    subtotal: subtotal,
+    shippingCost: shipping,
+    shippingMethod: shippingMethod,
+    total: total,
+    coupon: appliedCoupon || null,
+    paymentMethod: 'cod',
+    paymentStatus: 'pending',
+    currency: product.currency || 'AED',
+    advanceRequired: advanceRequired,
+    advancePaid: advancePaid,
+    remainingAmount: remainingAmount,
+    paymentDetails: {
+      transactionId: txnInput ? txnInput.value.trim() : '',
+      paidAmount: advancePaid,
+      paidAt: advancePaid ? new Date().toISOString() : null,
+      confirmedBy: contact,
+      notes: advancePaid ? 'Advance submitted via ' + (depSel ? depSel.value : 'deposit') + ' (pending confirmation)' : 'No advance paid'
+    }
   };
-  
-  // Save to API and show feedback
+
   api.post('/orders', orderData).then(function(savedOrder) {
-    console.log('Order saved to database:', savedOrder._id || savedOrder.id);
+
+    closeCheckout();
+    var msg = '<i class="fas fa-check-circle" style="margin-right:8px"></i>Order placed successfully!';
+    // Use server-authoritative amounts — the server never trusts client advances,
+    // so a manual COD advance is always recorded as pending admin confirmation.
+    var savedAdvance = Number(savedOrder && savedOrder.advancePaid) || 0;
+    var savedRemaining = (savedOrder && Number(savedOrder.remainingAmount) != null && !isNaN(Number(savedOrder.remainingAmount))) ? Number(savedOrder.remainingAmount) : Math.max(0, (Number(savedOrder && savedOrder.total) || 0) - savedAdvance);
+    if (advancePaid > 0) {
+      msg += ' Your advance payment was submitted and will be confirmed by our team. Pay ' + formatPrice(savedRemaining) + ' at delivery.';
+    } else {
+      msg += ' Pay ' + formatPrice(savedRemaining) + ' at delivery.';
+    }
+    showToast(msg);
+    fireEvent('Purchase');
+    if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fas fa-paper-plane"></i> Complete Order'; }
+    saveCart([]);
+    cartUpdateBadge();
   }).catch(function(err) {
     console.error('Order save failed:', err.message);
-    showToast('<i class="fas fa-exclamation-triangle" style="margin-right:8px"></i>Order failed to save. Please try again.');
-    return;
+    showToast('<i class="fas fa-exclamation-triangle" style="margin-right:8px"></i>Order failed: ' + (err && err.message ? err.message : 'Please try again.'));
+    if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fas fa-paper-plane"></i> Complete Order'; }
   });
-  
-  closeCheckout();
-  showToast('<i class="fas fa-check-circle" style="margin-right:8px"></i>Order placed successfully! It will appear in Admin Panel.');
-  fireEvent('Purchase');
+}
+// ===== ZEINA RETURN HANDLER (#3) =====
+// When Ziina redirects the customer back with ?zeina_pi={PAYMENT_INTENT_ID},
+// verify the payment and create the order ONLY if it completed.
+async function handleZeinaReturn() {
+  const params = new URLSearchParams(window.location.search);
+  const pi = params.get('zeina_pi');
+  if (!pi) return;
+  const pending = sessionStorage.getItem('bs_zeina_pending_order');
+  if (!pending) {
+    showToast('<i class="fas fa-exclamation-triangle" style="margin-right:8px"></i>No pending order found for this payment.');
+    return;
+  }
+  try {
+    const status = await api.get('/payments/zeina-payment/' + encodeURIComponent(pi));
+    if (status && status.completed) {
+      const od = JSON.parse(pending);
+      // Use the gateway-verified amount — never trust the client-stored total
+      const paidAmount = Number(status.paymentDetails && status.paymentDetails.paidAmount) || Number(od.total) || 0;
+      od.total = paidAmount;
+      od.remainingAmount = 0;
+      od.advanceRequired = 0;
+      od.advancePaid = 0;
+      od.paymentStatus = 'paid';
+      od.paymentDetails = {
+        transactionId: status.paymentDetails.transactionId,
+        paidAmount: paidAmount,
+        paidAt: status.paymentDetails.paidAt || new Date().toISOString(),
+        confirmedBy: od.contact,
+        notes: 'Paid via Zeina'
+      };
+      const saved = await api.post('/orders', od);
+      sessionStorage.removeItem('bs_zeina_pending_order');
+      closeCheckout();
+      showToast('<i class="fas fa-check-circle" style="margin-right:8px"></i>Payment successful! Order ' + String(saved._id || '').slice(-6).toUpperCase() + ' confirmed.');
+      fireEvent('Purchase');
+      saveCart([]);
+      cartUpdateBadge();
+      var url = window.location.pathname + window.location.search.replace(/[?&]zeina_pi=[^&]*/, '').replace(/[?&]zeina_cancel=1/, '');
+      history.replaceState(null, '', url || window.location.pathname);
+    } else if (status && status.cancelled) {
+      sessionStorage.removeItem('bs_zeina_pending_order');
+      showToast('<i class="fas fa-info-circle" style="margin-right:8px"></i>Payment was cancelled. No order was created.');
+      var url2 = window.location.pathname + window.location.search.replace(/[?&]zeina_pi=[^&]*/, '').replace(/[?&]zeina_cancel=1/, '');
+      history.replaceState(null, '', url2 || window.location.pathname);
+    } else if (status && status.failed) {
+      sessionStorage.removeItem('bs_zeina_pending_order');
+      showToast('<i class="fas fa-exclamation-triangle" style="margin-right:8px"></i>Payment failed. No order was created.');
+      var url3 = window.location.pathname + window.location.search.replace(/[?&]zeina_pi=[^&]*/, '').replace(/[?&]zeina_cancel=1/, '');
+      history.replaceState(null, '', url3 || window.location.pathname);
+    } else {
+      showToast('<i class="fas fa-info-circle" style="margin-right:8px"></i>Payment is still processing. Please refresh in a moment.');
+    }
+  } catch (err) {
+    console.error('Zeina return error:', err.message);
+    showToast('<i class="fas fa-exclamation-triangle" style="margin-right:8px"></i>Could not verify payment: ' + err.message);
+  }
 }
 
 function openWhatsApp(){
-  const bank = getBankSettings();
-  const waNumber = sanitizePhone(bank.whatsapp);
+
+
+
+  var bank = getBankSettings();
+  var waNumber = sanitizePhone(bank.whatsapp);
   if(!waNumber){
     showToast('<i class="fas fa-exclamation-triangle" style="margin-right:8px"></i>Store WhatsApp number not configured.');
     return;
   }
-  const msg = `🛍️ *Order Enquiry — BIN SALEH Store*\n\n*Product:* ${product.name}\n*Color:* ${selectedColor}\n*Qty:* ${qty}\n*Price:* ${formatPrice(product.price*qty)}\n\nI'd like to place an order!`;
+  var msg = '🛍️ *Order Enquiry — BIN SALEH Store*\n\n*Product:* ' + product.name + '\n*Color:* ' + selectedColor + '\n*Qty:* ' + qty + '\n*Price:* ' + formatPrice(product.price*qty) + '\n\nI\'d like to place an order!';
   window.open('https://wa.me/' + waNumber + '?text=' + encodeURIComponent(msg), '_blank');
 }
 
@@ -1352,6 +1987,49 @@ function showToast(html){
 // so connecting a pixel in admin actually activates it here automatically.
 // ============================================================================
 let _fbReady = false, _ttqReady = false;
+// ---- WISHLIST (#4) ----
+function getWishlist(){ try { return JSON.parse(localStorage.getItem("dn_wishlist")||"[]"); } catch(e){ return []; } }
+function setWishlist(list){ localStorage.setItem("dn_wishlist", JSON.stringify(list)); }
+function isInWishlist(id){ return getWishlist().some(function(w){ return String(w.id)===String(id); }); }
+function isProductOutOfStock(p){
+  if (p.stock !== undefined && p.stock !== null) return Number(p.stock) <= 0;
+  return !p.inStock;
+}
+async function toggleWishlist(){
+  const id = product && (product.id || product._id);
+  if(!id) return;
+  let list = getWishlist();
+  const exists = isInWishlist(id);
+  if (exists) {
+    list = list.filter(function(w){ return String(w.id)!==String(id); });
+    showToast('<i class="fas fa-heart-broken" style="margin-right:8px"></i>Removed from wishlist');
+  } else {
+    list.push({ id: id, name: product.name, price: product.price, currency: product.currency||"AED", img: (product.images && product.images[0]) || product.img || "", addedAt: new Date().toISOString() });
+    showToast('<i class="fas fa-heart" style="margin-right:8px"></i>Added to wishlist!');
+  }
+  setWishlist(list);
+  updateWishlistButton();
+  // Sync to server if logged in
+  if (typeof getToken === "function" && getToken()) {
+    try { await api.post("/wishlist/sync", { productIds: list.map(function(w){ return w.id; }) }); } catch(e){}
+  }
+}
+function updateWishlistButton(){
+  const id = product && (product.id || product._id);
+  const btn = document.getElementById("btn-wishlist");
+  if (!btn || !id) return;
+  const active = isInWishlist(id);
+  document.getElementById("wishlist-heart-icon").style.color = active ? "#c62828" : "";
+  document.getElementById("wishlist-heart-text").textContent = active ? "In Wishlist" : "Add to Wishlist";
+}
+async function syncWishlistOnLoad(){
+  try {
+    if (typeof getToken === "function" && getToken()) {
+      const list = getWishlist();
+      if (list.length) await api.post("/wishlist/sync", { productIds: list.map(function(w){ return w.id; }) });
+    }
+  } catch(e){}
+}
 function initPixels(){
   const ps = safeParse('dn_pixel_settings', null);
   if(!ps) return;
@@ -1379,9 +2057,56 @@ function fireEvent(name){
 }
 
 // ============================================================================
+// WISHLIST MODAL (#4)
+// ============================================================================
+function openWishlistModal() {
+  renderWishlistModal();
+  var m = document.getElementById('wishlist-modal');
+  if (m) { m.classList.add('open'); document.body.style.overflow = 'hidden'; }
+}
+function closeWishlistModal() {
+  var m = document.getElementById('wishlist-modal');
+  if (m) { m.classList.remove('open'); document.body.style.overflow = ''; }
+}
+function renderWishlistModal() {
+  var body = document.getElementById('wishlist-modal-body');
+  if (!body) return;
+  var list = getWishlist();
+  if (!list.length) {
+    body.innerHTML = '<div style="text-align:center;padding:30px;color:var(--muted, #888)"><i class="fas fa-heart-broken" style="font-size:2rem;margin-bottom:10px;display:block"></i>Your wishlist is empty.<br/><br/><a href="viewall.html" style="color:var(--accent,#b8860b);font-weight:600">Browse products</a></div>';
+    return;
+  }
+  body.innerHTML = '<div style="display:grid;gap:12px">' + list.map(function(w){
+    var img = w.img || '';
+    return '<div style="display:flex;align-items:center;gap:12px;padding:12px;border:1.5px solid var(--border,#eee);border-radius:12px">' +
+      (img ? '<img src="'+img+'" style="width:64px;height:76px;object-fit:cover;border-radius:8px" onerror="this.style.display=\'none\'"/>' : '') +
+      '<div style="flex:1;min-width:0"><div style="font-weight:600">'+(w.name||'Product')+'</div><div style="color:var(--accent,#b8860b);font-weight:700">'+(w.currency||'AED')+' '+Number(w.price||0).toLocaleString()+'</div></div>' +
+      '<button style="padding:8px 12px;background:var(--accent,#b8860b);color:#fff;border:none;border-radius:8px;font-size:0.72rem;font-weight:700;cursor:pointer" onclick="moveWishlistToCart(\''+w.id+'\')"><i class="fas fa-shopping-bag"></i> Move to Cart</button>' +
+      '<button style="padding:8px 10px;background:none;border:1px solid #c62828;color:#c62828;border-radius:8px;cursor:pointer;font-size:0.72rem" onclick="removeWishlistItem(\''+w.id+'\')"><i class="fas fa-trash"></i></button>' +
+    '</div>';
+  }).join('') + '</div>';
+}
+function moveWishlistToCart(id) {
+  var w = getWishlist().find(function(x){ return String(x.id)===String(id); });
+  if (w) {
+    cartAddItem({ id: w.id, name: w.name, price: Number(w.price)||0, currency: w.currency||'AED', img: w.img || '', qty: 1 });
+    removeWishlistItem(id);
+    showToast('<i class="fas fa-shopping-bag" style="margin-right:8px"></i>Moved to cart!');
+  }
+}
+function removeWishlistItem(id) {
+  var list = getWishlist().filter(function(x){ return String(x.id)!==String(id); });
+  setWishlist(list);
+  if (typeof getToken === "function" && getToken()) {
+    try { api.post("/wishlist/sync", { productIds: list.map(function(w){ return w.id; }) }); } catch(e){}
+  }
+  renderWishlistModal();
+}
+
+// ============================================================================
 init();
 
 </script>
-<script src="./trackin.js"></script>
+<script src="./js/trackin.js"></script>
 </body>
 </html>

@@ -1,5 +1,3 @@
 # Netlify Redirects
-# Netlify auto-enables HTTPS — no force redirect needed
-
-# API routes are handled by Netlify Functions (see netlify.toml)
-# No additional redirects needed for API — netlify.toml handles it
+# HTTPS is auto-enabled by Netlify.
+# API requests go to the Render backend (see js/api.js API_BASE).
