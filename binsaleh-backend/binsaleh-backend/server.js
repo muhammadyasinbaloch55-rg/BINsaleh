@@ -15,7 +15,57 @@ const hpp = require('hpp');
 const { Server } = require('socket.io');
 
 const app = express();
-const server = http.createServer(app);
+
+// Vercel serverless functions have no persistent server, so Socket.IO (which
+// needs long-lived connections) cannot run there. On Vercel this module is
+// loaded by api/index.js and the Express app is exported as the function
+// handler instead of calling listen(). Every realtime emit() already no-ops
+// safely when no io instance is attached (services/realtime.js), so the REST
+// API stays fully functional — only live push updates to the admin dashboard
+// are unavailable on Vercel (the admin panel can poll instead).
+const IS_VERCEL = !!(process.env.VERCEL || process.env.VERCEL_ENV);
+
+let server = null;
+let io = null;
+if (!IS_VERCEL) {
+  server = http.createServer(app);
+
+  // Real-time dashboard (#11) — Socket.IO shared hub.
+  // Admin panel connects to /socket.io/socket.io.js from the same origin.
+  io = new Server(server, {
+    cors: {
+      origin: (origin, cb) => {
+        if (isAllowedOrigin(origin)) return cb(null, true);
+        return cb(new Error('Origin not allowed by CORS'));
+      },
+      credentials: true
+    },
+    // Keep polling as an automatic fallback if websockets are blocked.
+    transports: ['websocket', 'polling']
+  });
+  const { attachIO } = require('./services/realtime');
+  attachIO(io);
+  const jwt = require('jsonwebtoken');
+  io.use((socket, next) => {
+    // Authenticate every socket: the admin panel sends the JWT in the handshake.
+    // Reject unauthenticated clients so they can never join the 'admins' room.
+    try {
+      const token = socket.handshake.auth && socket.handshake.auth.token;
+      if (!token) return next(new Error('unauthorized'));
+      const decoded = jwt.verify(token, config.JWT_SECRET); // never the hardcoded fallback
+      if (!decoded || decoded.role !== 'admin') return next(new Error('forbidden'));
+      socket.user = { id: decoded.sub, role: decoded.role };
+      next();
+    } catch (e) {
+      next(new Error('unauthorized'));
+    }
+  });
+  io.on('connection', (socket) => {
+    socket.join('admins');
+    socket.on('subscribe_admin', () => socket.join('admins'));
+    socket.on('disconnect', () => {});
+  });
+}
 
 // Compute the allowed browser origins from env vars (CLIENT_URL / API_URL).
 // When none are configured (local dev) we stay permissive; in production the
@@ -37,42 +87,6 @@ function isAllowedOrigin(origin) {
     return false;
   }
 }
-
-// Real-time dashboard (#11) — Socket.IO shared hub.
-// Admin panel connects to /socket.io/socket.io.js from the same origin.
-const io = new Server(server, {
-  cors: {
-    origin: (origin, cb) => {
-      if (isAllowedOrigin(origin)) return cb(null, true);
-      return cb(new Error('Origin not allowed by CORS'));
-    },
-    credentials: true
-  },
-  // Keep polling as an automatic fallback if websockets are blocked.
-  transports: ['websocket', 'polling']
-});
-const { attachIO, getIO } = require('./services/realtime');
-attachIO(io);
-const jwt = require('jsonwebtoken');
-io.use((socket, next) => {
-  // Authenticate every socket: the admin panel sends the JWT in the handshake.
-  // Reject unauthenticated clients so they can never join the 'admins' room.
-  try {
-    const token = socket.handshake.auth && socket.handshake.auth.token;
-    if (!token) return next(new Error('unauthorized'));
-    const decoded = jwt.verify(token, config.JWT_SECRET); // never the hardcoded fallback
-    if (!decoded || decoded.role !== 'admin') return next(new Error('forbidden'));
-    socket.user = { id: decoded.sub, role: decoded.role };
-    next();
-  } catch (e) {
-    next(new Error('unauthorized'));
-  }
-});
-io.on('connection', (socket) => {
-  socket.join('admins');
-  socket.on('subscribe_admin', () => socket.join('admins'));
-  socket.on('disconnect', () => {});
-});
 
 // Trust the first proxy hop so req.ip / rate limiting work behind Render's proxy.
 app.set('trust proxy', 1);
@@ -383,7 +397,15 @@ connectDB()
     console.warn('⚠️ Server started without MongoDB. Some features may not work.');
   })
   .finally(() => {
+    // Vercel: no long-running listener — the app is the serverless handler.
+    if (IS_VERCEL) return;
     server.listen(PORT, () => {
       console.log(`🟢 Server running on http://localhost:${PORT}`);
     });
   });
+
+// Vercel serverless: export the Express app as the function handler.
+// api/index.js simply re-exports this module.
+if (IS_VERCEL) {
+  module.exports = app;
+}

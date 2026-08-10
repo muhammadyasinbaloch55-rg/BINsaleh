@@ -98,24 +98,49 @@ async function buildDirectUri(originalUri) {
   return directUri;
 }
 
-async function connectDB() {
-  const originalUri = process.env.MONGO_URI;
-  let uriToUse = originalUri;
+// Vercel serverless: cache the Mongoose connection on the global object so warm
+// instances reuse the same connection across function invocations instead of
+// opening (and exhausting) a new pool on every cold start. On Render/local this
+// is harmless — the promise is simply resolved once per process.
+let cached = global.__mongoConnection;
+if (!cached) {
+  cached = global.__mongoConnection = { conn: null, promise: null };
+}
 
-  // Try to build a direct (non-SRV) URI by resolving SRV ourselves
-  // This is a fallback in case the global DNS fix doesn't help
-  const directUri = await buildDirectUri(originalUri);
-  if (directUri) {
-    uriToUse = directUri;
+async function connectDB() {
+  if (cached.conn) return cached.conn;
+
+  if (!cached.promise) {
+    cached.promise = (async () => {
+      const originalUri = process.env.MONGO_URI;
+      let uriToUse = originalUri;
+
+      // Try to build a direct (non-SRV) URI by resolving SRV ourselves
+      // This is a fallback in case the global DNS fix doesn't help
+      const directUri = await buildDirectUri(originalUri);
+      if (directUri) {
+        uriToUse = directUri;
+      }
+
+      // Connect with generous timeouts (direct connection can be slower)
+      const conn = await mongoose.connect(uriToUse, {
+        serverSelectionTimeoutMS: 20000,
+        connectTimeoutMS: 20000,
+        socketTimeoutMS: 45000
+      });
+      console.log(`✅ MongoDB connected: ${conn.connection.host}`);
+      return conn;
+    })();
   }
 
-  // Connect with generous timeouts (direct connection can be slower)
-  const conn = await mongoose.connect(uriToUse, {
-    serverSelectionTimeoutMS: 20000,
-    connectTimeoutMS: 20000,
-    socketTimeoutMS: 45000
-  });
-  console.log(`✅ MongoDB connected: ${conn.connection.host}`);
+  try {
+    cached.conn = await cached.promise;
+  } catch (err) {
+    // Reset the cached promise so the next invocation can retry.
+    cached.promise = null;
+    throw err;
+  }
+  return cached.conn;
 }
 
 module.exports = connectDB;
