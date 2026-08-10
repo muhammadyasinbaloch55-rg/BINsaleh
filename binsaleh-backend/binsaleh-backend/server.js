@@ -2,6 +2,8 @@
 // BIN SALEH Store — Backend Entry Point
 
 require('dotenv').config();
+// Production logging policy — silence verbose console.log/info, keep warn/error.
+require('./config/logger');
 const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
@@ -194,11 +196,19 @@ app.use('/api/invoice', require('./routes/invoice'));
 app.use('/api/export', require('./routes/export'));
 
 // Newsletter endpoint — dedicated route so frontend can POST to /api/newsletter/subscribe
-app.post('/api/newsletter/subscribe', async (req, res) => {
-  // Forward to auth controller's subscribeNewsletter
-  const { subscribeNewsletter } = require('./controllers/authController');
-  return subscribeNewsletter(req, res);
-});
+app.post('/api/newsletter/subscribe',
+  require('express-validator').body('email')
+    .isString().withMessage('Please provide a valid email address.')
+    .trim()
+    .toLowerCase()
+    .matches(/^[^\s@]+@[^\s@]+\.[^\s@]+$/).withMessage('Please provide a valid email address.'),
+  require('./middleware/validate'),
+  async (req, res) => {
+    // Forward to auth controller's subscribeNewsletter
+    const { subscribeNewsletter } = require('./controllers/authController');
+    return subscribeNewsletter(req, res);
+  }
+);
 
 // ---------- 404 Handler ----------
 app.use((req, res) => {

@@ -84,7 +84,11 @@ async function buildDirectUri(originalUri) {
     // TXT resolution is optional — proceed without replicaSet
   }
 
-  // 3. Build the direct URI with required Atlas params
+  // 3. Build the direct URI with required Atlas params.
+  // authSource=admin is REQUIRED: Atlas's TXT record for this cluster includes
+  // "authSource=admin", and the DB user authenticates against the admin DB.
+  // Omitting it (or using the path database) causes "bad auth" on the
+  // SRV-bypass path (verified against Atlas).
   const queryStr = rawParams.startsWith('?') ? rawParams.slice(1) : rawParams;
   const queryParams = new URLSearchParams(queryStr);
   queryParams.set('ssl', 'true');
@@ -122,11 +126,14 @@ async function connectDB() {
         uriToUse = directUri;
       }
 
-      // Connect with generous timeouts (direct connection can be slower)
+      // Connect with generous timeouts (direct connection can be slower).
+      // bufferTimeoutMS is raised so buffered queries survive the longer
+      // cold-start connect window on serverless (Vercel) deployments.
       const conn = await mongoose.connect(uriToUse, {
         serverSelectionTimeoutMS: 20000,
         connectTimeoutMS: 20000,
-        socketTimeoutMS: 45000
+        socketTimeoutMS: 45000,
+        bufferTimeoutMS: 45000
       });
       console.log(`✅ MongoDB connected: ${conn.connection.host}`);
       return conn;

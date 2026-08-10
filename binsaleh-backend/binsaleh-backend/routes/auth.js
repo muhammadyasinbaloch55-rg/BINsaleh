@@ -14,15 +14,40 @@ const {
 } = require('../controllers/authController');
 const { protect, isAdmin } = require('../middleware/auth');
 const { authLimiter, refreshLimiter } = require('../middleware/security');
+const { body } = require('express-validator');
+const validate = require('../middleware/validate');
+
+// Shared validation rules. Messages mirror each controller's existing
+// response text so legitimate clients see identical API responses.
+const nameRule = () => body('name')
+  .isString().withMessage('Please fill in all fields.')
+  .trim()
+  .isLength({ min: 1, max: 100 }).withMessage('Please fill in all fields.');
+const emailRule = (msg) => body('email')
+  .isString().withMessage(msg)
+  .trim()
+  .toLowerCase()
+  .matches(/^[^\s@]+@[^\s@]+\.[^\s@]+$/).withMessage(msg);
+const passwordRule = () => body('password')
+  .isString().withMessage('Please fill in all fields.')
+  .isLength({ min: 1, max: 128 }).withMessage('Please fill in all fields.');
 
 // ---- Public endpoints (rate-limited to deter brute force / abuse) (#7) ----
-router.post('/register', authLimiter, register);
-router.post('/login', authLimiter, login);
-router.post('/register-admin', authLimiter, registerAdmin);
+router.post('/register', authLimiter, nameRule(), emailRule('Please provide a valid email address.'), passwordRule(), validate, register);
+router.post('/login', authLimiter, emailRule('Please fill in all fields.'), passwordRule(), validate, login);
+router.post('/register-admin', authLimiter, nameRule(), emailRule('Please provide a valid email address.'), passwordRule(), validate, registerAdmin);
 router.post('/refresh', refreshLimiter, refresh);
 router.get('/verify-email', verifyEmail);            // link opened from email
 router.post('/resend-verification', authLimiter, resendVerification);
-router.post('/newsletter/subscribe', subscribeNewsletter);
+router.post('/newsletter/subscribe',
+  body('email')
+    .isString().withMessage('Please provide a valid email address.')
+    .trim()
+    .toLowerCase()
+    .matches(/^[^\s@]+@[^\s@]+\.[^\s@]+$/).withMessage('Please provide a valid email address.'),
+  validate,
+  subscribeNewsletter
+);
 
 // ---- "Was this you?" security links (opened from email, unauthenticated) (#3) ----
 router.get('/security/device-confirm', confirmDevice);

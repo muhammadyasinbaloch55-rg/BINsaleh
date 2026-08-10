@@ -3,12 +3,23 @@
 
 const express = require('express');
 const router = express.Router();
+const { body } = require('express-validator');
+const validate = require('../middleware/validate');
 const { submitContactForm } = require('../controllers/contactController');
 const { protect, isAdmin } = require('../middleware/auth');
 const { sendEmail, getBusinessEmail } = require('../services/emailService');
 
 // POST /api/contact — Submit contact form
-router.post('/', submitContactForm);
+// Type/length guardrails only — messages match the controller's existing
+// response so real submissions are unaffected.
+const contactMsg = 'Please fill in name, email, and message.';
+router.post('/',
+  body('name').isString().withMessage(contactMsg).trim().isLength({ min: 1, max: 120 }).withMessage(contactMsg),
+  body('email').isString().withMessage(contactMsg).trim().isLength({ min: 1, max: 120 }).withMessage(contactMsg),
+  body('message').isString().withMessage(contactMsg).trim().isLength({ min: 1, max: 2000 }).withMessage(contactMsg),
+  validate,
+  submitContactForm
+);
 
 // POST /api/contact/send-campaign — Admin: send marketing campaign to subscribers
 router.post('/send-campaign', protect, isAdmin, async (req, res) => {

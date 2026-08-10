@@ -26,15 +26,15 @@ const API_BASE = (function() {
 
   // RENDER BACKEND — production Express + MongoDB API
   // Get the actual URL from your Render dashboard after deployment.
-  var RENDER_API = 'https://binsaleh-api.onrender.com/api';
+  var PROD_API = 'https://bi-nsaleh.vercel.app/api';
 
   // Local development (localhost, 127.0.0.1, or file:// protocol)
   if (host === 'localhost' || host === '127.0.0.1' || protocol === 'file:') {
     return 'http://localhost:5000/api';
   }
 
-  // Production (any host, custom domain, etc.) — use the Render backend
-  return RENDER_API;
+  // Production (any host, custom domain, etc.) — use the Vercel backend
+  return PROD_API;
 })();
 
 /* -----------------------------------------------------------------

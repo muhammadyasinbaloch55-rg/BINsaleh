@@ -10,7 +10,10 @@
 const crypto = require('crypto');
 const axios = require('axios');
 const config = require('../config/security');
-const otp = require('otplib');
+// otplib v12 (synchronous, CommonJS). v13 depends on ESM-only packages
+// (@scure/base) which crash Vercel's serverless CJS bundling with
+// ERR_REQUIRE_ESM — v12 keeps 2FA working everywhere.
+const { authenticator } = require('otplib');
 
 /* ------------------------------------------------------------------
    HASHING
@@ -170,22 +173,26 @@ function verifySecurityToken(token) {
 }
 
 /* ------------------------------------------------------------------
-   TOTP (otplib v13 async API)
+   TOTP (otplib v12 synchronous API)
+   Keep functions async-compatible: callers use `await`, which works fine
+   with plain (non-promise) return values.
 ------------------------------------------------------------------ */
 function generateTotpSecret() {
-  return otp.generateSecret();
+  return authenticator.generateSecret();
 }
 
 async function generateTotpCode(secret) {
-  const token = await otp.generate({ secret });
-  return String(token);
+  return String(authenticator.generate(secret));
 }
 
 async function verifyTotp({ token, secret, toleranceSec = config.TOTP_EPOCH_TOLERANCE_SEC }) {
   if (!token || !secret) return false;
   try {
-    const result = await otp.verify({ token: String(token).trim(), secret, epochTolerance: toleranceSec });
-    return !!(result && result.valid);
+    // otplib v12 uses a `window` of 30-second steps. Convert our epoch
+    // tolerance (in seconds, default 60) to the matching step window.
+    const window = Math.max(1, Math.ceil(toleranceSec / 30));
+    authenticator.options = { window };
+    return authenticator.check(String(token).trim(), secret);
   } catch (e) {
     return false;
   }
@@ -193,7 +200,7 @@ async function verifyTotp({ token, secret, toleranceSec = config.TOTP_EPOCH_TOLE
 
 function generateTotpUri({ secret, email }) {
   try {
-    return otp.generateURI({ label: email, secret, issuer: config.TOTP_ISSUER });
+    return authenticator.keyuri(email, config.TOTP_ISSUER, secret);
   } catch (e) {
     return '';
   }

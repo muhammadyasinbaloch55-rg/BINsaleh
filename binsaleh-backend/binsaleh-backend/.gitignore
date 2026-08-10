@@ -4,3 +4,6 @@ uploads/*
 !uploads/.gitkeep
 server_log.txt
 server_err.txt
+
+.vercel
+.env*

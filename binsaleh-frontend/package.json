@@ -1,0 +1,13 @@
+{
+  "name": "binsaleh-frontend",
+  "version": "1.0.0",
+  "private": true,
+  "description": "BIN SALEH Store — static storefront (obfuscated production build)",
+  "scripts": {
+    "build": "node build.js",
+    "dev": "echo 'Dev mode serves source files directly from js/ — no build step needed.'"
+  },
+  "devDependencies": {
+    "javascript-obfuscator": "^4.1.1"
+  }
+}
