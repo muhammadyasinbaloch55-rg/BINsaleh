@@ -41,9 +41,25 @@ const orderSchema = new mongoose.Schema({
 
   paymentMethod: {
     type: String,
-    enum: ['cod', 'jazzcash', 'bank', 'easypaisa', 'hbl', 'meezan', 'paypal', 'zeina'],
+    enum: ['cod', 'jazzcash', 'bank', 'bank_app', 'easypaisa', 'hbl', 'meezan', 'paypal', 'zeina', 'myfatoorah', 'paytabs', 'moyasar'],
     default: 'cod'
   },
+
+  // Provider-side transaction reference (Ziina intent id, PayPal order id,
+  // myFatoorah invoice id, PayTabs tran_ref, Moyasar invoice id).
+  providerReference: { type: String, default: '' },
+
+  // Bank-app / bank-transfer payment request (temporary payment system)
+  // Reference shown to the customer so the admin can match the transfer.
+  paymentReference: { type: String, default: '' },
+  // True once the customer says they completed a manual bank transfer;
+  // paymentStatus stays 'pending' until the ADMIN verifies the transfer
+  // (the backend NEVER auto-marks a manual transfer as paid).
+  awaitingVerification: { type: Boolean, default: false },
+
+  // True once reserved stock has been released (failed/cancelled payment).
+  // Guards against double-restore when the order is later deleted.
+  stockRestored: { type: Boolean, default: false },
 
   // COD advance payment (new requirement #2)
   advanceRequired:  { type: Number, default: 0 }, // advance due per COD settings
@@ -81,7 +97,7 @@ const orderSchema = new mongoose.Schema({
   // Overall payment status (separate from order status)
   paymentStatus: {
     type: String,
-    enum: ['pending', 'paid', 'failed', 'refunded'],
+    enum: ['pending', 'paid', 'failed', 'cancelled', 'expired', 'refunded'],
     default: 'pending'
   },
 

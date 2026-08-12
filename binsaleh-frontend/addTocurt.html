@@ -100,6 +100,19 @@
   @keyframes ps-shimmer{ 0%{background-position:200% 0} 100%{background-position:-200% 0} }
   .ps-notfound{ max-width:560px; margin:80px auto; text-align:center; padding:0 20px; }
   .ps-notfound i{ font-size:2.4rem; color:var(--accent,#b8860b); margin-bottom:14px; display:block; }
+
+  /* ---- Bank-app payment (temporary payment system) ---- */
+  .bank-app-notice{ display:flex; align-items:flex-start; gap:8px; background:#fff8e1; border:1px solid #ffe082; color:#8d6e10; border-radius:8px; padding:10px 12px; font-size:0.8rem; margin-top:10px; line-height:1.5; }
+  .pay-opt-disabled{ opacity:.55; }
+  .pay-opt-disabled .pay-opt-left{ cursor:not-allowed; }
+  .pay-unavailable{ font-size:0.6rem; color:#c62828; font-weight:700; margin-left:6px; text-transform:uppercase; letter-spacing:.5px; border:1px solid rgba(198,40,40,.35); padding:1px 6px; border-radius:4px; vertical-align:middle; }
+  .bank-app-pay-amount{ font-size:1.9rem; font-weight:700; color:var(--accent,#b8860b); text-align:center; margin:4px 0 14px; }
+  .bank-app-bank-card{ background:var(--bg2,#f8f8f8); border:1px solid var(--border,#e5e5e5); border-radius:10px; padding:14px 16px; margin-bottom:12px; font-size:0.88rem; line-height:1.9; }
+  .bank-app-bank-card .row{ display:flex; justify-content:space-between; gap:10px; }
+  .bank-app-ref{ text-align:center; background:#eef6ff; border:1px dashed #64b5f6; color:#1565c0; border-radius:8px; padding:10px; margin:12px 0; font-size:0.85rem; }
+  .bank-app-safe-note{ display:flex; align-items:flex-start; gap:8px; background:#e8f5e9; border:1px solid #c8e6c9; color:#2e7d32; border-radius:8px; padding:10px 12px; font-size:0.75rem; margin-top:12px; line-height:1.5; }
+  .bank-app-actions{ display:flex; flex-direction:column; gap:10px; margin-top:14px; }
+  .bank-app-actions .btn{ width:100%; justify-content:center; }
   /* ============================================================
    PRODUCT PAGE — FULL RESPONSIVE FIX
    Add this at the very end of style.css
@@ -471,7 +484,7 @@
           <a href="contact.html"><i class="fas fa-headset"></i> Contact Us</a>
           <a href="faqs.html"><i class="fas fa-circle-question"></i> FAQs</a>
           <a href="policies.html"><i class="fas fa-shield-halved"></i> Policies</a>
-          <a href="admainpenal.html"><i class="fas fa-gauge-high"></i> Admin Panel</a>
+          
         </div>
       </li>
     </ul>
@@ -494,7 +507,7 @@
     <a href="contact.html"><i class="fas fa-headset"></i> Contact Us</a>
     <a href="faqs.html"><i class="fas fa-circle-question"></i> FAQs</a>
     <a href="policies.html"><i class="fas fa-shield-halved"></i> Policies</a>
-    <a href="admainpenal.html"><i class="fas fa-gauge-high"></i> Admin Panel</a>
+   
   </div>
 </nav>
 
@@ -773,20 +786,21 @@
 
       <div class="section-heading">Payment</div>
       <div class="payment-secure-row"><i class="fas fa-lock"></i> All transactions are secure and encrypted — your data is safe with us.</div>
+      <div class="bank-app-notice">
+        <i class="fas fa-info-circle" style="margin-top:2px"></i>
+        <span>Credit/Debit Card payments are currently unavailable on the website. For now, you can pay online through your banking app or a supported UAE payment method.</span>
+      </div>
       <div class="payment-options" style="margin-top:10px">
         <label class="pay-opt selected" onclick="selectPayment(this,'cod')">
           <div class="pay-opt-left"><input type="radio" name="payment" value="cod" checked/> Cash on Delivery (COD)</div>
           <div class="pay-icons-row"><span class="pay-chip">COD</span></div>
         </label>
-        <label class="pay-opt" onclick="selectPayment(this,'zeina')">
-          <div class="pay-opt-left"><input type="radio" name="payment" value="zeina"/> Zeina (Card / Apple Pay)</div>
-          <div class="pay-icons-row"><span class="pay-chip">Z</span><span class="pay-chip">💳</span></div>
-        </label>
-        <label class="pay-opt" onclick="selectPayment(this,'paypal')">
-          <div class="pay-opt-left"><input type="radio" name="payment" value="paypal"/> PayPal / Credit / Debit Card</div>
-          <div class="pay-icons-row"><span class="pay-chip">PP</span><span class="pay-chip">💳</span></div>
+        <label class="pay-opt" onclick="selectPayment(this,'online')">
+          <div class="pay-opt-left"><input type="radio" name="payment" value="online"/> Pay Online <span style="font-size:0.68rem;color:var(--accent,#b8860b);font-weight:700">(Bank App / UAE Payments)</span></div>
+          <div class="pay-icons-row"><span class="pay-chip">📱</span><span class="pay-chip">💳</span></div>
         </label>
       </div>
+      <div id="online-pay-area" style="margin-top:10px"></div>
 
       <div class="section-heading" style="margin-top:20px">Coupon Code</div>
       <div style="display:flex;gap:8px;align-items:center;margin-bottom:6px">
@@ -822,6 +836,17 @@
       </button>
       <span class="cancel-link" onclick="closeCheckout()">Cancel and return to cart</span>
     </div>
+  </div>
+</div>
+
+<!-- PAY ONLINE MODAL (UAE multi-provider: bank app / official gateways) -->
+<div class="modal-overlay" id="bank-app-payment-modal">
+  <div class="checkout-modal">
+    <div class="modal-hdr">
+      <h3><i class="fas fa-wallet" style="margin-right:8px;font-size:1rem"></i>Pay Online</h3>
+      <button class="modal-close-btn" onclick="closeBankAppPayment()"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal-body-inner" id="bank-app-modal-body"></div>
   </div>
 </div>
 
@@ -970,6 +995,29 @@ async function fetchBankSettingsFromDB() {
   return null;
 }
 
+// Bank-app payment settings — seller bank account the customer pays to
+const DEFAULT_BANK_APP_SETTINGS = {
+  enabled: false,
+  bankName: 'ADIB',
+  accountHolder: 'SELLER NAME',
+  iban: '',
+  accountNumber: '',
+  currency: 'AED',
+  instructions: 'Open your banking app and transfer the exact order amount to the account below. Use your payment reference so we can match your transfer.',
+  paymentLinkUrl: ''
+};
+async function fetchBankAppSettingsFromDB() {
+  try {
+    const result = await api.get('/settings/bank_app_settings');
+    if (result && result.value) {
+      var val = typeof result.value === 'string' ? JSON.parse(result.value) : result.value;
+      localStorage.setItem('dn_bank_app_settings', JSON.stringify(val));
+      return val;
+    }
+  } catch(e) {}
+  return null;
+}
+
 // Fetch shipping settings from DB via API first, fall back to localStorage
 async function fetchShippingSettingsFromDB() {
   try {
@@ -1080,7 +1128,9 @@ async function init(){
   try { await fetchBankSettingsFromDB(); } catch(e) {}
   try { await fetchShippingSettingsFromDB(); } catch(e) {}
   try { await fetchCodSettingsFromDB(); } catch(e) {}
+  try { await fetchBankAppSettingsFromDB(); } catch(e) {}
   handleZeinaReturn(); // if returning from the Zeina hosted payment page (#3)
+  handlePaymentReturn(); // if returning from an official payment provider (PAY ONLINE)
   
   // Always try to fetch latest products from backend API first
   // This ensures newly added products (with URL or uploaded images) appear
@@ -1121,6 +1171,16 @@ async function init(){
   // Ensure deposit box is visible by default (COD)
   var depositBox = document.querySelector('.deposit-box');
   if (depositBox) depositBox.style.display = 'block';
+
+  // Buy Now support: category-page Buy Now buttons land here with ?co=1 and
+  // expect the checkout modal to open immediately with this product loaded.
+  try {
+    var buyNowParams = new URLSearchParams(window.location.search);
+    if (buyNowParams.get('co') === '1' || buyNowParams.get('buy') === '1') {
+      // Delay slightly so the checkout modal has the rendered product state.
+      setTimeout(function(){ try { openCheckout(); } catch(e){} }, 250);
+    }
+  } catch(e) {}
 }
 
 function showNotFound(){
@@ -1443,6 +1503,11 @@ function selectPayment(el, method){
   el.classList.add('selected');
   el.querySelector('input').checked = true;
   selectedPayment = method;
+  // Leaving the online-payment flow clears the pending payment request so a
+  // COD order can't be placed on top of an abandoned online payment.
+  if (method !== 'online') {
+    sessionStorage.removeItem('bs_online_payment');
+  }
   // Show/hide the deposit section based on payment method
   const depositBox = document.querySelector('.deposit-box');
   if (depositBox) {
@@ -1463,8 +1528,18 @@ function updateBankPaymentInfo(method) {
   const bank = getBankSettings();
   const existingInfo = document.getElementById('bank-payment-info');
   if (existingInfo) existingInfo.remove();
-  
+  const onlineArea = document.getElementById('online-pay-area');
+  if (onlineArea) onlineArea.innerHTML = '';
+
   if (method === 'cod') return;
+  if (method === 'online') {
+    fetchPaymentOptions().then(function(){ renderOnlinePayArea(); });
+    return;
+  }
+  
+  var subtotal = product.price * qty;
+  var couponDiscount = appliedCoupon ? (Number(appliedCoupon.discountAmount) || 0) : 0;
+  var orderTotal = Math.max(0, subtotal + selectedShipping - couponDiscount);
   
   var detailsHtml = '';
   if (method === 'zeina') {
@@ -1748,6 +1823,12 @@ function placeOrder(){
     return;
   }
 
+  // Online payment goes through the dedicated "Pay Online" flow
+  if (selectedPayment === 'online') {
+    openPayOnline();
+    return;
+  }
+
   var subtotal = product.price * qty;
   var shipping = selectedShipping;
   var total = subtotal + shipping;
@@ -1878,6 +1959,377 @@ function placeOrder(){
     if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fas fa-paper-plane"></i> Complete Order'; }
   });
 }
+// ============================================================================
+// PAY ONLINE — UAE MULTI-PROVIDER (driven by backend /api/payments/options)
+// The provider list is generated by the backend: only enabled providers with
+// valid official credentials are shown. Amounts are always server-authoritative.
+// Payment is never marked PAID from a click or a ?payment=success URL — the
+// backend verifies with the provider's official API (or the admin confirms
+// manual bank transfers).
+// ============================================================================
+
+function getBankAppSettingsData(){ return { ...DEFAULT_BANK_APP_SETTINGS, ...safeParse('dn_bank_app_settings', {}) }; }
+
+let onlineOptions = [];
+let selectedOnlineMethod = null;
+
+async function fetchPaymentOptions(){
+  try {
+    const res = await api.get('/payments/options');
+    if (res && Array.isArray(res.options)) {
+      onlineOptions = res.options;
+      if (onlineOptions.length && !onlineOptions.some(o => o.id === selectedOnlineMethod)) {
+        selectedOnlineMethod = onlineOptions[0].id;
+      }
+      return res;
+    }
+  } catch(e) {}
+  return null;
+}
+
+async function openPayOnline(){
+  if (!onlineOptions.length) {
+    const res = await fetchPaymentOptions();
+    if (!res || !res.options || !res.options.length) {
+      showToast('<i class="fas fa-info-circle" style="margin-right:8px"></i>Online payment is not configured yet. Please choose Cash on Delivery or contact us on WhatsApp.');
+      return;
+    }
+  }
+  renderOnlinePayArea();
+  const area = document.getElementById('online-pay-area');
+  if (area) area.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+function renderOnlinePayArea(){
+  const area = document.getElementById('online-pay-area');
+  if (!area) return;
+  if (!onlineOptions.length) {
+    area.innerHTML = '<div style="background:var(--bg2,#f9f9f9);border:1px solid var(--border,#e5e5e5);border-radius:10px;padding:16px;font-size:0.82rem;color:#555"><i class="fas fa-info-circle" style="margin-right:6px"></i>Online payment is currently unavailable. Please choose Cash on Delivery or contact us on WhatsApp.</div>';
+    return;
+  }
+  if (selectedOnlineMethod && !onlineOptions.some(o => o.id === selectedOnlineMethod)) selectedOnlineMethod = onlineOptions[0].id;
+  var totalRow = '';
+  try {
+    var _st = Number(product.price) * qty;
+    var _cd = appliedCoupon ? (Number(appliedCoupon.discountAmount) || 0) : 0;
+    totalRow = '<div style="display:flex;justify-content:space-between;align-items:center;background:#fff8e6;border:1px solid #f0e0b8;border-radius:10px;padding:12px 14px;margin-bottom:12px"><span style="font-size:0.82rem;color:#555;font-weight:600">Order Total</span><span style="font-size:1.05rem;font-weight:800;color:#111">' + escHtml(product.currency || 'AED') + ' ' + Math.max(0, _st + selectedShipping - _cd).toLocaleString() + '</span></div>';
+  } catch(e){}
+  area.innerHTML =
+    totalRow +
+    '<div style="font-size:0.78rem;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--muted,#888);margin-bottom:10px">Choose your payment method</div>' +
+    '<div style="display:grid;gap:8px" id="online-provider-list">' +
+      onlineOptions.map(o =>
+        '<div class="online-provider-card'+(o.id===selectedOnlineMethod?' selected':'')+'" id="opc-'+o.id+'" onclick="selectOnlineProvider(\''+o.id+'\',this)">' +
+          '<i class="'+o.icon+'" style="font-size:1.05rem;width:24px;text-align:center;color:var(--accent,#b8860b)"></i>' +
+          '<div style="flex:1;min-width:0"><div style="font-weight:600;font-size:0.85rem">'+escHtml(o.name)+'</div><div style="font-size:0.72rem;color:var(--muted,#888);line-height:1.4">'+escHtml(o.description||'')+'</div></div>' +
+          '<span class="online-provider-check"><i class="fas fa-check"></i></span>' +
+        '</div>'
+      ).join('') +
+    '</div>' +
+    '<button class="place-order-btn" id="online-continue-btn" style="margin-top:12px;width:100%" onclick="continueOnlinePayment()"><i class="fas fa-lock"></i> Continue to Payment</button>' +
+    '<p style="font-size:0.72rem;color:var(--muted,#888);margin-top:8px;line-height:1.5"><i class="fas fa-shield-alt" style="margin-right:6px"></i>You will continue on the official payment page. We never ask for your bank password, PIN, OTP or card CVV.</p>';
+}
+
+function selectOnlineProvider(id, el){
+  document.querySelectorAll('.online-provider-card').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+  selectedOnlineMethod = id;
+}
+
+function validateCheckoutFields(){
+  const contact = document.getElementById('co-contact').value.trim();
+  const fname = document.getElementById('co-fname').value.trim();
+  const lname = document.getElementById('co-lname').value.trim();
+  const address = document.getElementById('co-address').value.trim();
+  const city = document.getElementById('co-city').value.trim();
+  const phone = document.getElementById('co-phone').value.trim();
+  if(!contact || !fname || !lname || !address || !city || !phone){
+    showToast('<i class="fas fa-exclamation-triangle" style="margin-right:8px"></i>Please fill all required fields!');
+    return null;
+  }
+  return { contact, fname, lname, address, city, phone };
+}
+
+async function continueOnlinePayment(){
+  const v = validateCheckoutFields();
+  if (!v) return;
+  if (!selectedOnlineMethod) { showToast('<i class="fas fa-exclamation-triangle" style="margin-right:8px"></i>Please choose a payment method.'); return; }
+  if (isProductOutOfStock(product)) { showToast('<i class="fas fa-ban" style="margin-right:8px"></i>This product is out of stock.'); return; }
+
+  var subtotal = product.price * qty;
+  var shipping = selectedShipping;
+  var couponDiscountAmt = appliedCoupon ? (Number(appliedCoupon.discountAmount) || 0) : 0;
+  var total = Math.max(0, subtotal + shipping - couponDiscountAmt);
+  var shippingMethod = shipping === 0 ? 'free' : shipping > 250 ? 'express' : 'standard';
+  var returnUrl = window.location.href.split('#')[0].replace(/[?&]bs_pay_ref=[^&]*/, '').replace(/[?&]bs_pay_cancel=1/, '');
+
+  var btn = document.getElementById('online-continue-btn');
+  if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creating payment request...'; }
+
+  var payload = {
+    method: selectedOnlineMethod,
+    contact: v.contact,
+    shippingAddress: {
+      country: document.getElementById('co-country').value,
+      firstName: v.fname,
+      lastName: v.lname,
+      address: v.address,
+      apartment: document.getElementById('co-apt') ? document.getElementById('co-apt').value.trim() : '',
+      city: v.city,
+      postal: document.getElementById('co-postal') ? document.getElementById('co-postal').value.trim() : '',
+      phone: v.phone
+    },
+    items: [{ productId: product.id || null, name: product.name, color: selectedColor, quantity: qty, price: product.price, image: product.images[0] || '' }],
+    subtotal: subtotal,
+    shippingCost: shipping,
+    shippingMethod: shippingMethod,
+    total: total,
+    coupon: appliedCoupon || null,
+    currency: product.currency || 'AED',
+    returnUrl: returnUrl
+  };
+
+  try {
+    const resp = await api.post('/payments/initiate', payload);
+    sessionStorage.setItem('bs_online_payment', JSON.stringify(resp));
+    closeCheckout();
+    if (selectedOnlineMethod === 'bank_app') {
+      renderBankAppFallback(resp);
+    } else if (resp.redirectUrl || resp.paymentLinkUrl) {
+      renderPaymentSummary(resp);
+    } else {
+      // Pathological case: the initiate succeeded but no official mechanism
+      // was returned — tell the customer, don't fake a status screen.
+      showToast('<i class="fas fa-info-circle" style="margin-right:8px"></i>Payment request created. Please contact us on WhatsApp if you need help completing it.');
+    }
+  } catch (err) {
+    console.error('Payment initiate error:', err.message);
+    showToast('<i class="fas fa-exclamation-triangle" style="margin-right:8px"></i>' + (err && err.message ? err.message : 'Could not create payment request.'));
+    if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fas fa-lock"></i> Continue to Payment'; }
+  }
+}
+
+function renderPaymentSummary(p){
+  const overlay = document.getElementById('bank-app-payment-modal');
+  const body = document.getElementById('bank-app-modal-body');
+  if (!overlay || !body) return;
+  const cur = p.currency || 'AED';
+  const amount = Number(p.amount) || 0;
+  body.innerHTML = `
+    <div style="text-align:center;font-size:0.8rem;color:var(--muted,#888);margin-bottom:4px">PAYMENT SUMMARY</div>
+    <div class="bank-app-pay-amount">${cur} ${amount.toLocaleString()}</div>
+    <div class="bank-app-bank-card">
+      <div class="row"><span>Seller</span><strong>${escHtml(p.sellerName || 'BIN SALEH Store')}</strong></div>
+      <div class="row"><span>Payment Method</span><strong>${escHtml(p.providerName || p.provider || 'Online Payment')}</strong></div>
+      <div class="row"><span>Currency</span><strong>${cur}</strong></div>
+      <div class="row"><span>Order</span><strong>#${escHtml(String(p.orderNumber || ''))}</strong></div>
+    </div>
+    <div class="bank-app-ref"><i class="fas fa-hashtag" style="margin-right:6px"></i>Payment Reference: <strong>${escHtml(p.paymentReference || '—')}</strong></div>
+    <div class="bank-app-actions">
+      <button class="place-order-btn" onclick="goToProvider()"><i class="fas fa-external-link-alt"></i> Continue to Payment</button>
+      <button class="btn btn-outline" style="color:#c62828;border-color:#e57373" onclick="cancelOnlinePayment()"><i class="fas fa-times-circle" style="margin-right:8px"></i>Cancel</button>
+    </div>
+    <div class="bank-app-safe-note"><i class="fas fa-shield-alt" style="margin-top:2px"></i><span>You will be redirected to the official payment provider, which handles authentication. We never handle or store your bank password, PIN, OTP or card number.</span></div>`;
+  overlay.classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function goToProvider(){
+  let p = null;
+  try { p = JSON.parse(sessionStorage.getItem('bs_online_payment') || 'null'); } catch(e){}
+  const target = p && (p.redirectUrl || p.paymentLinkUrl);
+  if (target) {
+    window.location.href = target; // official provider URL only — never invented schemes
+  } else {
+    showToast('<i class="fas fa-exclamation-triangle" style="margin-right:8px"></i>Payment link is not available. Please try again.');
+  }
+}
+
+async function cancelOnlinePayment(){
+  let p = null;
+  try { p = JSON.parse(sessionStorage.getItem('bs_online_payment') || 'null'); } catch(e){}
+  if (p && p.orderId) {
+    try { await api.post('/payments/bank-app/cancel', { orderId: p.orderId }); }
+    catch(e) { console.warn('Payment cancel failed:', e.message); }
+  }
+  sessionStorage.removeItem('bs_online_payment');
+  closeBankAppPayment();
+  showToast('<i class="fas fa-info-circle" style="margin-right:8px"></i>Payment cancelled. No order will be processed.');
+}
+
+function renderBankAppFallback(p){
+  const overlay = document.getElementById('bank-app-payment-modal');
+  if (!overlay) return;
+  const bd = p.bankDetails || {};
+  const cur = p.currency || 'AED';
+  const amount = Number(p.amount) || 0;
+  const iban = bd.iban || '';
+  const account = bd.accountNumber || '';
+  document.getElementById('bank-app-modal-body').innerHTML = `
+    <div style="text-align:center;font-size:0.8rem;color:var(--muted,#888);margin-bottom:4px">Amount to Pay</div>
+    <div class="bank-app-pay-amount">${cur} ${amount.toLocaleString()}</div>
+    <div class="bank-app-bank-card">
+      <div class="row"><span>Bank</span><strong>${escHtml(bd.bankName || '—')}</strong></div>
+      <div class="row"><span>Account Holder</span><strong>${escHtml(bd.accountHolder || '—')}</strong></div>
+      ${iban ? '<div class="row"><span>IBAN</span><strong style="word-break:break-all;text-align:right">' + escHtml(iban) + '</strong></div>' : ''}
+      ${account && account !== iban ? '<div class="row"><span>Account Number</span><strong>' + escHtml(account) + '</strong></div>' : ''}
+    </div>
+    <div class="bank-app-ref"><i class="fas fa-hashtag" style="margin-right:6px"></i>Payment Reference: <strong>${escHtml(p.paymentReference || '—')}</strong></div>
+    <p style="font-size:0.82rem;color:#555;line-height:1.6">${escHtml(bd.instructions || 'Open your banking app and make the transfer to the account above.')}</p>
+    <div class="bank-app-actions">
+      ${p.paymentLinkUrl ? '<a class="btn btn-primary" href="' + p.paymentLinkUrl + '" target="_blank" rel="noopener"><i class="fas fa-external-link-alt" style="margin-right:8px"></i>Open Official Payment Link</a>' : ''}
+      ${(iban || account) ? '<button class="btn btn-outline" onclick="copyBankAppIban()"><i class="fas fa-copy" style="margin-right:8px"></i>Copy ' + (iban ? 'IBAN' : 'Account Number') + '</button>' : ''}
+      <button class="btn btn-outline" onclick="closeBankAppPayment();openCheckout()"><i class="fas fa-arrow-left" style="margin-right:8px"></i>Back to Checkout</button>
+      <input type="text" id="bank-app-txn-id" placeholder="Transaction / reference number (optional — speeds up verification)" style="width:100%;padding:12px 14px;border:1.5px solid var(--border,#ddd);border-radius:8px;font-size:0.85rem;outline:none;"/>
+      <button class="place-order-btn" id="bank-app-confirm-btn" onclick="confirmBankAppPayment()"><i class="fas fa-check-circle"></i> I Have Completed Payment</button>
+      <button class="btn btn-outline" style="color:#c62828;border-color:#e57373" onclick="cancelOnlinePayment()"><i class="fas fa-times-circle" style="margin-right:8px"></i>Cancel Payment</button>
+    </div>
+    <div class="bank-app-safe-note"><i class="fas fa-shield-alt" style="margin-top:2px"></i><span>We will <strong>never</strong> ask for your bank password, PIN, OTP or card number. Your payment is only confirmed after we verify the transfer.</span></div>
+  `;
+  overlay.classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function copyBankAppIban(){
+  const p = JSON.parse(sessionStorage.getItem('bs_online_payment') || 'null');
+  const bd = (p && p.bankDetails) || {};
+  const text = bd.iban || bd.accountNumber || '';
+  if (!text) return;
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).then(function(){ showToast('<i class="fas fa-check" style="margin-right:8px"></i>Copied to clipboard'); }).catch(function(){});
+  } else {
+    var ta = document.createElement('textarea'); ta.value = text; document.body.appendChild(ta); ta.select();
+    try { document.execCommand('copy'); showToast('<i class="fas fa-check" style="margin-right:8px"></i>Copied to clipboard'); } catch(e){}
+    document.body.removeChild(ta);
+  }
+}
+
+async function confirmBankAppPayment(){
+  let p = null;
+  try { p = JSON.parse(sessionStorage.getItem('bs_online_payment') || 'null'); } catch(e){}
+  if (!p || !p.orderId) { showToast('<i class="fas fa-exclamation-triangle" style="margin-right:8px"></i>No payment request found. Please start again.'); return; }
+  var txnEl = document.getElementById('bank-app-txn-id');
+  var txn = txnEl ? txnEl.value.trim() : '';
+  var btn = document.getElementById('bank-app-confirm-btn');
+  if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Verifying payment...'; }
+  try {
+    const resp = await api.post('/payments/bank-app/confirm', { orderId: p.orderId, transactionId: txn });
+    const fresh = Object.assign({}, p, resp);
+    sessionStorage.setItem('bs_online_payment', JSON.stringify(fresh));
+    renderBankAppResult(fresh, !!resp.verified);
+  } catch (err) {
+    console.error('Bank-app confirm error:', err.message);
+    showToast('<i class="fas fa-exclamation-triangle" style="margin-right:8px"></i>' + (err && err.message ? err.message : 'Could not verify payment.'));
+    if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fas fa-check-circle"></i> I Have Completed Payment'; }
+  }
+}
+
+function renderBankAppResult(p, verified){
+  const body = document.getElementById('bank-app-modal-body');
+  if (!body) return;
+  const cur = p.currency || 'AED';
+  const amount = Number(p.amount) || 0;
+  const txn = p.transactionId || '';
+  const status = p.status || (verified ? 'paid' : 'pending');
+
+  if (verified || status === 'paid') {
+    body.innerHTML = `
+      <div style="text-align:center;padding:10px 0">
+        <div style="font-size:2.6rem;color:#2e7d32;margin-bottom:10px"><i class="fas fa-check-circle"></i></div>
+        <div style="font-size:1.15rem;font-weight:700;color:#111;margin-bottom:6px">Payment Status: PAID ✅</div>
+        ${txn ? '<div style="font-size:0.85rem;color:#555;margin-bottom:4px">Transaction ID: <strong>' + escHtml(txn) + '</strong></div>' : ''}
+        <div style="font-size:0.85rem;color:#555;margin-bottom:14px">Amount: ${cur} ${amount.toLocaleString()}</div>
+        <p style="font-size:0.85rem;color:#333;line-height:1.6;margin-bottom:16px">Thank you! Your order has been received and is now being processed.</p>
+        <button class="place-order-btn" onclick="closeBankAppPayment()" style="width:100%"><i class="fas fa-check"></i> Done</button>
+      </div>`;
+    fireEvent('Purchase');
+    saveCart([]);
+    cartUpdateBadge();
+    if (typeof cartRenderDrawer === 'function') cartRenderDrawer();
+    return;
+  }
+
+  if (status === 'failed' || status === 'cancelled' || status === 'expired') {
+    const icons = {
+      failed:   ['fa-times-circle', '#c62828', 'FAILED ❌', 'Your payment was not completed. No charge was made. You can try again.'],
+      cancelled:['fa-times-circle', '#888', 'CANCELLED', 'The payment was cancelled. No charge was made.'],
+      expired:  ['fa-hourglass-end', '#888', 'EXPIRED', 'This payment link has expired. Please start again.']
+    };
+    const info = icons[status] || icons.failed;
+    body.innerHTML = `
+      <div style="text-align:center;padding:10px 0">
+        <div style="font-size:2.6rem;color:${info[1]};margin-bottom:10px"><i class="fas ${info[0]}"></i></div>
+        <div style="font-size:1.15rem;font-weight:700;color:#111;margin-bottom:6px">Payment Status: ${info[2]}</div>
+        <p style="font-size:0.88rem;color:#333;line-height:1.7;margin-bottom:14px">${info[3]}</p>
+        <button class="place-order-btn" onclick="closeBankAppPayment();openCheckout()" style="width:100%"><i class="fas fa-redo"></i> Try Again</button>
+      </div>`;
+    return;
+  }
+
+  body.innerHTML = `
+    <div style="text-align:center;padding:10px 0">
+      <div style="font-size:2.6rem;color:#b8860b;margin-bottom:10px"><i class="fas fa-hourglass-half"></i></div>
+      <div style="font-size:1.15rem;font-weight:700;color:#111;margin-bottom:6px">Payment Status: PENDING ⏳</div>
+      <p style="font-size:0.88rem;color:#333;line-height:1.7;margin-bottom:12px">Your payment has not been verified yet. Please wait while we confirm your payment.</p>
+      <div class="bank-app-ref"><i class="fas fa-hashtag" style="margin-right:6px"></i>Order Reference: <strong>${escHtml(p.paymentReference || '—')}</strong></div>
+      <p style="font-size:0.78rem;color:var(--muted,#888);line-height:1.6;margin-top:12px">Please do not make another payment. Your order has been received and will be confirmed as soon as the payment is verified.</p>
+      <button class="place-order-btn" onclick="checkPaymentStatus()" style="width:100%;margin-top:16px"><i class="fas fa-sync"></i> Check Payment Status</button>
+      <button class="btn btn-outline" onclick="closeBankAppPayment()" style="width:100%;margin-top:8px">Close</button>
+    </div>`;
+}
+
+async function checkPaymentStatus(){
+  let p = null;
+  try { p = JSON.parse(sessionStorage.getItem('bs_online_payment') || 'null'); } catch(e){}
+  if (!p || !p.orderId) { closeBankAppPayment(); return; }
+  const btn = document.querySelector('#bank-app-modal-body .place-order-btn');
+  if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Checking...'; }
+  try {
+    const status = await api.get('/payments/status/' + encodeURIComponent(p.orderId));
+    const fresh = Object.assign({}, p, status);
+    sessionStorage.setItem('bs_online_payment', JSON.stringify(fresh));
+    renderBankAppResult(fresh, !!status.verified);
+  } catch (e) {
+    if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fas fa-sync"></i> Check Payment Status'; }
+    showToast('<i class="fas fa-exclamation-triangle" style="margin-right:8px"></i>Could not check payment: ' + (e.message || 'try again'));
+  }
+}
+
+function closeBankAppPayment(){
+  const overlay = document.getElementById('bank-app-payment-modal');
+  if (overlay) overlay.classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+// Return from an official payment provider — verify the REAL status from the
+// backend. NEVER trust ?payment=success or any frontend query parameter.
+async function handlePaymentReturn(){
+  const params = new URLSearchParams(window.location.search);
+  const ref = params.get('bs_pay_ref');
+  if (ref) {
+    try {
+      const status = await api.get('/payments/status/' + encodeURIComponent(ref));
+      sessionStorage.setItem('bs_online_payment', JSON.stringify(status));
+      renderBankAppResult(status, !!status.verified);
+      const overlay = document.getElementById('bank-app-payment-modal');
+      if (overlay) overlay.classList.add('open');
+      document.body.style.overflow = 'hidden';
+    } catch (e) {
+      console.warn('Payment return status check failed:', e.message);
+    } finally {
+      var url = window.location.pathname + window.location.search.replace(/[?&]bs_pay_ref=[^&]*/, '').replace(/[?&]bs_pay_cancel=1/, '');
+      history.replaceState(null, '', url || window.location.pathname);
+    }
+    return;
+  }
+  if (params.get('bs_pay_cancel')) {
+    sessionStorage.removeItem('bs_online_payment');
+    var url2 = window.location.pathname + window.location.search.replace(/[?&]bs_pay_cancel=1/, '');
+    history.replaceState(null, '', url2 || window.location.pathname);
+    showToast('<i class="fas fa-info-circle" style="margin-right:8px"></i>Payment was cancelled. No charge was made.');
+  }
+}
+
 // ===== ZEINA RETURN HANDLER (#3) =====
 // When Ziina redirects the customer back with ?zeina_pi={PAYMENT_INTENT_ID},
 // verify the payment and create the order ONLY if it completed.

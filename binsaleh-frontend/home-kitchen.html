@@ -81,7 +81,7 @@
           <a href="contact.html"><i class="fas fa-headset"></i> Contact Us</a>
            <a href="faqs.html" ><i class="fas fa-circle-question"></i> FAQs</a>
           <a href="policies.html" ><i class="fas fa-shield-halved"></i> Policies</a>
-          <a href="admainpenal.html"><i class="fas fa-gauge-high"></i> Admin Panel</a>
+         
         </div>
       </li>
     </ul>
@@ -108,7 +108,7 @@
     <a href="profile.html"><i class="fas fa-user"></i> My Profile</a>
     <a href="contact.html"><i class="fas fa-headset"></i> Contact Us</a>     <a href="policies.html"><i class="fas fa-shield-halved"></i> Policies</a>
     <a href="faqs.html"><i class="fas fa-circle-question"></i> FAQs</a>
-    <a href="admainpenal.html"><i class="fas fa-gauge-high"></i> Admin Panel</a>
+    
   </div>
 </nav>
 
@@ -433,7 +433,7 @@ function addToCart(id) {
   cartRenderDrawer();
   showToast('<i class="fas fa-check" style="margin-right:8px"></i>'+p.name+' added!');
 }
-function buyNow(id) { addToCart(id); toggleCart(); }
+function buyNow(id) { addToCart(id); window.location.href='addTocurt.html?id='+encodeURIComponent(id)+'&co=1'; }
 function openProduct(id) { const p = allProducts.find(x => (x._id||x.id)==id); if(p) window.location.href='addTocurt.html?id='+(p._id||p.id); }
 function toggleCart() { cartRenderDrawer(); document.getElementById('cart-overlay').classList.toggle('open'); document.getElementById('cart-drawer').classList.toggle('open'); }
 function toggleSearch() {

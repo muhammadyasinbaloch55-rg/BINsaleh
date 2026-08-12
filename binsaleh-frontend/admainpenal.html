@@ -598,7 +598,7 @@ tr:hover td{background:rgba(255,255,255,0.02);}
         <button class="btn btn-outline btn-sm order-filter" onclick="filterOrders('history',this)">History</button>
       </div>
       <select id="export-status" style="padding:6px 10px;border:1px solid var(--border,#ddd);border-radius:8px;font-size:0.78rem"><option value="">All statuses</option><option value="pending">Pending</option><option value="confirmed">Confirmed</option><option value="processing">Processing</option><option value="packed">Packed</option><option value="shipped">Shipped</option><option value="out_for_delivery">Out for Delivery</option><option value="delivered">Delivered</option><option value="cancelled">Cancelled</option><option value="refunded">Refunded</option></select>
-      <select id="export-payment" style="padding:6px 10px;border:1px solid var(--border,#ddd);border-radius:8px;font-size:0.78rem"><option value="">All payments</option><option value="cod">COD</option><option value="zeina">Zeina</option><option value="paypal">PayPal</option></select>
+      <select id="export-payment" style="padding:6px 10px;border:1px solid var(--border,#ddd);border-radius:8px;font-size:0.78rem"><option value="">All payments</option><option value="cod">COD</option><option value="bank_app">Bank App</option><option value="zeina">Ziina</option><option value="paypal">PayPal</option><option value="myfatoorah">myFatoorah</option><option value="paytabs">PayTabs</option><option value="moyasar">Moyasar</option></select>
       <input type="date" id="export-from" style="padding:6px 10px;border:1px solid var(--border,#ddd);border-radius:8px;font-size:0.78rem" title="From date"/>
       <input type="date" id="export-to" style="padding:6px 10px;border:1px solid var(--border,#ddd);border-radius:8px;font-size:0.78rem" title="To date"/>
       <input type="text" id="export-customer" placeholder="Customer name..." style="padding:6px 10px;border:1px solid var(--border,#ddd);border-radius:8px;font-size:0.78rem" title="Customer filter"/>
@@ -684,6 +684,29 @@ tr:hover td{background:rgba(255,255,255,0.02);}
       <div class="stat-card"><div class="stat-top"><div class="stat-icon red"><div class="stat-icon" style="background:none;color:var(--red)"><i class="fas fa-rotate-left"></i></div></div></div><div class="stat-value" id="payments-cancelled">AED 0</div><div class="stat-label">Cancelled / Refunded</div></div>
     </div>
 
+    <!-- ====== ONLINE PAYMENTS MANAGEMENT (non-COD orders) ====== -->
+    <div class="card" style="margin-bottom:16px">
+      <div class="card-header"><div class="card-title"><i class="fas fa-globe" style="margin-right:8px;color:var(--accent)"></i> Online Payments</div></div>
+      <div class="card-body" style="overflow-x:auto">
+        <p style="font-size:0.78rem;color:var(--muted);margin-bottom:14px">All online orders (Bank App / Ziina / PayPal / myFatoorah / PayTabs / Moyasar). Payment is only marked <strong>PAID</strong> after the provider verifies it, or when you confirm a manual transfer. Verify received transfers and use <strong>Confirm Payment</strong> to mark them paid.</p>
+        <table style="width:100%;border-collapse:collapse;min-width:900px">
+          <thead><tr style="background:var(--bg3);text-align:left">
+            <th style="padding:10px;font-size:0.7rem;color:var(--muted)">ORDER</th>
+            <th style="padding:10px;font-size:0.7rem;color:var(--muted)">CUSTOMER</th>
+            <th style="padding:10px;font-size:0.7rem;color:var(--muted)">METHOD</th>
+            <th style="padding:10px;font-size:0.7rem;color:var(--muted)">AMOUNT</th>
+            <th style="padding:10px;font-size:0.7rem;color:var(--muted)">REFERENCE</th>
+            <th style="padding:10px;font-size:0.7rem;color:var(--muted)">TRANSACTION</th>
+            <th style="padding:10px;font-size:0.7rem;color:var(--muted)">PAYMENT</th>
+            <th style="padding:10px;font-size:0.7rem;color:var(--muted)">ORDER STATUS</th>
+            <th style="padding:10px;font-size:0.7rem;color:var(--muted)">DATE</th>
+            <th style="padding:10px;font-size:0.7rem;color:var(--muted)">ACTIONS</th>
+          </tr></thead>
+          <tbody id="online-payments-body"></tbody>
+        </table>
+      </div>
+    </div>
+
     <!-- ====== BANK / DEPOSIT DETAILS MANAGER (matches product.html: dn_bank_settings.deposit[{label,value}]) ====== -->
     <div class="card" style="margin-bottom:16px">
       <div class="card-header">
@@ -719,7 +742,10 @@ tr:hover td{background:rgba(255,255,255,0.02);}
     <div class="card" style="margin-bottom:16px">
       <div class="card-header"><div class="card-title"><i class="fas fa-credit-card" style="margin-right:8px;color:var(--accent)"></i> Zeina (Ziina) Payment Gateway</div></div>
       <div class="card-body">
-        <p style="font-size:0.78rem;color:var(--muted);margin-bottom:16px">Zeina lets customers pay with UAE cards, Apple Pay &amp; Google Pay. Generate an access token at <strong>docs.ziina.com</strong> (Custom integration → Other builder or custom). Use <strong>test</strong> while sandbox testing, then switch to <strong>live</strong>.</p>
+        <p style="font-size:0.78rem;color:var(--muted);margin-bottom:16px">Ziina lets customers pay with UAE cards, Apple Pay &amp; Google Pay from a hosted page. Generate an access token at <strong>docs.ziina.com</strong> (Custom integration → Other builder or custom). Use <strong>test</strong> while sandbox testing, then switch to <strong>live</strong>. Ziina appears at checkout only when enabled and a token is set.</p>
+        <div class="field" style="margin-bottom:12px">
+          <label style="display:flex;align-items:center;gap:8px;cursor:pointer"><input type="checkbox" id="zeina-enabled" style="width:16px;height:16px;accent-color:var(--accent)"/> Enable Ziina Payment</label>
+        </div>
         <div class="form-grid form-grid-2" style="gap:14px">
           <div class="field"><label>Access Token</label><input type="password" id="zeina-token" placeholder="Bearer access token from Ziina"/></div>
           <div class="field"><label>Mode</label>
@@ -731,6 +757,105 @@ tr:hover td{background:rgba(255,255,255,0.02);}
         </div>
         <button class="btn btn-primary" style="margin-top:18px" onclick="saveZeinaSettings()"><i class="fas fa-floppy-disk"></i> Save Zeina Settings</button>
         <p style="font-size:0.72rem;color:var(--muted);margin-top:10px" id="zeina-save-status"></p>
+      </div>
+    </div>
+
+    <!-- ====== BANK APP PAYMENT (temporary payment system) ====== -->
+    <div class="card" style="margin-bottom:16px">
+      <div class="card-header"><div class="card-title"><i class="fas fa-mobile-screen-button" style="margin-right:8px;color:var(--accent)"></i> Bank App Payment</div></div>
+      <div class="card-body">
+        <p style="font-size:0.78rem;color:var(--muted);margin-bottom:16px">Customers pay directly from their own banking app to your bank account (card payments are currently unavailable). Enter your account details below — they appear automatically at checkout. The exact order amount is always calculated by the server, never by the customer. If your bank provides an official payment link / deep link, paste it below; otherwise customers see these details as transfer instructions. A customer's "I have paid" click never auto-verifies the payment — you confirm transfers here on the Orders page.</p>
+        <div class="field" style="margin-bottom:12px">
+          <label style="display:flex;align-items:center;gap:8px;cursor:pointer"><input type="checkbox" id="bank-app-enabled" style="width:16px;height:16px;accent-color:var(--accent)"/> Enable Bank App Payment</label>
+        </div>
+        <div class="form-grid form-grid-2" style="gap:14px">
+          <div class="field"><label>Bank Name</label><input type="text" id="bank-app-bank-name" placeholder="e.g. ADIB"/></div>
+          <div class="field"><label>Account Holder</label><input type="text" id="bank-app-holder" placeholder="SELLER NAME"/></div>
+          <div class="field"><label>IBAN / Account Number</label><input type="text" id="bank-app-iban" placeholder="AE07 0331 2345 6789 0123 456"/></div>
+          <div class="field"><label>Currency</label><input type="text" id="bank-app-currency" placeholder="AED"/></div>
+          <div class="field" style="grid-column:1/-1"><label>Official Payment Link (optional — provided by your bank / payment provider)</label><input type="url" id="bank-app-payment-link" placeholder="https://... official payment request or deep link"/></div>
+          <div class="field" style="grid-column:1/-1"><label>Payment Instructions (shown to the customer)</label><textarea id="bank-app-instructions" rows="3" style="width:100%;padding:10px 12px;border:1px solid var(--border,#ddd);border-radius:8px;font-size:0.85rem;resize:vertical;background:var(--bg,#fff);color:var(--text,#222);font-family:inherit" placeholder="Open your banking app and transfer the exact order amount to the account below. Use your payment reference so we can match your transfer."></textarea></div>
+        </div>
+        <button class="btn btn-primary" style="margin-top:18px" onclick="saveBankAppSettings()"><i class="fas fa-floppy-disk"></i> Save Bank App Settings</button>
+        <p style="font-size:0.72rem;color:var(--muted);margin-top:10px" id="bank-app-save-status"></p>
+      </div>
+    </div>
+
+    <!-- ====== ONLINE PAYMENTS SETTINGS (UAE multi-provider) ====== -->
+    <div class="card" style="margin-bottom:16px">
+      <div class="card-header"><div class="card-title"><i class="fas fa-sliders" style="margin-right:8px;color:var(--accent)"></i> Online Payments Settings</div></div>
+      <div class="card-body">
+        <p style="font-size:0.78rem;color:var(--muted);margin-bottom:16px">Enable online payment and configure the official UAE providers you use. <strong>Only providers with valid credentials and enabled toggle appear on the customer's "Pay Online" screen</strong> — nothing is hard-coded. Ziina is configured in the Zeina card above; Bank App details in the Bank App card.</p>
+        <div class="field" style="margin-bottom:12px">
+          <label style="display:flex;align-items:center;gap:8px;cursor:pointer"><input type="checkbox" id="online-enabled" style="width:16px;height:16px;accent-color:var(--accent)"/> Enable Online Payment</label>
+        </div>
+        <div class="form-grid form-grid-2" style="gap:14px">
+          <div class="field"><label>Seller Name (shown in the payment summary)</label><input type="text" id="online-seller-name" placeholder="BIN SALEH Store"/></div>
+          <div class="field"><label>Currency</label><input type="text" id="online-currency" placeholder="AED"/></div>
+        </div>
+
+        <!-- PayPal -->
+        <div style="border:1px solid var(--border,#e5e5e5);border-radius:10px;padding:14px;margin-top:16px">
+          <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-weight:600;margin-bottom:10px"><input type="checkbox" id="prov-paypal-enabled" style="width:16px;height:16px;accent-color:var(--accent)"/> <i class="fab fa-paypal" style="margin-right:6px"></i> PayPal</label>
+          <div class="form-grid form-grid-3">
+            <div class="field"><label>Client ID</label><input type="text" id="prov-paypal-client" placeholder="PayPal REST client id"/></div>
+            <div class="field"><label>Client Secret</label><input type="password" id="prov-paypal-secret" placeholder="PayPal secret"/></div>
+            <div class="field"><label>Mode</label><select id="prov-paypal-mode"><option value="sandbox">Sandbox</option><option value="live">Live</option></select></div>
+          </div>
+        </div>
+
+        <!-- myFatoorah -->
+        <div style="border:1px solid var(--border,#e5e5e5);border-radius:10px;padding:14px;margin-top:12px">
+          <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-weight:600;margin-bottom:10px"><input type="checkbox" id="prov-myfatoorah-enabled" style="width:16px;height:16px;accent-color:var(--accent)"/> <i class="fas fa-building-columns" style="margin-right:6px"></i> myFatoorah</label>
+          <div class="form-grid form-grid-3">
+            <div class="field"><label>API Token (Bearer)</label><input type="password" id="prov-myfatoorah-token" placeholder="myFatoorah API token"/></div>
+            <div class="field"><label>Mode</label><select id="prov-myfatoorah-mode"><option value="live">Live</option><option value="test">Test</option></select></div>
+          </div>
+        </div>
+
+        <!-- PayTabs -->
+        <div style="border:1px solid var(--border,#e5e5e5);border-radius:10px;padding:14px;margin-top:12px">
+          <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-weight:600;margin-bottom:10px"><input type="checkbox" id="prov-paytabs-enabled" style="width:16px;height:16px;accent-color:var(--accent)"/> <i class="fas fa-wallet" style="margin-right:6px"></i> PayTabs</label>
+          <div class="form-grid form-grid-3">
+            <div class="field"><label>Profile ID</label><input type="text" id="prov-paytabs-profile" placeholder="PayTabs profile id"/></div>
+            <div class="field"><label>Server Key</label><input type="password" id="prov-paytabs-key" placeholder="PayTabs server key"/></div>
+            <div class="field"><label>Region</label><select id="prov-paytabs-region"><option value="ae">UAE (secure.paytabs.com)</option><option value="sa">KSA (secure.paytabs.sa)</option></select></div>
+          </div>
+        </div>
+
+        <!-- Moyasar -->
+        <div style="border:1px solid var(--border,#e5e5e5);border-radius:10px;padding:14px;margin-top:12px">
+          <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-weight:600;margin-bottom:10px"><input type="checkbox" id="prov-moyasar-enabled" style="width:16px;height:16px;accent-color:var(--accent)"/> <i class="fas fa-circle-nodes" style="margin-right:6px"></i> Moyasar</label>
+          <div class="form-grid form-grid-3">
+            <div class="field"><label>Secret API Key</label><input type="password" id="prov-moyasar-key" placeholder="sk_live_..."/></div>
+          </div>
+        </div>
+
+        <button class="btn btn-primary" style="margin-top:18px" onclick="saveOnlinePayments()"><i class="fas fa-floppy-disk"></i> Save Payment Settings</button>
+        <p style="font-size:0.72rem;color:var(--muted);margin-top:10px" id="online-save-status"></p>
+      </div>
+    </div>
+
+    <!-- ====== PAYMENT PROVIDER STATUS (admin overview #15) ====== -->
+    <div class="card" style="margin-bottom:16px">
+      <div class="card-header"><div class="card-title"><i class="fas fa-list-check" style="margin-right:8px;color:var(--accent)"></i> Payment Provider Status</div></div>
+      <div class="card-body" style="overflow-x:auto">
+        <p style="font-size:0.78rem;color:var(--muted);margin-bottom:14px">Live status of every payment provider. <strong>Only providers marked LIVE appear on the customer's "Pay Online" screen</strong>. Providers that need a business/merchant account stay disabled until the required credentials are configured — nothing is ever faked.</p>
+        <div style="display:flex;gap:14px;flex-wrap:wrap;margin-bottom:14px">
+          <span style="font-size:0.78rem;background:#e8f5e9;color:#2e7d32;border:1px solid #c8e6c9;padding:4px 10px;border-radius:20px"><i class="fas fa-circle" style="font-size:0.45rem;margin-right:5px"></i>LIVE — shown to customers</span>
+          <span style="font-size:0.78rem;background:#f3f3f3;color:#888;border:1px solid #e0e0e0;padding:4px 10px;border-radius:20px"><i class="fas fa-circle" style="font-size:0.45rem;margin-right:5px"></i>DISABLED — needs configuration</span>
+        </div>
+        <table style="width:100%;border-collapse:collapse;min-width:760px">
+          <thead><tr style="background:var(--bg3);text-align:left">
+            <th style="padding:10px;font-size:0.7rem;color:var(--muted)">PROVIDER</th>
+            <th style="padding:10px;font-size:0.7rem;color:var(--muted)">STATUS</th>
+            <th style="padding:10px;font-size:0.7rem;color:var(--muted)">API CONFIG</th>
+            <th style="padding:10px;font-size:0.7rem;color:var(--muted)">OFFICIAL URL</th>
+            <th style="padding:10px;font-size:0.7rem;color:var(--muted)">WEBHOOK</th>
+            <th style="padding:10px;font-size:0.7rem;color:var(--muted)">NOTE / REQUIREMENT</th>
+          </tr></thead>
+          <tbody id="provider-status-body"><tr><td colspan="6" style="text-align:center;color:var(--muted);padding:20px">Loading provider status…</td></tr></tbody>
+        </table>
       </div>
     </div>
 
@@ -1845,7 +1970,10 @@ async function loadOrdersFromAPI() {
         advanceRequired: o.advanceRequired || 0,
         advancePaid: o.advancePaid || 0,
         remainingAmount: o.remainingAmount !== undefined && o.remainingAmount !== null ? o.remainingAmount : (o.total || 0),
-        payment: o.paymentMethod ? o.paymentMethod.charAt(0).toUpperCase() + o.paymentMethod.slice(1) : 'COD',
+        payment: (function(m){ var map={ cod:'COD', bank_app:'Bank App', zeina:'Ziina', paypal:'PayPal', myfatoorah:'myFatoorah', paytabs:'PayTabs', moyasar:'Moyasar', bank:'Bank Transfer', jazzcash:'JazzCash', easypaisa:'EasyPaisa', hbl:'HBL', meezan:'Meezan' }; return map[m] || (m ? m.charAt(0).toUpperCase()+m.slice(1) : 'COD'); })(o.paymentMethod),
+        paymentStatus: o.paymentStatus || 'pending',
+        paymentReference: o.paymentReference || '',
+        paymentTxnId: (o.paymentDetails && o.paymentDetails.transactionId) || '',
         status: o.status || 'pending',
         date: o.createdAt ? new Date(o.createdAt).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) : 'Recently'
       }));
@@ -2067,6 +2195,8 @@ async function initDashboard() {
   loadSmtpSettings(); // load Email/SMTP config into the Settings page
   loadCodSettings(); // load COD advance settings into Settings page
   loadZeinaSettings(); // load Zeina gateway config into Payments page
+  loadBankAppSettings(); // load Bank App payment settings into Payments page
+  loadOnlinePayments(); // load Online Payments settings into Payments page
   loadReviewsFromDB(); // live reviews from DB API (#4)
   loadDashboardStats(); // live stats from /orders/stats (#1 #5)
   loadWishlistStats(); // admin wishlist statistics (#4)
@@ -2329,7 +2459,7 @@ function renderOrders(filter) {
       '<td style="font-size:0.78rem">'+o.customer+'<br/><span style="font-size:0.7rem;color:var(--muted)">'+o.phone+'</span></td>'+
       '<td style="min-width:200px">'+itemThumbs+'</td>'+
       '<td style="color:var(--green);font-weight:600">AED '+Number(o.total||0).toLocaleString()+'</td>'+
-      '<td style="font-size:0.78rem">'+o.payment+'</td>'+
+      '<td style="font-size:0.78rem">'+o.payment+'<br/><span style="font-size:0.68rem;font-weight:700;color:'+(o.paymentStatus==='paid'?'#2e7d32':o.paymentStatus==='failed'?'#c62828':o.paymentStatus==='cancelled'?'#888':'#b8860b')+'">'+(o.paymentStatus==='paid'?'PAID ✅':o.paymentStatus==='failed'?'FAILED ❌':o.paymentStatus==='cancelled'?'CANCELLED':'PENDING ⏳')+'</span></td>'+
       '<td>'+
         `<select style="background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:4px 8px;border-radius:6px;font-size:0.75rem;cursor:pointer;max-width:110px" onchange="updateOrderStatus('${o._id}',this.value)">`+
           ['pending','confirmed','processing','packed','shipped','out_for_delivery','delivered','cancelled','refunded'].map(function(s){return '<option '+(o.status===s?'selected':'')+' value="'+s+'">'+(STATUS_LABELS[s]||s)+'</option>';}).join('')+
@@ -2388,7 +2518,11 @@ function viewOrderDetail(mongoId) {
   var shipAddr = o.shippingAddress || {};
   var paymentMethod = o.paymentMethod || 'cod';
   var paymentStatus = o.paymentStatus || 'pending';
-  var paymentBadge = paymentStatus === 'paid' ? 'badge badge-active' : 'badge badge-pending';
+  var paymentLabelMap = { cod:'Cash on Delivery', bank_app:'Bank App', zeina:'Ziina', paypal:'PayPal', myfatoorah:'myFatoorah', paytabs:'PayTabs', moyasar:'Moyasar', bank:'Bank Transfer', jazzcash:'JazzCash', easypaisa:'EasyPaisa', hbl:'HBL', meezan:'Meezan' };
+  var paymentMethodLabel = paymentLabelMap[paymentMethod] || paymentMethod.charAt(0).toUpperCase() + paymentMethod.slice(1);
+  var paymentStatusLabel = paymentStatus === 'paid' ? 'PAID ✅' : paymentStatus === 'failed' ? 'FAILED ❌' : paymentStatus === 'cancelled' ? 'CANCELLED' : 'PENDING ⏳';
+  var paymentBadgeColor = paymentStatus === 'paid' ? '#2e7d32' : paymentStatus === 'failed' ? '#c62828' : paymentStatus === 'cancelled' ? '#888' : '#b8860b';
+  var paymentBadge = '<span style="background:'+paymentBadgeColor+'1a;color:'+paymentBadgeColor+';border:1px solid '+paymentBadgeColor+'55;padding:2px 8px;border-radius:20px;font-size:0.72rem;font-weight:700">'+paymentStatusLabel+'</span>';
   var html = '<div class="modal-overlay open" id="order-detail-modal" onclick="if(event.target===this)closeOrderDetail()"><div class="modal modal-lg">'+
     '<div class="modal-header"><div class="modal-title">Order '+o.id+'</div><button class="modal-close" onclick="closeOrderDetail()"><i class="fas fa-times"></i></button></div>'+
     '<div class="modal-body">'+
@@ -2402,8 +2536,10 @@ function viewOrderDetail(mongoId) {
         '</div>'+
         '<div style="background:var(--bg3);border-radius:10px;padding:14px">'+
           '<h5 style="font-size:0.7rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-bottom:10px">Payment Info</h5>'+
-          '<p style="font-size:0.85rem;margin-bottom:4px">Method: <strong>'+paymentMethod.charAt(0).toUpperCase()+paymentMethod.slice(1)+'</strong></p>'+
-          '<p style="font-size:0.85rem;margin-bottom:4px">Status: <span class="'+paymentBadge+'">'+paymentStatus+'</span></p>'+
+          '<p style="font-size:0.85rem;margin-bottom:4px">Method: <strong>'+paymentMethodLabel+'</strong></p>'+
+          '<p style="font-size:0.85rem;margin-bottom:4px">Status: '+paymentBadge+'</p>'+
+          (o.paymentReference ? '<p style="font-size:0.78rem;color:var(--muted)">Reference: <strong>'+o.paymentReference+'</strong></p>' : '')+
+          (o.paymentTxnId ? '<p style="font-size:0.78rem;color:var(--muted)">Transaction ID: <strong>'+o.paymentTxnId+'</strong></p>' : '')+
           '<p style="font-size:0.85rem">Total: <strong style="color:var(--accent)">AED '+Number(o.total||0).toLocaleString()+'</strong></p>'+
           (o.advanceRequired ? '<p style="font-size:0.78rem;color:var(--muted)">Advance Required: AED '+Number(o.advanceRequired||0).toLocaleString()+'</p>' : '')+
           (o.advancePaid ? '<p style="font-size:0.78rem;color:var(--muted)">Advance Paid: AED '+Number(o.advancePaid||0).toLocaleString()+'</p>' : '')+
@@ -2415,6 +2551,9 @@ function viewOrderDetail(mongoId) {
       itemsHtml+
     '</div>'+
     '<div class="modal-footer">'+
+      (o.paymentStatus!=='paid' ? '<button class="btn btn-primary btn-sm" onclick="closeOrderDetail();openConfirmPayment(\''+o._id+'\')"><i class="fas fa-check-circle"></i> Confirm Payment</button>' : '')+
+      ((o.paymentStatus==='pending' || o.paymentStatus==='expired') && o.paymentMethod!=='cod' ? '<button class="btn btn-outline btn-sm" style="color:#c62828;border-color:#e57373" onclick="closeOrderDetail();openMarkFailed(\''+o._id+'\')"><i class="fas fa-times-circle"></i> Mark Failed</button>' : '')+
+      ((o.paymentStatus==='pending' || o.paymentStatus==='failed' || o.paymentStatus==='expired') && o.paymentMethod!=='cod' ? '<button class="btn btn-outline btn-sm" style="color:#888" onclick="closeOrderDetail();openCancelPayment(\''+o._id+'\')"><i class="fas fa-ban"></i> Cancel Payment</button>' : '')+
       '<button class="btn btn-outline btn-sm" onclick="closeOrderDetail()">Close</button>'+
       `<button class="btn btn-primary btn-sm" onclick="window.open('https://wa.me/9710566551046?text=Order+${encodeURIComponent(o.id||'')}','_blank')"><i class="fab fa-whatsapp"></i> WhatsApp Customer</button>`+
     '</div></div></div>';
@@ -2446,6 +2585,46 @@ function openConfirmPayment(mongoId) {
   }).catch(function(err) {
     toast('Failed to confirm payment: '+err.message,'error');
   });
+}
+
+// Mark a payment FAILED (admin) — restores reserved stock; order will not ship (#16)
+function openMarkFailed(mongoId) {
+  const o = orders.find(x => x._id === mongoId);
+  if (!o) { toast('Order not found','error'); return; }
+  confirmDialog('Mark payment for order ' + o.id + ' as FAILED? Reserved stock will be restored.', 'Mark Failed').then(function(ok) {
+    if (!ok) return;
+    api.put('/orders/' + o._id + '/payment-status', {
+      status: 'failed',
+      notes: 'Marked FAILED via Admin Panel'
+    }).then(function() {
+      o.paymentStatus = 'failed';
+      toast('Payment marked FAILED for ' + o.id, 'error');
+      renderOrders(document.querySelector('.order-filter.active')?.getAttribute('onclick')?.match(/'(.*?)'/)?.[1] || 'all');
+      renderPayments();
+    }).catch(function(err) {
+      toast('Failed to mark payment: ' + err.message, 'error');
+    });
+  }).catch(function(){});
+}
+
+// Cancel a payment (admin) — restores reserved stock; order will not be fulfilled (#16)
+function openCancelPayment(mongoId) {
+  const o = orders.find(x => x._id === mongoId);
+  if (!o) { toast('Order not found','error'); return; }
+  confirmDialog('Cancel payment for order ' + o.id + '? Reserved stock will be restored and the order will not be fulfilled.', 'Cancel Payment').then(function(ok) {
+    if (!ok) return;
+    api.put('/orders/' + o._id + '/payment-status', {
+      status: 'cancelled',
+      notes: 'Cancelled via Admin Panel'
+    }).then(function() {
+      o.paymentStatus = 'cancelled';
+      toast('Payment cancelled for ' + o.id, 'info');
+      renderOrders(document.querySelector('.order-filter.active')?.getAttribute('onclick')?.match(/'(.*?)'/)?.[1] || 'all');
+      renderPayments();
+    }).catch(function(err) {
+      toast('Failed to cancel payment: ' + err.message, 'error');
+    });
+  }).catch(function(){});
 }
 
 async function deleteOrderConfirm(mongoId) {
@@ -2538,6 +2717,12 @@ function renderPayments() {
   document.getElementById('payments-received').textContent = 'AED ' + totalReceived.toLocaleString();
   document.getElementById('payments-pending').textContent = 'AED ' + totalPending.toLocaleString();
   document.getElementById('payments-cancelled').textContent = 'AED ' + totalCancelled.toLocaleString();
+
+  // Online payments management list (non-COD orders)
+  renderOnlinePayments();
+
+  // Live provider status table (#15)
+  renderProviderStatus();
 
   // Transaction history table
   const tbody = document.getElementById('payments-txn-body');
@@ -3631,6 +3816,9 @@ async function loadZeinaSettings() {
     const v = await loadSettingFromDB('payment_settings');
     if (v && Array.isArray(v.methods)) {
       const z = v.methods.find(m => m.id === 'zeina');
+      if (z) {
+        const ce = document.getElementById('zeina-enabled'); if (ce) ce.checked = !!z.enabled;
+      }
       if (z && z.config) {
         const elT = document.getElementById('zeina-token'); if (elT) elT.value = z.config.accessToken || '';
         const elM = document.getElementById('zeina-mode'); if (elM) elM.value = z.config.mode || 'test';
@@ -3645,7 +3833,7 @@ async function saveZeinaSettings() {
     if (!Array.isArray(v.methods)) v.methods = [];
     let z = v.methods.find(m => m.id === 'zeina');
     if (!z) { z = { id:'zeina', name:'Zeina (Card / Apple Pay)', icon:'fas fa-credit-card', enabled:true, type:'gateway', config:{ accessToken:'', mode:'test' } }; v.methods.push(z); }
-    z.enabled = true;
+    z.enabled = document.getElementById('zeina-enabled') ? document.getElementById('zeina-enabled').checked : false;
     z.config = z.config || {};
     z.config.accessToken = (document.getElementById('zeina-token').value || '').trim();
     z.config.mode = document.getElementById('zeina-mode').value || 'test';
@@ -3656,6 +3844,177 @@ async function saveZeinaSettings() {
       st.style.color = z.config.accessToken ? 'var(--green)' : '#b8860b';
     }
     toast('Zeina settings saved!','success');
+  } catch(err) { toast('Failed: '+err.message,'error'); }
+}
+
+// ===== ONLINE PAYMENTS MANAGEMENT =====
+function renderOnlinePayments() {
+  const tbody = document.getElementById('online-payments-body');
+  if (!tbody) return;
+  const list = orders.filter(o => o.paymentMethod && o.paymentMethod !== 'cod');
+  if (!list.length) {
+    tbody.innerHTML = '<tr><td colspan="10" style="text-align:center;color:var(--muted);padding:24px">No online payments yet. Online orders (Bank App, Ziina, PayPal, myFatoorah, PayTabs, Moyasar) will appear here.</td></tr>';
+    return;
+  }
+  const pLabel = { bank_app:'Bank App', zeina:'Ziina', paypal:'PayPal', myfatoorah:'myFatoorah', paytabs:'PayTabs', moyasar:'Moyasar' };
+  tbody.innerHTML = list.slice(0, 30).map(o => {
+    const m = pLabel[o.paymentMethod] || o.paymentMethod;
+    const ps = o.paymentStatus || 'pending';
+    const psColor = ps === 'paid' ? '#2e7d32' : ps === 'failed' ? '#c62828' : (ps === 'cancelled' || ps === 'expired') ? '#888' : '#b8860b';
+    const psText = ps === 'paid' ? 'PAID ✅' : ps === 'failed' ? 'FAILED ❌' : ps === 'cancelled' ? 'CANCELLED' : ps === 'expired' ? 'EXPIRED' : 'PENDING ⏳';
+    const date = o.createdAt ? new Date(o.createdAt).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) : '—';
+    return '<tr>'+
+      '<td style="font-size:0.8rem"><strong>'+o.id+'</strong></td>'+
+      '<td style="font-size:0.8rem">'+(o.customer || '—')+'</td>'+
+      '<td style="font-size:0.78rem">'+m+'</td>'+
+      '<td style="font-size:0.8rem;color:var(--green);font-weight:600">AED '+Number(o.total||0).toLocaleString()+'</td>'+
+      '<td style="font-size:0.72rem;color:var(--muted)">'+(o.paymentReference || '—')+'</td>'+
+      '<td style="font-size:0.72rem;color:var(--muted)">'+(o.paymentTxnId || '—')+'</td>'+
+      '<td style="font-size:0.72rem;font-weight:700;color:'+psColor+'">'+psText+'</td>'+
+      '<td style="font-size:0.78rem;color:var(--muted)">'+((STATUS_LABELS && STATUS_LABELS[o.status]) || o.status || 'pending')+'</td>'+
+      '<td style="font-size:0.72rem;color:var(--muted)">'+date+'</td>'+
+      '<td style="display:flex;gap:4px">'+
+        '<button class="icon-btn" title="View Details" onclick="viewOrderDetail(\''+o._id+'\')"><i class="fas fa-eye"></i></button>'+
+        (ps !== 'paid' ? '<button class="icon-btn" style="color:var(--green)" title="Confirm Payment" onclick="openConfirmPayment(\''+o._id+'\')"><i class="fas fa-check-circle"></i></button>' : '')+
+        ((ps === 'pending' || ps === 'expired') ? '<button class="icon-btn" style="color:#c62828" title="Mark Failed" onclick="openMarkFailed(\''+o._id+'\')"><i class="fas fa-times-circle"></i></button>' : '')+
+        ((ps === 'pending' || ps === 'failed' || ps === 'expired') ? '<button class="icon-btn" style="color:#888" title="Cancel Payment" onclick="openCancelPayment(\''+o._id+'\')"><i class="fas fa-ban"></i></button>' : '')+
+      '</td>'+
+    '</tr>';
+  }).join('');
+}
+
+// ===== PAYMENT PROVIDER STATUS (#15) =====
+async function renderProviderStatus() {
+  const tbody = document.getElementById('provider-status-body');
+  if (!tbody) return;
+  try {
+    const res = await api.get('/payments/providers/status');
+    const rows = (res.providers || []).map(function(p) {
+      const live = !!p.enabled;
+      const cfg = !!p.apiConfigured;
+      const statusTxt = live ? 'LIVE ✅' : 'DISABLED';
+      const statusColor = live ? '#2e7d32' : '#888';
+      return '<tr>' +
+        '<td style="font-size:0.8rem;font-weight:600">' + escHtml(p.name) + '</td>' +
+        '<td style="font-size:0.75rem;font-weight:700;color:' + statusColor + '">' + statusTxt + '</td>' +
+        '<td style="font-size:0.78rem">' + (cfg ? '✅ Configured' : '—') + '</td>' +
+        '<td style="font-size:0.72rem;color:var(--muted)">' + (p.officialUrl ? '<a href="' + escHtml(p.officialUrl) + '" target="_blank" rel="noopener" style="color:var(--accent)">' + escHtml(p.officialUrl) + '</a>' : '—') + '</td>' +
+        '<td style="font-size:0.78rem">' + (p.webhookSupported ? 'Supported' : '—') + '</td>' +
+        '<td style="font-size:0.72rem;color:var(--muted)">' + escHtml(p.reason || '') + '</td>' +
+      '</tr>';
+    }).join('');
+    tbody.innerHTML = rows || '<tr><td colspan="6" style="text-align:center;color:var(--muted);padding:20px">No providers registered.</td></tr>';
+  } catch (e) {
+    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--red);padding:20px">Could not load provider status: ' + escHtml(e.message) + '</td></tr>';
+  }
+}
+
+// ===== ONLINE PAYMENTS SETTINGS (Payments page) =====
+let onlinePayments = { onlineEnabled:false, sellerName:'BIN SALEH Store', currency:'AED', methods:[] };
+
+async function loadOnlinePayments() {
+  try {
+    const v = await loadSettingFromDB('payment_settings');
+    if (v && typeof v === 'object') onlinePayments = Object.assign(onlinePayments, v);
+  } catch(e) {}
+  const set = (id, val) => { const el = document.getElementById(id); if (el) el.value = val; };
+  const cb = document.getElementById('online-enabled'); if (cb) cb.checked = !!onlinePayments.onlineEnabled;
+  set('online-seller-name', onlinePayments.sellerName || '');
+  set('online-currency', onlinePayments.currency || 'AED');
+  const cfg = (id, mid, field, def) => { const m = (onlinePayments.methods||[]).find(x=>x.id===mid); set(id, (m && m.config && m.config[field]) || def); };
+  const enabledBox = (mid) => { const m = (onlinePayments.methods||[]).find(x=>x.id===mid); return !!(m && m.enabled); };
+  const cbPP = document.getElementById('prov-paypal-enabled'); if (cbPP) cbPP.checked = enabledBox('paypal');
+  cfg('prov-paypal-client','paypal','clientId',''); cfg('prov-paypal-secret','paypal','clientSecret','');
+  const ppMode = document.getElementById('prov-paypal-mode'); if (ppMode) ppMode.value = cfg2('paypal','mode','sandbox');
+  const cbMF = document.getElementById('prov-myfatoorah-enabled'); if (cbMF) cbMF.checked = enabledBox('myfatoorah');
+  cfg('prov-myfatoorah-token','myfatoorah','token','');
+  const mfMode = document.getElementById('prov-myfatoorah-mode'); if (mfMode) mfMode.value = cfg2('myfatoorah','mode','live');
+  const cbPT = document.getElementById('prov-paytabs-enabled'); if (cbPT) cbPT.checked = enabledBox('paytabs');
+  cfg('prov-paytabs-profile','paytabs','profileId',''); cfg('prov-paytabs-key','paytabs','serverKey','');
+  const ptRegion = document.getElementById('prov-paytabs-region'); if (ptRegion) ptRegion.value = cfg2('paytabs','region','ae');
+  const cbMS = document.getElementById('prov-moyasar-enabled'); if (cbMS) cbMS.checked = enabledBox('moyasar');
+  cfg('prov-moyasar-key','moyasar','secretKey','');
+}
+function cfg2(id, field, def) { const m = (onlinePayments.methods||[]).find(x=>x.id===id); return (m && m.config && m.config[field]) || def; }
+
+async function saveOnlinePayments() {
+  try {
+    if (!Array.isArray(onlinePayments.methods)) onlinePayments.methods = [];
+    onlinePayments.onlineEnabled = document.getElementById('online-enabled') ? document.getElementById('online-enabled').checked : false;
+    onlinePayments.sellerName = (document.getElementById('online-seller-name').value || 'BIN SALEH Store').trim();
+    onlinePayments.currency = (document.getElementById('online-currency').value || 'AED').trim();
+    const upsert = (id, name, icon, config) => {
+      let m = onlinePayments.methods.find(x => x.id === id);
+      if (!m) { m = { id, name, icon, enabled:false, type:'gateway', config:{} }; onlinePayments.methods.push(m); }
+      m.enabled = document.getElementById('prov-'+id+'-enabled') ? document.getElementById('prov-'+id+'-enabled').checked : !!m.enabled;
+      m.config = m.config || {};
+      Object.assign(m.config, config());
+    };
+    upsert('paypal','PayPal','fab fa-paypal', () => ({
+      clientId: (document.getElementById('prov-paypal-client').value || '').trim(),
+      clientSecret: (document.getElementById('prov-paypal-secret').value || '').trim(),
+      mode: document.getElementById('prov-paypal-mode').value || 'sandbox'
+    }));
+    upsert('myfatoorah','myFatoorah','fas fa-building-columns', () => ({
+      token: (document.getElementById('prov-myfatoorah-token').value || '').trim(),
+      mode: document.getElementById('prov-myfatoorah-mode').value || 'live'
+    }));
+    upsert('paytabs','PayTabs','fas fa-wallet', () => ({
+      profileId: (document.getElementById('prov-paytabs-profile').value || '').trim(),
+      serverKey: (document.getElementById('prov-paytabs-key').value || '').trim(),
+      region: document.getElementById('prov-paytabs-region').value || 'ae'
+    }));
+    upsert('moyasar','Moyasar','fas fa-circle-nodes', () => ({
+      secretKey: (document.getElementById('prov-moyasar-key').value || '').trim()
+    }));
+    await saveSettingToDB('payment_settings', onlinePayments);
+    const st = document.getElementById('online-save-status');
+    if (st) { st.textContent = onlinePayments.onlineEnabled ? '✅ Online payment enabled — configured providers now appear on the Pay Online screen.' : 'ℹ️ Online payment disabled — customers only see COD.'; st.style.color = 'var(--green)'; }
+    toast('Payment settings saved!','success');
+  } catch(err) { toast('Failed: '+err.message,'error'); }
+}
+
+// ===== BANK APP PAYMENT SETTINGS (Payments page) =====
+let bankAppSettings = { enabled:false, bankName:'ADIB', accountHolder:'SELLER NAME', iban:'', accountNumber:'', currency:'AED', instructions:'', paymentLinkUrl:'' };
+
+async function loadBankAppSettings() {
+  try {
+    const v = await loadSettingFromDB('bank_app_settings');
+    if (v && typeof v === 'object') bankAppSettings = Object.assign(bankAppSettings, v);
+  } catch(e) {}
+  const set = (id, val) => { const el = document.getElementById(id); if (el) el.value = val; };
+  const cb = document.getElementById('bank-app-enabled'); if (cb) cb.checked = !!bankAppSettings.enabled;
+  set('bank-app-bank-name', bankAppSettings.bankName || '');
+  set('bank-app-holder', bankAppSettings.accountHolder || '');
+  set('bank-app-iban', bankAppSettings.iban || '');
+  set('bank-app-currency', bankAppSettings.currency || 'AED');
+  set('bank-app-payment-link', bankAppSettings.paymentLinkUrl || '');
+  const ti = document.getElementById('bank-app-instructions'); if (ti) ti.value = bankAppSettings.instructions || '';
+}
+
+async function saveBankAppSettings() {
+  try {
+    bankAppSettings.enabled = document.getElementById('bank-app-enabled') ? document.getElementById('bank-app-enabled').checked : false;
+    bankAppSettings.bankName = (document.getElementById('bank-app-bank-name').value || '').trim();
+    bankAppSettings.accountHolder = (document.getElementById('bank-app-holder').value || '').trim();
+    bankAppSettings.iban = (document.getElementById('bank-app-iban').value || '').trim();
+    bankAppSettings.accountNumber = bankAppSettings.iban;
+    bankAppSettings.currency = (document.getElementById('bank-app-currency').value || 'AED').trim();
+    bankAppSettings.paymentLinkUrl = (document.getElementById('bank-app-payment-link').value || '').trim();
+    bankAppSettings.instructions = document.getElementById('bank-app-instructions').value.trim();
+    await saveSettingToDB('bank_app_settings', bankAppSettings);
+    // Also register the method in payment_settings so the enabled list stays consistent
+    try {
+      let ps = await loadSettingFromDB('payment_settings') || { methods: [] };
+      if (!Array.isArray(ps.methods)) ps.methods = [];
+      let m = ps.methods.find(x => x.id === 'bank_app');
+      if (!m) { m = { id:'bank_app', name:'Pay via Bank App', icon:'fas fa-mobile-screen-button', enabled:true, type:'bank_app', sortOrder:1 }; ps.methods.push(m); }
+      m.enabled = bankAppSettings.enabled;
+      await saveSettingToDB('payment_settings', ps);
+    } catch(e) { console.warn('Could not sync payment_settings method:', e.message); }
+    const st = document.getElementById('bank-app-save-status');
+    if (st) { st.textContent = bankAppSettings.enabled ? '✅ Bank App payment enabled — checkout uses these details.' : 'ℹ️ Bank App payment disabled — customers will only see COD.'; st.style.color = 'var(--green)'; }
+    toast('Bank App settings saved!','success');
   } catch(err) { toast('Failed: '+err.message,'error'); }
 }
 
@@ -4023,7 +4382,8 @@ async function toggleCoupon(idx) {
     await loadCouponsFromDB();
   } catch (e) { toast('Toggle failed: ' + e.message, 'error'); }
 }
-function confirmDialog(message) {
+function confirmDialog(message, btnLabel) {
+  btnLabel = btnLabel || 'Delete';
   return new Promise(function (resolve) {
     var ov = document.createElement('div');
     ov.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:99999;display:flex;align-items:center;justify-content:center';
@@ -4034,7 +4394,7 @@ function confirmDialog(message) {
       '<div style="font-size:.9rem;color:#444;margin-bottom:18px">' + safe + '</div>' +
       '<div style="display:flex;justify-content:flex-end;gap:8px">' +
       '<button class="btn btn-outline" id="cd-no" type="button">Cancel</button>' +
-      '<button type="button" id="cd-yes" style="background:#c62828;color:#fff;border:none;border-radius:8px;padding:8px 16px;font-weight:700;cursor:pointer">Delete</button></div>';
+      '<button type="button" id="cd-yes" style="background:#c62828;color:#fff;border:none;border-radius:8px;padding:8px 16px;font-weight:700;cursor:pointer">' + btnLabel + '</button></div>';
     ov.appendChild(box);
     document.body.appendChild(ov);
     function close(val) { ov.remove(); resolve(val); }

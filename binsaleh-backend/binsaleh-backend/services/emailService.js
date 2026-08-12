@@ -16,6 +16,12 @@ const nodemailer = require('nodemailer');
 // Default business email (used if nothing configured)
 const DEFAULT_BUSINESS_EMAIL = 'binsalehllc946@gmail.com';
 
+// Human-friendly payment method label used in email templates
+function paymentMethodLabel(m) {
+  const map = { cod: 'Cash on Delivery', bank_app: 'Bank App', zeina: 'Ziina', paypal: 'PayPal', myfatoorah: 'myFatoorah', paytabs: 'PayTabs', moyasar: 'Moyasar', bank: 'Bank Transfer', jazzcash: 'JazzCash', easypaisa: 'EasyPaisa', hbl: 'HBL', meezan: 'Meezan' };
+  return map[m] || (m ? String(m).toUpperCase() : 'COD');
+}
+
 // Configurable store name for the sender (requirement #9)
 async function getStoreName() {
   try {
@@ -380,7 +386,7 @@ async function sendOrderConfirmation({ customerEmail, customerName, orderId, ite
             <tr><td style="padding:10px 8px;border-top:2px solid #111;font-weight:700">Total</td><td style="padding:10px 8px;border-top:2px solid #111;font-weight:700;text-align:right">${cur} ${(total || 0).toLocaleString()}</td></tr>
           </tfoot>
         </table>
-        <p style="margin:12px 0 0;color:#666;font-size:0.85rem"><strong>Payment:</strong> ${paymentMethod === 'cod' ? 'Cash on Delivery' : paymentMethod?.toUpperCase() || 'COD'}</p>
+        <p style="margin:12px 0 0;color:#666;font-size:0.85rem"><strong>Payment:</strong> ${paymentMethodLabel(paymentMethod)}</p>
       </div>
       <p style="color:#888;font-size:0.85rem;line-height:1.6">We'll notify you when your order ships. For any questions, reply to this email or contact us on WhatsApp at +9710566551046.</p>
     </div>
@@ -406,7 +412,7 @@ async function sendAdminNewOrderNotification({ orderId, customerName, customerCo
           <p><strong>Customer:</strong> ${customerName || 'N/A'}</p>
           <p><strong>Contact:</strong> ${customerContact || 'N/A'}</p>
           <p><strong>Total:</strong> AED ${(total || 0).toLocaleString()}</p>
-          <p><strong>Payment:</strong> ${paymentMethod === 'cod' ? 'Cash on Delivery' : paymentMethod?.toUpperCase() || 'COD'}</p>
+          <p><strong>Payment:</strong> ${paymentMethodLabel(paymentMethod)}</p>
         </div>
         <p style="color:#888;font-size:0.85rem">Login to the Admin Panel to view and process this order.</p>
       </div>

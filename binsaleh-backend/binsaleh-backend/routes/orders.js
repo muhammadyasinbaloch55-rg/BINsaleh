@@ -11,6 +11,7 @@ const {
   getStats,
   updateOrderStatus,
   confirmPayment,
+  setPaymentStatus,
   deleteOrder
 } = require('../controllers/orderController');
 
@@ -33,8 +34,11 @@ router.get('/:id', protect, getOrderById);
 // Admin: order status update karna
 router.put('/:id/status', protect, isAdmin, updateOrderStatus);
 
-// Admin: payment confirm karna
+// Admin: payment confirm karna (legacy — paid only)
 router.put('/:id/payment', protect, isAdmin, confirmPayment);
+
+// Admin: generalized payment status update (paid | failed | cancelled)
+router.put('/:id/payment-status', protect, isAdmin, setPaymentStatus);
 
 // Admin: order delete karna
 router.delete('/:id', protect, isAdmin, deleteOrder);

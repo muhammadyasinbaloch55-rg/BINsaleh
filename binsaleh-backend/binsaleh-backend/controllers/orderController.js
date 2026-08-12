@@ -506,13 +506,92 @@ exports.confirmPayment = async (req, res) => {
   }
 };
 
+// PUT /api/orders/:id/payment-status
+// Generalized admin payment-status update: paid | failed | cancelled.
+//  - paid:      record transaction + amount (same behaviour as confirmPayment)
+//  - failed:    mark FAILED and restore the reserved stock (order won't ship)
+//  - cancelled: mark CANCELLED and restore the reserved stock
+// The customer's own "I have paid" click can never reach this endpoint —
+// it is admin-only (protect + isAdmin).
+exports.setPaymentStatus = async (req, res) => {
+  try {
+    const { status, transactionId, paidAmount, notes } = req.body;
+    const target = String(status || '').toLowerCase();
+    if (!['paid', 'failed', 'cancelled'].includes(target)) {
+      return res.status(400).json({ message: 'Invalid payment status. Use paid, failed or cancelled.' });
+    }
+
+    const existing = await Order.findById(req.params.id);
+    if (!existing) return res.status(404).json({ message: 'Order not found' });
+
+    const orderTotal = existing.total || 0;
+    const paid = Number(paidAmount) || Number(req.body.total) || orderTotal;
+    const advancePaid = Math.min(orderTotal, (Number(existing.advancePaid) || 0) + paid);
+    const remainingAmount = Math.max(0, orderTotal - advancePaid);
+
+    const updates = {
+      paymentStatus: target,
+      awaitingVerification: false
+    };
+    if (target === 'paid') {
+      updates.advancePaid = advancePaid;
+      updates.remainingAmount = remainingAmount;
+      updates.paymentDetails = {
+        transactionId: transactionId || existing.providerReference || '',
+        paidAmount: advancePaid,
+        paidAt: new Date(),
+        confirmedBy: req.user ? req.user.email || req.user.name || 'admin' : 'admin',
+        notes: notes || ''
+      };
+    } else {
+      // failed / cancelled — release the reserved stock exactly once
+      // (stockRestored guards against a double-restore on later deletion)
+      if (!existing.stockRestored) {
+        restoreStockForOrder(existing.items).catch(e => console.warn('⚠️ Stock restore failed:', e.message));
+        updates.stockRestored = true;
+      }
+      // A cancelled payment means the order will not be fulfilled — mirror
+      // the customer-side cancelBankAppPayment behaviour (status: cancelled).
+      if (target === 'cancelled') updates.status = 'cancelled';
+    }
+
+    const order = await Order.findByIdAndUpdate(req.params.id, updates, { returnDocument: 'after', runValidators: true });
+    if (!order) return res.status(404).json({ message: 'Order not found' });
+
+    const shortId = order._id ? String(order._id).slice(-6).toUpperCase() : '';
+    const isPaid = target === 'paid';
+    Notification.create({
+      type: isPaid ? 'payment_success' : 'order_status',
+      title: (isPaid ? '✅ Payment Confirmed #' : '💳 Payment ' + target.toUpperCase() + ' #') + shortId,
+      message: (order.currency || 'AED') + ' ' + (order.total || 0).toLocaleString(),
+      refType: 'order',
+      refId: String(order._id)
+    }).catch(() => {});
+    emit(isPaid ? 'payment_success' : 'order_status', { orderId: String(order._id), amount: order.total, shortId });
+    emit('notification', { type: isPaid ? 'payment_success' : 'order_status' });
+    if (isPaid) emit('revenue_change', { total: order.total });
+
+    await log({
+      category: 'order',
+      action: 'Payment ' + target,
+      details: { orderId: String(order._id), amount: order.total, status: target },
+      actor: req.user ? req.user.email || 'admin' : 'admin',
+      ip: req.ip || ''
+    });
+
+    res.json(order);
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+};
+
 // DELETE /api/orders/:id
 exports.deleteOrder = async (req, res) => {
   try {
     const order = await Order.findByIdAndDelete(req.params.id);
     if (!order) return res.status(404).json({ message: 'Order not found' });
     // Restore stock for cancelled/deleted orders
-    if (order.status !== 'cancelled' && order.status !== 'refunded') {
+    if (order.status !== 'cancelled' && order.status !== 'refunded' && !order.stockRestored) {
       restoreStockForOrder(order.items).catch(e => console.warn('⚠️ Stock restore failed:', e.message));
     }
     await log({

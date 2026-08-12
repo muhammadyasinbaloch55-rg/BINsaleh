@@ -1,7 +1,10 @@
 // server.js
 // BIN SALEH Store — Backend Entry Point
 
-require('dotenv').config();
+// Load .env with override so a stale shell-inherited MONGO_URI (e.g. from a
+// Vercel/terminal session) can never silently shadow the correct credentials
+// in the project .env file. Harmless on Vercel, where no .env file is deployed.
+require('dotenv').config({ override: true });
 // Production logging policy — silence verbose console.log/info, keep warn/error.
 require('./config/logger');
 const express = require('express');
@@ -80,6 +83,13 @@ function isAllowedOrigin(origin) {
   if (!origin) return true; // non-browser clients / curl
   const allowed = allowedOrigins();
   if (!allowed.length) return true; // dev fallback — no explicit config
+  // Local dev must never be blocked: Live Server / localhost frontends
+  // (e.g. http://127.0.0.1:5501) must always be able to reach the API even
+  // if a stale CLIENT_URL/API_URL is set in the shell environment.
+  try {
+    const host = new URL(origin).hostname;
+    if (host === 'localhost' || host === '127.0.0.1' || host === '::1') return true;
+  } catch (e) { /* fall through to strict check */ }
   try {
     const o = new URL(origin).origin;
     return allowed.some(a => {
@@ -98,6 +108,19 @@ app.set('trust proxy', 1);
 app.use(helmet({
   crossOriginResourcePolicy: { policy: 'cross-origin' },
   contentSecurityPolicy: false
+}));
+
+// CORS — locked to the configured frontend origin(s); permissive in dev.
+// Registered BEFORE the rate limiters so that even rate-limited (429) and
+// error responses carry the correct Access-Control-Allow-Origin headers —
+// otherwise the browser reports a confusing CORS failure for throttled
+// requests instead of the real 429.
+app.use(cors({
+  origin: (origin, cb) => {
+    if (isAllowedOrigin(origin)) return cb(null, true);
+    return cb(new Error('Not allowed by CORS'));
+  },
+  credentials: true
 }));
 
 // Rate limiting: protect API from abuse
@@ -148,15 +171,6 @@ const newsletterLimiter = rateLimit({
   legacyHeaders: false
 });
 app.use('/api/newsletter', newsletterLimiter);
-
-// CORS — locked to the configured frontend origin(s); permissive only in dev.
-app.use(cors({
-  origin: (origin, cb) => {
-    if (isAllowedOrigin(origin)) return cb(null, true);
-    return cb(new Error('Not allowed by CORS'));
-  },
-  credentials: true
-}));
 
 // HTTP Parameter Pollution protection
 app.use(hpp());
@@ -240,6 +254,7 @@ async function seedDefaults() {
         { title:'Step In<br/><span>Style</span>', tag:'Footwear', sub:'Premium footwear collection — from Adidas Samba to exclusive sneakers.', link:'footwear.html', cta:'View Shoes', img:'' }
       ],
       bank_settings: { advanceAmount:250, whatsapp:'9710566551046', bankName:'Emirates NBD', accountTitle:'BIN SALEH LLC', accountNumber:'0123456789', iban:'AE070331234567890123456', branchName:'Dubai Main Branch', paymentInstructions:'Please transfer the advance amount to the account above and send the receipt on WhatsApp.', deposit:[{ label:'Emirates NBD (AED): 0123456789', value:'emirates_nbd' },{ label:'ADCB (AED): 9876543210', value:'adcb' },{ label:'FAB Bank Transfer: A/C 1234567890', value:'fab' },{ label:'Mashreq Bank Transfer: A/C 0987654321', value:'mashreq' }] },
+      bank_app_settings: { enabled:false, bankName:'ADIB', accountHolder:'SELLER NAME', iban:'', accountNumber:'', currency:'AED', instructions:'Open your banking app and transfer the exact order amount to the account below. Use your payment reference so we can match your transfer.', paymentLinkUrl:'' },
       business_email: 'binsalehllc946@gmail.com',
       smtp_settings: {
         host: 'smtp.gmail.com',
@@ -252,10 +267,17 @@ async function seedDefaults() {
       cod_settings: { enabled:true, advanceType:'fixed', fixedAmount:50, percentage:30 },
       pixel_settings: { fb:{ enabled:false, pixelId:'' }, tiktok:{ enabled:false, pixelId:'' }, ga:{ enabled:false, trackingId:'' } },
       payment_settings: {
+        onlineEnabled: false,
+        sellerName: 'BIN SALEH Store',
+        currency: 'AED',
         methods: [
           { id:'cod', name:'Cash on Delivery', icon:'fas fa-money-bill-wave', enabled:true, type:'cod', sortOrder:0 },
-          { id:'zeina', name:'Zeina (Card / Apple Pay)', icon:'fas fa-credit-card', enabled:true, type:'gateway', sortOrder:1, config:{ accessToken:'', mode:'test' } },
-          { id:'paypal', name:'PayPal / Credit / Debit Card', icon:'fab fa-paypal', enabled:true, type:'gateway', sortOrder:2, config:{ clientId:'', clientSecret:'', mode:'sandbox' } }
+          { id:'bank_app', name:'Pay via Bank App', icon:'fas fa-mobile-screen-button', enabled:false, type:'bank_app', sortOrder:1 },
+          { id:'zeina', name:'Ziina', icon:'fas fa-credit-card', enabled:false, type:'gateway', sortOrder:2, config:{ accessToken:'', mode:'test' } },
+          { id:'paypal', name:'PayPal', icon:'fab fa-paypal', enabled:false, type:'gateway', sortOrder:3, config:{ clientId:'', clientSecret:'', mode:'sandbox' } },
+          { id:'myfatoorah', name:'myFatoorah', icon:'fas fa-building-columns', enabled:false, type:'gateway', sortOrder:4, config:{ token:'', mode:'live' } },
+          { id:'paytabs', name:'PayTabs', icon:'fas fa-wallet', enabled:false, type:'gateway', sortOrder:5, config:{ profileId:'', serverKey:'', region:'ae' } },
+          { id:'moyasar', name:'Moyasar', icon:'fas fa-circle-nodes', enabled:false, type:'gateway', sortOrder:6, config:{ secretKey:'' } }
         ]
       },
       categories: [
@@ -289,6 +311,50 @@ async function seedDefaults() {
         await Settings.create({ key, value });
         console.log(`✅ Default setting created: ${key}`);
       }
+    }
+
+    // Migration: ensure bank_app_settings exists in ALREADY-STORED databases
+    // (fresh installs get it from DEFAULT_SETTINGS above).
+    try {
+      const existingBankApp = await Settings.findOne({ key: 'bank_app_settings' });
+      if (!existingBankApp) {
+        await Settings.create({ key: 'bank_app_settings', value: DEFAULT_SETTINGS.bank_app_settings });
+        console.log('✅ Created bank_app_settings on existing deployment (migration)');
+      }
+    } catch (e) {
+      console.warn('⚠️ Could not migrate bank_app_settings:', e.message);
+    }
+
+    // Migration: register online flags + missing methods inside an already-
+    // stored payment_settings so existing deployments pick them up.
+    try {
+      const psDoc = await Settings.findOne({ key: 'payment_settings' });
+      if (psDoc && psDoc.value) {
+        const ps = typeof psDoc.value === 'string' ? JSON.parse(psDoc.value) : psDoc.value;
+        if (ps && typeof ps === 'object') {
+          let changed = false;
+          if (ps.onlineEnabled === undefined) { ps.onlineEnabled = false; changed = true; }
+          if (ps.sellerName === undefined) { ps.sellerName = 'BIN SALEH Store'; changed = true; }
+          if (ps.currency === undefined) { ps.currency = 'AED'; changed = true; }
+          if (!Array.isArray(ps.methods)) { ps.methods = []; changed = true; }
+          const missing = [
+            { id:'bank_app', name:'Pay via Bank App', icon:'fas fa-mobile-screen-button', enabled:false, type:'bank_app', sortOrder:1 },
+            { id:'zeina', name:'Ziina', icon:'fas fa-credit-card', enabled:false, type:'gateway', sortOrder:2, config:{ accessToken:'', mode:'test' } },
+            { id:'myfatoorah', name:'myFatoorah', icon:'fas fa-building-columns', enabled:false, type:'gateway', sortOrder:4, config:{ token:'', mode:'live' } },
+            { id:'paytabs', name:'PayTabs', icon:'fas fa-wallet', enabled:false, type:'gateway', sortOrder:5, config:{ profileId:'', serverKey:'', region:'ae' } },
+            { id:'moyasar', name:'Moyasar', icon:'fas fa-circle-nodes', enabled:false, type:'gateway', sortOrder:6, config:{ secretKey:'' } }
+          ];
+          for (const m of missing) {
+            if (!ps.methods.some(x => x && x.id === m.id)) { ps.methods.push(m); changed = true; }
+          }
+          if (changed) {
+            await Settings.updateOne({ key: 'payment_settings' }, { value: ps });
+            console.log('✅ Migrated payment_settings with online payment flags + providers');
+          }
+        }
+      }
+    } catch (e) {
+      console.warn('⚠️ Could not migrate payment_settings methods:', e.message);
     }
 
     // Migration: append the new "Home & Kitchen" category/collection to any

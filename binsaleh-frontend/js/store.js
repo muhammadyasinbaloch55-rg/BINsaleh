@@ -24,6 +24,8 @@ function saveCart(cart) {
 function cartAddItem(item) {
   const cart = loadCart();
   // item must have: id, name, price, img, currency
+  // Always keep a valid image on the cart item so the drawer never renders blank.
+  if (!item.img || !isValidImageUrl(item.img)) item.img = PLACEHOLDER_IMG;
   const idx = cart.findIndex(x => String(x.id) === String(item.id) && x.color === (item.color || ''));
   if (idx > -1) {
     cart[idx].qty = (cart[idx].qty || 1) + (item.qty || 1);
@@ -127,10 +129,10 @@ function cartRenderDrawer() {
     const sym = x.currency || 'AED';
     return `
     <div class="cart-item">
-      <img src="${getProductImage(x)}" alt="${x.name}" onerror="this.style.display='none'"/>
+      <img src="${getProductImage(x)}" alt="${x.name}" onerror="this.onerror=null;this.src=(window.PLACEHOLDER_IMG||PLACEHOLDER_IMG)"/>
       <div class="cart-item-info">
         <div class="cart-item-name">${x.name}${x.color ? ' (' + x.color + ')' : ''}</div>
-        <div class="cart-item-price">${sym} ${itemTotal.toLocaleString()}</div>
+        <div class="cart-item-price">${sym} ${Number(x.price || 0).toLocaleString()} × ${x.qty || 1} = ${sym} ${itemTotal.toLocaleString()}</div>
         <div class="cart-item-qty">
           <button class="qty-btn-sm" onclick="cartDecreaseQty('${x.id}','${x.color || ''}');cartRenderDrawer();event.stopPropagation()">−</button>
           <span class="qty-num">${x.qty || 1}</span>
@@ -289,9 +291,10 @@ function checkoutFromCart() {
     if(typeof showToast === 'function') showToast('<i class="fas fa-exclamation-circle"></i> Cart is empty!');
     return;
   }
-  // Redirect to the first cart item's product page for checkout
+  // Redirect to the first cart item's product page for checkout — ?co=1 makes
+  // the checkout page open the Secure Checkout modal immediately.
   const firstId = cart[0].id;
-  window.location.href = 'addTocurt.html?id=' + firstId;
+  window.location.href = 'addTocurt.html?id=' + encodeURIComponent(firstId) + '&co=1';
 }
 
 // ======================== UTILITY HELPERS ========================

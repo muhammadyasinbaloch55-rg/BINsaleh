@@ -15,6 +15,7 @@ const DEFAULT_SETTINGS = {
     { title:'Step In<br/><span>Style</span>', tag:'Footwear', sub:'Premium footwear collection — from Adidas Samba to exclusive sneakers.', link:'footwear.html', cta:'View Shoes', img:'' }
   ],
   bank_settings: { advanceAmount:250, whatsapp:'9710566551046', deposit:[{ label:'Emirates NBD (AED): 0123456789', value:'emirates_nbd' },{ label:'ADCB (AED): 9876543210', value:'adcb' },{ label:'FAB Bank Transfer: A/C 1234567890', value:'fab' },{ label:'Mashreq Bank Transfer: A/C 0987654321', value:'mashreq' }] },
+  bank_app_settings: { enabled:false, bankName:'ADIB', accountHolder:'SELLER NAME', iban:'', accountNumber:'', currency:'AED', instructions:'Open your banking app and transfer the exact order amount to the account below. Use your payment reference so we can match your transfer.', paymentLinkUrl:'' },
   shipping_settings: { standardFee:25, expressFee:50, freeThreshold:300 },
   cod_settings: { enabled:true, advanceType:'fixed', fixedAmount:50, percentage:30 },
   business_email: 'binsalehllc946@gmail.com',
@@ -27,6 +28,9 @@ const DEFAULT_SETTINGS = {
   },
   pixel_settings: { fb:{ enabled:false, pixelId:'' }, tiktok:{ enabled:false, pixelId:'' }, ga:{ enabled:false, trackingId:'' } },
   payment_settings: {
+    onlineEnabled: false,
+    sellerName: 'BIN SALEH Store',
+    currency: 'AED',
     methods: [
       {
         id: 'cod',
@@ -37,12 +41,20 @@ const DEFAULT_SETTINGS = {
         sortOrder: 0
       },
       {
+        id: 'bank_app',
+        name: 'Pay via Bank App',
+        icon: 'fas fa-mobile-screen-button',
+        enabled: false,
+        type: 'bank_app',
+        sortOrder: 1
+      },
+      {
         id: 'zeina',
-        name: 'Zeina (Card / Apple Pay)',
+        name: 'Ziina',
         icon: 'fas fa-credit-card',
-        enabled: true,
+        enabled: false,
         type: 'gateway',
-        sortOrder: 1,
+        sortOrder: 2,
         config: {
           accessToken: '',
           mode: 'test'
@@ -50,15 +62,51 @@ const DEFAULT_SETTINGS = {
       },
       {
         id: 'paypal',
-        name: 'PayPal / Credit / Debit Card',
+        name: 'PayPal',
         icon: 'fab fa-paypal',
-        enabled: true,
+        enabled: false,
         type: 'gateway',
-        sortOrder: 2,
+        sortOrder: 3,
         config: {
           clientId: '',
           clientSecret: '',
           mode: 'sandbox'
+        }
+      },
+      {
+        id: 'myfatoorah',
+        name: 'myFatoorah',
+        icon: 'fas fa-building-columns',
+        enabled: false,
+        type: 'gateway',
+        sortOrder: 4,
+        config: {
+          token: '',
+          mode: 'live'
+        }
+      },
+      {
+        id: 'paytabs',
+        name: 'PayTabs',
+        icon: 'fas fa-wallet',
+        enabled: false,
+        type: 'gateway',
+        sortOrder: 5,
+        config: {
+          profileId: '',
+          serverKey: '',
+          region: 'ae'
+        }
+      },
+      {
+        id: 'moyasar',
+        name: 'Moyasar',
+        icon: 'fas fa-circle-nodes',
+        enabled: false,
+        type: 'gateway',
+        sortOrder: 6,
+        config: {
+          secretKey: ''
         }
       }
     ]

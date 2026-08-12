@@ -123,7 +123,7 @@ async function generateInvoicePDF(order) {
 }
 
 function paymentLabel(m) {
-  const map = { cod: 'Cash on Delivery', paypal: 'PayPal', zeina: 'Zeina Card', bank: 'Bank Transfer', jazzcash: 'JazzCash', easypaisa: 'EasyPaisa', hbl: 'HBL', meezan: 'Meezan' };
+  const map = { cod: 'Cash on Delivery', paypal: 'PayPal', zeina: 'Ziina', myfatoorah: 'myFatoorah', paytabs: 'PayTabs', moyasar: 'Moyasar', bank: 'Bank Transfer', bank_app: 'Bank App', jazzcash: 'JazzCash', easypaisa: 'EasyPaisa', hbl: 'HBL', meezan: 'Meezan' };
   return map[m] || (m ? String(m).toUpperCase() : '—');
 }
 
@@ -166,6 +166,9 @@ function invoiceEmailHtml(order) {
         <p><strong>Advance Paid:</strong> ${cur} ${(order.advancePaid || 0).toLocaleString()}</p>
         <p><strong>Remaining Amount:</strong> ${cur} ${(order.remainingAmount != null ? order.remainingAmount : order.total).toLocaleString()}</p>
         <p><strong>Payment Method:</strong> ${paymentLabel(order.paymentMethod)}</p>
+        <p><strong>Payment Status:</strong> ${String(order.paymentStatus || 'pending').toUpperCase()}</p>
+        ${order.paymentReference ? `<p><strong>Payment Reference:</strong> ${order.paymentReference}</p>` : ''}
+        ${order.paymentDetails && order.paymentDetails.transactionId ? `<p><strong>Transaction ID:</strong> ${order.paymentDetails.transactionId}</p>` : ''}
         <p><strong>Status:</strong> ${statusLabel(order.status)}</p>
         ${order.trackingNumber ? `<p><strong>Tracking:</strong> ${order.trackingNumber}</p>` : ''}
       </div>
