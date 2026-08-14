@@ -685,7 +685,7 @@ tr:hover td{background:rgba(255,255,255,0.02);}
     </div>
 
     <!-- ====== ONLINE PAYMENTS MANAGEMENT (non-COD orders) ====== -->
-    <div class="card" style="margin-bottom:16px">
+    <!-- <div class="card" style="margin-bottom:16px">
       <div class="card-header"><div class="card-title"><i class="fas fa-globe" style="margin-right:8px;color:var(--accent)"></i> Online Payments</div></div>
       <div class="card-body" style="overflow-x:auto">
         <p style="font-size:0.78rem;color:var(--muted);margin-bottom:14px">All online orders (Bank App / Ziina / PayPal / myFatoorah / PayTabs / Moyasar). Payment is only marked <strong>PAID</strong> after the provider verifies it, or when you confirm a manual transfer. Verify received transfers and use <strong>Confirm Payment</strong> to mark them paid.</p>
@@ -705,10 +705,10 @@ tr:hover td{background:rgba(255,255,255,0.02);}
           <tbody id="online-payments-body"></tbody>
         </table>
       </div>
-    </div>
+    </div> -->
 
     <!-- ====== BANK / DEPOSIT DETAILS MANAGER (matches product.html: dn_bank_settings.deposit[{label,value}]) ====== -->
-    <div class="card" style="margin-bottom:16px">
+    <!-- <div class="card" style="margin-bottom:16px">
       <div class="card-header">
         <div class="card-title">Advance Deposit / Bank Accounts</div>
         <button class="btn btn-primary btn-sm" onclick="addBankMethodRow()"><i class="fas fa-plus"></i> Add Bank Account / Method</button>
@@ -722,7 +722,7 @@ tr:hover td{background:rgba(255,255,255,0.02);}
         </div>
         <button class="btn btn-primary" style="margin-top:16px" onclick="saveBankSettings()"><i class="fas fa-floppy-disk"></i> Save Bank Details</button>
       </div>
-    </div>
+    </div> -->
 
     <!-- ====== SHIPPING FEES (matches product.html: dn_shipping_settings) ====== -->
     <div class="card" style="margin-bottom:16px">
@@ -761,7 +761,7 @@ tr:hover td{background:rgba(255,255,255,0.02);}
     </div>
 
     <!-- ====== BANK APP PAYMENT (temporary payment system) ====== -->
-    <div class="card" style="margin-bottom:16px">
+    <!-- <div class="card" style="margin-bottom:16px">
       <div class="card-header"><div class="card-title"><i class="fas fa-mobile-screen-button" style="margin-right:8px;color:var(--accent)"></i> Bank App Payment</div></div>
       <div class="card-body">
         <p style="font-size:0.78rem;color:var(--muted);margin-bottom:16px">Customers pay directly from their own banking app to your bank account (card payments are currently unavailable). Enter your account details below — they appear automatically at checkout. The exact order amount is always calculated by the server, never by the customer. If your bank provides an official payment link / deep link, paste it below; otherwise customers see these details as transfer instructions. A customer's "I have paid" click never auto-verifies the payment — you confirm transfers here on the Orders page.</p>
@@ -779,10 +779,10 @@ tr:hover td{background:rgba(255,255,255,0.02);}
         <button class="btn btn-primary" style="margin-top:18px" onclick="saveBankAppSettings()"><i class="fas fa-floppy-disk"></i> Save Bank App Settings</button>
         <p style="font-size:0.72rem;color:var(--muted);margin-top:10px" id="bank-app-save-status"></p>
       </div>
-    </div>
+    </div> -->
 
     <!-- ====== ONLINE PAYMENTS SETTINGS (UAE multi-provider) ====== -->
-    <div class="card" style="margin-bottom:16px">
+    <!-- <div class="card" style="margin-bottom:16px">
       <div class="card-header"><div class="card-title"><i class="fas fa-sliders" style="margin-right:8px;color:var(--accent)"></i> Online Payments Settings</div></div>
       <div class="card-body">
         <p style="font-size:0.78rem;color:var(--muted);margin-bottom:16px">Enable online payment and configure the official UAE providers you use. <strong>Only providers with valid credentials and enabled toggle appear on the customer's "Pay Online" screen</strong> — nothing is hard-coded. Ziina is configured in the Zeina card above; Bank App details in the Bank App card.</p>
@@ -792,52 +792,52 @@ tr:hover td{background:rgba(255,255,255,0.02);}
         <div class="form-grid form-grid-2" style="gap:14px">
           <div class="field"><label>Seller Name (shown in the payment summary)</label><input type="text" id="online-seller-name" placeholder="BIN SALEH Store"/></div>
           <div class="field"><label>Currency</label><input type="text" id="online-currency" placeholder="AED"/></div>
-        </div>
+        </div> -->
 
         <!-- PayPal -->
-        <div style="border:1px solid var(--border,#e5e5e5);border-radius:10px;padding:14px;margin-top:16px">
+        <!-- <div style="border:1px solid var(--border,#e5e5e5);border-radius:10px;padding:14px;margin-top:16px">
           <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-weight:600;margin-bottom:10px"><input type="checkbox" id="prov-paypal-enabled" style="width:16px;height:16px;accent-color:var(--accent)"/> <i class="fab fa-paypal" style="margin-right:6px"></i> PayPal</label>
           <div class="form-grid form-grid-3">
             <div class="field"><label>Client ID</label><input type="text" id="prov-paypal-client" placeholder="PayPal REST client id"/></div>
             <div class="field"><label>Client Secret</label><input type="password" id="prov-paypal-secret" placeholder="PayPal secret"/></div>
             <div class="field"><label>Mode</label><select id="prov-paypal-mode"><option value="sandbox">Sandbox</option><option value="live">Live</option></select></div>
           </div>
-        </div>
+        </div> -->
 
         <!-- myFatoorah -->
-        <div style="border:1px solid var(--border,#e5e5e5);border-radius:10px;padding:14px;margin-top:12px">
+        <!-- <div style="border:1px solid var(--border,#e5e5e5);border-radius:10px;padding:14px;margin-top:12px">
           <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-weight:600;margin-bottom:10px"><input type="checkbox" id="prov-myfatoorah-enabled" style="width:16px;height:16px;accent-color:var(--accent)"/> <i class="fas fa-building-columns" style="margin-right:6px"></i> myFatoorah</label>
           <div class="form-grid form-grid-3">
             <div class="field"><label>API Token (Bearer)</label><input type="password" id="prov-myfatoorah-token" placeholder="myFatoorah API token"/></div>
             <div class="field"><label>Mode</label><select id="prov-myfatoorah-mode"><option value="live">Live</option><option value="test">Test</option></select></div>
           </div>
-        </div>
+        </div> -->
 
         <!-- PayTabs -->
-        <div style="border:1px solid var(--border,#e5e5e5);border-radius:10px;padding:14px;margin-top:12px">
+        <!-- <div style="border:1px solid var(--border,#e5e5e5);border-radius:10px;padding:14px;margin-top:12px">
           <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-weight:600;margin-bottom:10px"><input type="checkbox" id="prov-paytabs-enabled" style="width:16px;height:16px;accent-color:var(--accent)"/> <i class="fas fa-wallet" style="margin-right:6px"></i> PayTabs</label>
           <div class="form-grid form-grid-3">
             <div class="field"><label>Profile ID</label><input type="text" id="prov-paytabs-profile" placeholder="PayTabs profile id"/></div>
             <div class="field"><label>Server Key</label><input type="password" id="prov-paytabs-key" placeholder="PayTabs server key"/></div>
             <div class="field"><label>Region</label><select id="prov-paytabs-region"><option value="ae">UAE (secure.paytabs.com)</option><option value="sa">KSA (secure.paytabs.sa)</option></select></div>
           </div>
-        </div>
+        </div> -->
 
         <!-- Moyasar -->
-        <div style="border:1px solid var(--border,#e5e5e5);border-radius:10px;padding:14px;margin-top:12px">
+        <!-- <div style="border:1px solid var(--border,#e5e5e5);border-radius:10px;padding:14px;margin-top:12px">
           <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-weight:600;margin-bottom:10px"><input type="checkbox" id="prov-moyasar-enabled" style="width:16px;height:16px;accent-color:var(--accent)"/> <i class="fas fa-circle-nodes" style="margin-right:6px"></i> Moyasar</label>
           <div class="form-grid form-grid-3">
             <div class="field"><label>Secret API Key</label><input type="password" id="prov-moyasar-key" placeholder="sk_live_..."/></div>
           </div>
-        </div>
+        </div> -->
 
-        <button class="btn btn-primary" style="margin-top:18px" onclick="saveOnlinePayments()"><i class="fas fa-floppy-disk"></i> Save Payment Settings</button>
+        <!-- <button class="btn btn-primary" style="margin-top:18px" onclick="saveOnlinePayments()"><i class="fas fa-floppy-disk"></i> Save Payment Settings</button>
         <p style="font-size:0.72rem;color:var(--muted);margin-top:10px" id="online-save-status"></p>
       </div>
-    </div>
+    </div> -->
 
     <!-- ====== PAYMENT PROVIDER STATUS (admin overview #15) ====== -->
-    <div class="card" style="margin-bottom:16px">
+    <!-- <div class="card" style="margin-bottom:16px">
       <div class="card-header"><div class="card-title"><i class="fas fa-list-check" style="margin-right:8px;color:var(--accent)"></i> Payment Provider Status</div></div>
       <div class="card-body" style="overflow-x:auto">
         <p style="font-size:0.78rem;color:var(--muted);margin-bottom:14px">Live status of every payment provider. <strong>Only providers marked LIVE appear on the customer's "Pay Online" screen</strong>. Providers that need a business/merchant account stay disabled until the required credentials are configured — nothing is ever faked.</p>
@@ -857,7 +857,7 @@ tr:hover td{background:rgba(255,255,255,0.02);}
           <tbody id="provider-status-body"><tr><td colspan="6" style="text-align:center;color:var(--muted);padding:20px">Loading provider status…</td></tr></tbody>
         </table>
       </div>
-    </div>
+    </div> -->
 
     <!-- ====== ADMIN SETUP KEY OVERRIDE ====== -->
     <div class="card" style="margin-bottom:16px">
